@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('Cannot set property fetch')) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+      }, true);
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Platform Belajar Online Modern | Kelas Digital, Skill, dan Sertifikat</title>
+    <meta name="description" content="Belajar online lebih mudah melalui kelas digital, materi video, instruktur ahli, sertifikat, dan akses fleksibel dari mana saja." />
+    <meta name="keywords" content="kelas online, platform belajar, e-course indonesia, kursus digital, belajar online, sertifikat online, LMS sekolah, pembelajaran digital" />
+    <meta property="og:title" content="Platform Belajar Online Modern untuk Skill dan Masa Depan" />
+    <meta property="og:description" content="Temukan kelas, materi video, instruktur ahli, dan pengalaman belajar fleksibel dalam satu platform digital." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

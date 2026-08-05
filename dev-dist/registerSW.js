@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/lms/dev-sw.js?dev-sw', { scope: '/lms/', type: 'classic' })

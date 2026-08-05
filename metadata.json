@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Sekolahverse",
+  "description": "Platform Sekolah Terpadu untuk Test Minat Bakat, Skill, RPP Generator, Manajemen Sekolah, dan AI Playground.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
