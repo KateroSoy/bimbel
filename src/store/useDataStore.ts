@@ -14,6 +14,7 @@ export interface Student {
   nis?: string;
   parentName?: string;
   parentPhone?: string;
+  classId?: string;
 }
 
 export interface Teacher {
@@ -71,6 +72,7 @@ export interface Classroom {
   name: string;
   wali: string;
   students: number;
+  studentCount?: number;
   schedule?: string;
 }
 
@@ -387,7 +389,7 @@ export const initialLessons: LessonItem[] = [
       'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1200&auto=format&fit=crop'
     ],
     documents: [
-      { id: 'DOC-3', name: 'Modul_Eksklusif_Listening_Part_B_SekolahVerse.pdf', type: 'pdf', size: '3.8 MB', url: '#' },
+      { id: 'DOC-3', name: 'Modul_Eksklusif_Listening_Part_B_LearnSpace+.pdf', type: 'pdf', size: '3.8 MB', url: '#' },
       { id: 'DOC-4', name: 'Lembar_Kerja_Siswa_Sesi_Bimbel.docx', type: 'docx', size: '1.5 MB', url: '#' }
     ],
     summary: 'Strategi menjawab percakapan panjang akademik antara mahasiswa dan profesor.',
@@ -512,8 +514,8 @@ export const initialGrades: GradeItem[] = [
 ];
 
 export const initialCertificates: CertificateItem[] = [
-  { id: 'CERT-001', title: 'Kelulusan Program Intensif UTBK SNBT', date: '12 Okt 2024', issuer: 'BimbelVerse Education Center', recipientName: 'Budi Santoso', credentialId: 'BV-CERT-2024-88912', gradeScore: 'Skor Prediksi: 720 (Sangat Memuaskan)' },
-  { id: 'CERT-002', title: 'English Proficiency Mastery (TOEFL Prep)', date: '05 Sep 2024', issuer: 'BimbelVerse Language Institute', recipientName: 'Budi Santoso', credentialId: 'BV-CERT-2024-44120', gradeScore: 'Score: 585' },
+  { id: 'CERT-001', title: 'Kelulusan Program Intensif UTBK SNBT', date: '12 Okt 2024', issuer: 'LearnSpace+ Education Center', recipientName: 'Budi Santoso', credentialId: 'BV-CERT-2024-88912', gradeScore: 'Skor Prediksi: 720 (Sangat Memuaskan)' },
+  { id: 'CERT-002', title: 'English Proficiency Mastery (TOEFL Prep)', date: '05 Sep 2024', issuer: 'LearnSpace+ Language Institute', recipientName: 'Budi Santoso', credentialId: 'BV-CERT-2024-44120', gradeScore: 'Score: 585' },
 ];
 
 export const initialSchedules: ScheduleItem[] = [
@@ -729,13 +731,13 @@ export const initialInventoryItems: InventoryItem[] = [
 ];
 
 export const initialSchoolSettings: SchoolSettings = {
-  schoolName: 'Bimbel Bintang Prestasi (BimbelVerse Indonesia)',
+  schoolName: 'Bimbel Bintang Prestasi (LearnSpace+ Indonesia)',
   address: 'Jl. Pemuda Pendidikan No. 88, Jakarta Selatan, DKI Jakarta 12430',
   academicYear: '2024/2025 - Program Persiapan UTBK & Kedinasan',
   phone: '(021) 7890-1234 / 0812-9988-7766',
-  email: 'halo@bimbelverse.id',
+  email: 'halo@LearnSpace+.id',
   principalName: 'Dr. H. Muhammad Ridwan, M.Pd. (Direktur Bimbel)',
-  website: 'https://bimbelverse.id',
+  website: 'https://LearnSpace+.id',
 };
 
 export const useDataStore = create<DataState>()(
@@ -1009,7 +1011,7 @@ export const useDataStore = create<DataState>()(
       }),
     }),
     {
-      name: 'sekolahverse-app-data',
+      name: 'LearnSpace+-app-data',
     }
   )
 );

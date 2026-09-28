@@ -3,6 +3,7 @@ import { AnimatePresence } from 'motion/react';
 import { Toaster } from 'sonner';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import KarirPage from './pages/KarirPage';
 
 // Siswa
 import StudentDashboard from './pages/siswa/StudentDashboard';
@@ -11,6 +12,7 @@ import CourseDetail from './pages/siswa/CourseDetail';
 import LessonDetail from './pages/siswa/LessonDetail';
 import Quiz from './pages/siswa/Quiz';
 import SiswaProfil from './pages/siswa/SiswaProfil';
+import SiswaPengaturan from './pages/siswa/SiswaPengaturan';
 import JadwalBelajar from './pages/siswa/JadwalBelajar';
 import AbsensiSiswa from './pages/siswa/AbsensiSiswa';
 import PembayaranSppSiswa from './pages/siswa/PembayaranSppSiswa';
@@ -63,6 +65,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
         <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
+        <Route path="/karir" element={<PageTransition><KarirPage /></PageTransition>} />
         
         {/* Siswa Routes */}
         <Route path="/siswa/dashboard" element={<PageTransition><StudentDashboard /></PageTransition>} />
@@ -83,9 +86,12 @@ function AnimatedRoutes() {
         <Route path="/siswa/toefl" element={<PageTransition><Toefl /></PageTransition>} />
         <Route path="/siswa/pengumuman" element={<PageTransition><Pengumuman /></PageTransition>} />
         
+        <Route path="/siswa/pengaturan" element={<PageTransition><SiswaPengaturan /></PageTransition>} />
+        
         {/* Guru / Tentor Routes */}
         <Route path="/guru/dashboard" element={<PageTransition><TeacherDashboard /></PageTransition>} />
         <Route path="/guru/absensi" element={<PageTransition><AbsensiKelasGuru /></PageTransition>} />
+        <Route path="/guru/jadwal" element={<PageTransition><AbsensiKelasGuru /></PageTransition>} />
         <Route path="/guru/rpp-generator" element={<PageTransition><RPPGenerator /></PageTransition>} />
         <Route path="/guru/bank-soal" element={<PageTransition><BankSoal /></PageTransition>} />
         <Route path="/guru/kelas" element={<PageTransition><ManajemenKelasGuru /></PageTransition>} />
@@ -96,21 +102,51 @@ function AnimatedRoutes() {
         <Route path="/guru/quiz" element={<PageTransition><ManajemenTugasQuiz /></PageTransition>} />
         <Route path="/guru/nilai" element={<PageTransition><NilaiSiswaGuru /></PageTransition>} />
         <Route path="/guru/progress-siswa" element={<PageTransition><ProgressSiswaGuru /></PageTransition>} />
+        <Route path="/guru/siswa" element={<PageTransition><ProgressSiswaGuru /></PageTransition>} />
         <Route path="/guru/pengumuman" element={<PageTransition><Pengumuman /></PageTransition>} />
+        <Route path="/guru/pesan" element={<PageTransition><Pengumuman /></PageTransition>} />
+        <Route path="/guru/profil" element={<PageTransition><TeacherDashboard /></PageTransition>} />
+        <Route path="/guru/pengaturan" element={<PageTransition><TeacherDashboard /></PageTransition>} />
         
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<PageTransition><AdminDashboard /></PageTransition>} />
         <Route path="/admin/whatsapp" element={<PageTransition><KirimWaOrtu /></PageTransition>} />
+        <Route path="/admin/broadcast" element={<PageTransition><KirimWaOrtu /></PageTransition>} />
+        <Route path="/admin/template" element={<PageTransition><KirimWaOrtu /></PageTransition>} />
         <Route path="/admin/inventaris" element={<PageTransition><InventarisBimbel /></PageTransition>} />
+        <Route path="/admin/buku" element={<PageTransition><InventarisBimbel /></PageTransition>} />
+        <Route path="/admin/cbt" element={<PageTransition><InventarisBimbel /></PageTransition>} />
         <Route path="/admin/siswa" element={<PageTransition><ManajemenSiswa /></PageTransition>} />
+        <Route path="/admin/pendaftaran" element={<PageTransition><ManajemenSiswa /></PageTransition>} />
+        <Route path="/admin/ortu" element={<PageTransition><ManajemenSiswa /></PageTransition>} />
+        <Route path="/admin/alumni" element={<PageTransition><ManajemenSiswa /></PageTransition>} />
         <Route path="/admin/guru" element={<PageTransition><ManajemenGuru /></PageTransition>} />
+        <Route path="/admin/jadwal-tutor" element={<PageTransition><ManajemenGuru /></PageTransition>} />
+        <Route path="/admin/kehadiran-tutor" element={<PageTransition><ManajemenGuru /></PageTransition>} />
+        <Route path="/admin/beban" element={<PageTransition><ManajemenGuru /></PageTransition>} />
         <Route path="/admin/keuangan" element={<PageTransition><ManajemenKeuangan /></PageTransition>} />
+        <Route path="/admin/pembayaran" element={<PageTransition><ManajemenKeuangan /></PageTransition>} />
+        <Route path="/admin/piutang" element={<PageTransition><ManajemenKeuangan /></PageTransition>} />
+        <Route path="/admin/pengeluaran" element={<PageTransition><ManajemenKeuangan /></PageTransition>} />
+        <Route path="/admin/honor" element={<PageTransition><ManajemenKeuangan /></PageTransition>} />
         <Route path="/admin/kelas" element={<PageTransition><ManajemenKelasAdmin /></PageTransition>} />
+        <Route path="/admin/jadwal-kelas" element={<PageTransition><ManajemenKelasAdmin /></PageTransition>} />
+        <Route path="/admin/ruang" element={<PageTransition><ManajemenKelasAdmin /></PageTransition>} />
         <Route path="/admin/course" element={<PageTransition><ManajemenCourseAdmin /></PageTransition>} />
         <Route path="/admin/progress" element={<PageTransition><MonitoringProgressAdmin /></PageTransition>} />
         <Route path="/admin/laporan" element={<PageTransition><Laporan /></PageTransition>} />
+        <Route path="/admin/laporan-siswa" element={<PageTransition><Laporan /></PageTransition>} />
+        <Route path="/admin/laporan-kelas" element={<PageTransition><Laporan /></PageTransition>} />
+        <Route path="/admin/laporan-tutor" element={<PageTransition><Laporan /></PageTransition>} />
+        <Route path="/admin/laporan-keuangan" element={<PageTransition><Laporan /></PageTransition>} />
+        <Route path="/admin/laporan-operasional" element={<PageTransition><Laporan /></PageTransition>} />
         <Route path="/admin/pengumuman" element={<PageTransition><Pengumuman /></PageTransition>} />
+        <Route path="/admin/notifikasi" element={<PageTransition><Pengumuman /></PageTransition>} />
         <Route path="/admin/pengaturan" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
+        <Route path="/admin/role" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
+        <Route path="/admin/tahun-ajaran" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
+        <Route path="/admin/data-master" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
+        <Route path="/admin/audit" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
         
         {/* Shared */}
         <Route path="/playground" element={<PageTransition><PlaygroundPage /></PageTransition>} />
@@ -122,8 +158,10 @@ function AnimatedRoutes() {
 }
 
 export default function App() {
+  const rawBase = import.meta.env.BASE_URL || '/';
+  const basename = (rawBase === '/' || rawBase === './') ? undefined : rawBase.replace(/\/$/, '');
   return (
-    <Router>
+    <Router basename={basename}>
       <AnimatedRoutes />
       <Toaster position="top-right" richColors />
     </Router>

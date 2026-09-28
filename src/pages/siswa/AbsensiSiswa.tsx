@@ -1,424 +1,143 @@
 import { useState } from 'react';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  UserCheck, 
-  Calendar, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle, 
-  XCircle, 
-  Search, 
-  Printer, 
-  Sparkles,
-  MapPin,
-  FileCheck2,
-  X
-} from 'lucide-react';
-import { useDataStore, AttendanceRecord } from '../../store/useDataStore';
+import { CheckCircle2, Clock, XCircle, MinusCircle, Download, CalendarDays, ChevronDown, MoreVertical } from 'lucide-react';
 import { toast } from 'sonner';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { Card, PageTitle, Pill, statusTone } from '../../components/siswa/PortalUI';
+import { ATTENDANCE, SUBJECTS, STUDENT, subjectById, type SubjectId } from '../../data/siswaPortal';
+
+const PAGE = 5;
 
 export default function AbsensiSiswa() {
-  const { attendanceLogs, students, schoolSettings } = useDataStore();
-  const currentStudent = students[0] || { name: 'Budi Santoso', id: '1001', grade: 'Batch UTBK 1' };
+  const [subject, setSubject] = useState<SubjectId | 'all'>('all');
+  const [range, setRange] = useState('1 Mei – 31 Agustus 2025');
+  const [shown, setShown] = useState(PAGE);
+  const [menuFor, setMenuFor] = useState<string | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [monthFilter, setMonthFilter] = useState('all');
-  const [showPrintModal, setShowPrintModal] = useState(false);
+  const rows = ATTENDANCE.filter((a) => subject === 'all' || a.subjectId === subject);
+  const total = rows.length || 1;
+  const n = (fn: (s: string) => boolean) => rows.filter((a) => fn(a.status)).length;
+  const hadir = n((s) => s === 'Hadir');
+  const telat = n((s) => s === 'Terlambat');
+  const izin = n((s) => s === 'Izin' || s === 'Sakit');
+  const alpha = n((s) => s === 'Alpha');
+  const pct = (v: number) => `${Math.round((v / total) * 100)}%`;
 
-  const studentLogs = attendanceLogs.filter(
-    (log) => log.studentId === currentStudent.id || log.studentName === currentStudent.name
-  );
+  const cards = [
+    { label: 'Hadir', value: pct(hadir + telat), sub: 'Presentase Kehadiran', icon: CheckCircle2, fg: '#16A34A', bg: '#E9F8EF' },
+    { label: 'Terlambat', value: pct(telat), sub: `${telat} sesi`, icon: Clock, fg: '#F97316', bg: '#FFF1E7' },
+    { label: 'Izin / Sakit', value: pct(izin), sub: `${izin} sesi`, icon: XCircle, fg: '#DC2626', bg: '#FDECEC' },
+    { label: 'Alpha', value: pct(alpha), sub: `${alpha} sesi`, icon: MinusCircle, fg: '#475569', bg: '#F1F5F9' },
+  ];
 
-  const totalSessions = studentLogs.length;
-  const hadirCount = studentLogs.filter((l) => l.status === 'Hadir').length;
-  const izinCount = studentLogs.filter((l) => l.status === 'Izin').length;
-  const sakitCount = studentLogs.filter((l) => l.status === 'Sakit').length;
-  const alphaCount = studentLogs.filter((l) => l.status === 'Alpha').length;
-  const attendanceRate = totalSessions > 0 ? Math.round((hadirCount / totalSessions) * 100) : 100;
-
-  const filteredLogs = studentLogs.filter((log) => {
-    const matchQuery =
-      log.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.tutor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.room.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchStatus = statusFilter === 'all' || log.status.toLowerCase() === statusFilter.toLowerCase();
-    
-    let matchMonth = true;
-    if (monthFilter !== 'all') {
-      matchMonth = log.date.startsWith(monthFilter);
-    }
-
-    return matchQuery && matchStatus && matchMonth;
-  });
-
-  const getStatusBadge = (status: AttendanceRecord['status']) => {
-    switch (status) {
-      case 'Hadir':
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Hadir Tepat Waktu
-          </span>
-        );
-      case 'Izin':
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-bold">
-            <AlertCircle className="w-3.5 h-3.5" />
-            Izin Terkonfirmasi
-          </span>
-        );
-      case 'Sakit':
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-bold">
-            <AlertCircle className="w-3.5 h-3.5" />
-            Sakit (Surat Dokter)
-          </span>
-        );
-      case 'Alpha':
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-xs font-bold">
-            <XCircle className="w-3.5 h-3.5" />
-            Tanpa Keterangan
-          </span>
-        );
-    }
-  };
-
-  const handlePrint = () => {
-    toast.success('Rekap absensi siap dicetak / diunduh sebagai PDF');
-    window.print();
+  const downloadCsv = () => {
+    const header = ['Tanggal', 'Kelas', 'Mata Pelajaran', 'Topik', 'Guru', 'Jam', 'Status', 'Catatan'];
+    const lines = rows.map((a) => {
+      const s = subjectById(a.subjectId);
+      return [`${a.date} ${a.month} 2025`, s.className, s.name, a.topic, s.tutor, a.time, a.status, a.note ?? '-'];
+    });
+    const csv = [header, ...lines].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Rekap_Kehadiran_${STUDENT.name.replace(/\s+/g, '_')}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Rekap kehadiran diunduh');
   };
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-8">
-        
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 font-bold text-xs">
-                {currentStudent.grade}
-              </span>
-              <span className="text-xs text-slate-500 font-medium">NIS: {currentStudent.id}</span>
-            </div>
-            <h2 className="text-3xl font-display font-bold text-slate-900 mb-1">
-              Laporan Absensi & Kehadiran Bimbel
-            </h2>
-            <p className="text-slate-500 text-sm">
-              Pantau riwayat presensi sesi kelas tatap muka, daring, dan klinik konsultasi belajar Anda.
-            </p>
-          </div>
+      <div className="max-w-[1400px] space-y-3">
+        <PageTitle title="Kehadiran" subtitle="Pantau kehadiran di setiap kelas dan sesi belajar." />
 
-          <button
-            onClick={() => setShowPrintModal(true)}
-            className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-50 hover:border-blue-300 transition-all shadow-sm active:scale-95 text-sm"
-          >
-            <Printer className="w-4 h-4 text-blue-600" />
-            Cetak Rekap Presensi
-          </button>
-        </div>
-
-        {/* Attendance Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glass p-5 rounded-3xl border border-white/40 shadow-sm bg-white col-span-2 lg:col-span-1"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tingkat Kehadiran</span>
-              <Sparkles className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-display font-bold text-blue-600">{attendanceRate}%</span>
-              <span className="text-xs font-semibold text-emerald-600">Sangat Baik</span>
-            </div>
-            <div className="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
-              <div
-                className="bg-blue-600 h-full rounded-full transition-all duration-1000"
-                style={{ width: `${attendanceRate}%` }}
-              ></div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="glass p-5 rounded-3xl border border-white/40 shadow-sm bg-white"
-          >
-            <div className="flex items-center gap-2 text-slate-400 mb-2">
-              <Calendar className="w-4 h-4 text-slate-600" />
-              <span className="text-xs font-bold uppercase tracking-wider">Total Sesi</span>
-            </div>
-            <p className="text-2xl font-bold text-slate-900">{totalSessions}</p>
-            <p className="text-[11px] text-slate-500 mt-1">Pertemuan Bimbel</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="glass p-5 rounded-3xl border border-white/40 shadow-sm bg-white"
-          >
-            <div className="flex items-center gap-2 text-slate-400 mb-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span className="text-xs font-bold uppercase tracking-wider">Hadir</span>
-            </div>
-            <p className="text-2xl font-bold text-emerald-600">{hadirCount}</p>
-            <p className="text-[11px] text-slate-500 mt-1">Sesi Terpenuhi</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="glass p-5 rounded-3xl border border-white/40 shadow-sm bg-white"
-          >
-            <div className="flex items-center gap-2 text-slate-400 mb-2">
-              <AlertCircle className="w-4 h-4 text-amber-600" />
-              <span className="text-xs font-bold uppercase tracking-wider">Izin / Sakit</span>
-            </div>
-            <p className="text-2xl font-bold text-amber-600">{izinCount + sakitCount}</p>
-            <p className="text-[11px] text-slate-500 mt-1">{izinCount} Izin • {sakitCount} Sakit</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="glass p-5 rounded-3xl border border-white/40 shadow-sm bg-white"
-          >
-            <div className="flex items-center gap-2 text-slate-400 mb-2">
-              <XCircle className="w-4 h-4 text-rose-500" />
-              <span className="text-xs font-bold uppercase tracking-wider">Alpha</span>
-            </div>
-            <p className="text-2xl font-bold text-rose-600">{alphaCount}</p>
-            <p className="text-[11px] text-slate-500 mt-1">Tanpa Keterangan</p>
-          </motion.div>
-        </div>
-
-        {/* Filter & Search Bar */}
-        <div className="glass p-4 rounded-2xl border border-white/40 flex flex-col md:flex-row gap-4 justify-between items-center shadow-sm bg-white">
-          <div className="flex flex-wrap gap-2 w-full md:w-auto">
-            <div className="flex bg-slate-100 p-1 rounded-xl">
-              {['all', 'Hadir', 'Izin', 'Sakit'].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setStatusFilter(st)}
-                  className={`px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all ${
-                    statusFilter === st
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  {st === 'all' ? 'Semua Status' : st}
-                </button>
-              ))}
-            </div>
-
-            <select
-              value={monthFilter}
-              onChange={(e) => setMonthFilter(e.target.value)}
-              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none"
-            >
-              <option value="all">Semua Periode</option>
-              <option value="2024-11">November 2024</option>
-              <option value="2024-10">Oktober 2024</option>
-              <option value="2024-09">September 2024</option>
+        <Card className="p-3 flex flex-wrap items-center gap-2">
+          <label className="relative">
+            <select value={subject} onChange={(e) => { setSubject(e.target.value as SubjectId | 'all'); setShown(PAGE); }}
+              className="appearance-none h-11 pl-4 pr-10 rounded-xl border border-slate-200 bg-white text-sm font-bold text-[#0F1E4A] min-w-[200px]">
+              <option value="all">Semua Kelas</option>
+              {SUBJECTS.map((s) => <option key={s.id} value={s.id}>{s.className}</option>)}
             </select>
-          </div>
+            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500" />
+          </label>
+          <label className="relative flex items-center">
+            <CalendarDays className="w-4 h-4 absolute left-3 text-slate-600 pointer-events-none" />
+            <select value={range} onChange={(e) => setRange(e.target.value)} className="appearance-none h-11 pl-9 pr-10 rounded-xl border border-slate-200 bg-white text-sm font-bold text-[#0F1E4A]">
+              <option>1 Mei – 31 Agustus 2025</option>
+              <option>1 – 31 Agustus 2025</option>
+              <option>1 – 31 Juli 2025</option>
+            </select>
+            <ChevronDown className="w-4 h-4 absolute right-3 pointer-events-none text-slate-500" />
+          </label>
+          <div className="flex-1" />
+          <button onClick={downloadCsv} className="flex items-center gap-2 h-11 px-5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-[#0F1E4A] hover:bg-slate-50">
+            <Download className="w-4 h-4" /> Unduh Rekap
+          </button>
+        </Card>
 
-          <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari mapel, materi, atau tentor..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-medium"
-            />
-          </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {cards.map(({ label, value, sub, icon: Icon, fg, bg }) => (
+            <Card key={label} className="p-4 flex items-start gap-4">
+              <span className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color: fg }}><Icon className="w-7 h-7" /></span>
+              <div>
+                <p className="text-sm font-bold text-[#0F1E4A]">{label}</p>
+                <p className="text-3xl font-extrabold leading-tight" style={{ color: fg }}>{value}</p>
+                <p className="text-xs text-slate-600 font-medium">{sub}</p>
+              </div>
+            </Card>
+          ))}
         </div>
 
-        {/* Attendance List */}
-        <div className="glass rounded-3xl border border-white/40 shadow-sm bg-white overflow-hidden">
-          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <UserCheck className="w-5 h-5 text-blue-600" />
-              <h3 className="font-bold text-lg text-slate-900">Riwayat Sesi Pertemuan Kelas</h3>
-            </div>
-            <span className="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
-              Menampilkan {filteredLogs.length} dari {studentLogs.length} Sesi
-            </span>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            <AnimatePresence mode="popLayout">
-              {filteredLogs.map((log, i) => (
-                <motion.div
-                  key={log.id}
-                  layout
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2, delay: i * 0.03 }}
-                  className="p-5 sm:p-6 hover:bg-slate-50/60 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl shrink-0 mt-1">
-                      <Calendar className="w-5 h-5" />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold text-slate-900 text-base">{log.subject}</span>
-                        {getStatusBadge(log.status)}
-                      </div>
-                      
-                      <p className="text-xs font-semibold text-slate-600">
-                        Topik Bahasan: <span className="text-blue-700 font-bold">{log.topic}</span>
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-slate-400" />
-                          {log.date} • {log.time}
-                        </span>
-                        <span className="flex items-center gap-1 font-medium text-slate-700">
-                          Tentor: {log.tutor}
-                        </span>
-                        <span className="flex items-center gap-1 text-slate-500">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          {log.room}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 shrink-0">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Waktu Presensi</span>
-                    <span className="text-xs font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded-lg">
-                      {log.checkInTime || '15:55 WIB'}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-
-            {filteredLogs.length === 0 && (
-              <div className="p-12 text-center text-slate-400 text-sm">
-                Tidak ada data absensi yang sesuai dengan filter pencarian.
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Print / Recap Modal */}
-      {showPrintModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto space-y-6 shadow-2xl relative">
-            <button
-              onClick={() => setShowPrintModal(false)}
-              className="absolute right-5 top-5 p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Letterhead */}
-            <div className="border-b-2 border-slate-900 pb-4 text-center space-y-1">
-              <h3 className="font-bold text-xl text-slate-900 tracking-tight uppercase">
-                {schoolSettings.schoolName}
-              </h3>
-              <p className="text-xs text-slate-600">{schoolSettings.address}</p>
-              <p className="text-xs text-slate-500 font-mono">Telp: {schoolSettings.phone} • Web: {schoolSettings.website}</p>
-            </div>
-
-            <div className="text-center">
-              <h4 className="font-bold text-base text-slate-900 uppercase underline decoration-2 underline-offset-4">
-                SURAT REKAPITULASI KEHADIRAN BELAJAR SISWA
-              </h4>
-              <p className="text-xs text-slate-500 mt-1">Nomor: REKAP-ABS/BV/2024/XI-089</p>
-            </div>
-
-            {/* Student Info */}
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs">
-              <div>
-                <p className="text-slate-500 font-medium">Nama Siswa: <strong className="text-slate-900">{currentStudent.name}</strong></p>
-                <p className="text-slate-500 font-medium mt-1">NIS / ID: <strong className="text-slate-900">{currentStudent.id}</strong></p>
-              </div>
-              <div>
-                <p className="text-slate-500 font-medium">Program / Batch: <strong className="text-slate-900">{currentStudent.grade}</strong></p>
-                <p className="text-slate-500 font-medium mt-1">Persentase Kehadiran: <strong className="text-emerald-700 font-bold">{attendanceRate}%</strong></p>
-              </div>
-            </div>
-
-            {/* Summary Table */}
-            <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
-              <thead className="bg-slate-100 font-bold text-slate-700">
-                <tr>
-                  <th className="p-3 border-b">Tanggal</th>
-                  <th className="p-3 border-b">Mata Pelajaran</th>
-                  <th className="p-3 border-b">Tentor Pengampu</th>
-                  <th className="p-3 border-b text-right">Status</th>
+        <Card className="overflow-hidden">
+          <h2 className="px-4 pt-4 pb-2 text-base font-extrabold text-[#0F1E4A]">Riwayat Kehadiran</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[860px]">
+              <thead>
+                <tr className="text-left text-xs font-bold text-slate-700 border-b border-slate-100">
+                  <th className="px-4 py-2">Tanggal</th><th className="px-2 py-2">Kelas</th><th className="px-2 py-2">Mata Pelajaran</th>
+                  <th className="px-2 py-2">Guru</th><th className="px-2 py-2">Status</th><th className="px-2 py-2">Catatan</th><th className="w-10" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {studentLogs.slice(0, 6).map((log) => (
-                  <tr key={log.id}>
-                    <td className="p-3 font-mono">{log.date}</td>
-                    <td className="p-3 font-medium text-slate-900">{log.subject}</td>
-                    <td className="p-3 text-slate-600">{log.tutor}</td>
-                    <td className="p-3 text-right font-bold text-emerald-600">{log.status}</td>
-                  </tr>
-                ))}
+                {rows.slice(0, shown).map((a) => {
+                  const s = subjectById(a.subjectId);
+                  return (
+                    <tr key={a.id}>
+                      <td className="px-4 py-2.5">
+                        <span className="inline-flex flex-col items-center w-12 rounded-lg border border-slate-200 py-1 leading-tight">
+                          <span className="text-[9px] font-bold text-slate-600">{a.day}</span>
+                          <span className="text-base font-extrabold text-[#0F1E4A]">{a.date}</span>
+                          <span className="text-[9px] font-bold text-slate-600">{a.month}</span>
+                        </span>
+                      </td>
+                      <td className="px-2"><p className="font-bold text-[#0F1E4A]">{s.className}</p><p className="text-xs text-slate-600">{a.time}</p></td>
+                      <td className="px-2"><p className="font-bold text-[#0F1E4A]">{s.name}</p><p className="text-xs text-slate-600">{a.topic}</p></td>
+                      <td className="px-2"><span className="flex items-center gap-2"><img src={s.tutorAvatar} alt="" className="w-9 h-9 rounded-full object-cover bg-slate-100" /><span className="text-slate-700 font-semibold">{s.tutor}</span></span></td>
+                      <td className="px-2"><Pill tone={statusTone(a.status)}>{a.status} {a.status === 'Hadir' && <CheckCircle2 className="w-3.5 h-3.5" />}</Pill></td>
+                      <td className="px-2 text-slate-700 font-medium">{a.note ?? '–'}</td>
+                      <td className="px-2 relative">
+                        <button onClick={() => setMenuFor(menuFor === a.id ? null : a.id)} aria-label="Opsi" className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center"><MoreVertical className="w-4 h-4" /></button>
+                        {menuFor === a.id && (
+                          <>
+                            <div className="fixed inset-0 z-10" onClick={() => setMenuFor(null)} />
+                            <div className="absolute right-2 top-10 z-20 w-52 bg-white border border-slate-200 rounded-xl shadow-lg p-1">
+                              <button onClick={() => { setMenuFor(null); toast.success('Permintaan koreksi dikirim ke admin'); }} className="w-full text-left px-3 py-2 text-sm font-semibold rounded-lg hover:bg-slate-50">Ajukan koreksi kehadiran</button>
+                            </div>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-
-            {/* Signature & Stamp */}
-            <div className="pt-6 flex justify-between items-end text-xs">
-              <div>
-                <p className="text-slate-400">Dicetak pada: {new Date().toLocaleDateString('id-ID')}</p>
-                <div className="flex items-center gap-2 mt-2 text-emerald-600 font-bold">
-                  <FileCheck2 className="w-5 h-5" />
-                  <span>Terverifikasi Sistem Digital BimbelVerse</span>
-                </div>
-              </div>
-
-              <div className="text-center space-y-1">
-                <p className="text-slate-600">Jakarta, {new Date().toLocaleDateString('id-ID')}</p>
-                <p className="font-bold text-slate-900">Kepala Akademik Bimbel,</p>
-                <div className="h-14 flex items-center justify-center">
-                  <span className="font-serif italic text-blue-700 font-bold text-sm tracking-wider">[ Tanda Tangan Resmi ]</span>
-                </div>
-                <p className="font-bold text-slate-900">{schoolSettings.principalName}</p>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
-              <button
-                onClick={() => setShowPrintModal(false)}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
-              >
-                Tutup
-              </button>
-              <button
-                onClick={handlePrint}
-                className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 text-xs shadow-md shadow-blue-600/20 flex items-center gap-2"
-              >
-                <Printer className="w-4 h-4" />
-                Cetak Dokumen
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+          {shown < rows.length && (
+            <button onClick={() => setShown((v) => v + PAGE)} className="w-full py-3 border-t border-slate-100 text-sm font-bold text-[#1D4ED8] flex items-center justify-center gap-1.5 hover:bg-slate-50">
+              Tampilkan lebih banyak <ChevronDown className="w-4 h-4" />
+            </button>
+          )}
+        </Card>
+      </div>
     </DashboardLayout>
   );
 }

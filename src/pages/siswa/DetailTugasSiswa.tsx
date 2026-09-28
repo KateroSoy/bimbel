@@ -1,220 +1,206 @@
-import { useState } from 'react';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { motion } from 'motion/react';
-import { Clock, Calendar, CheckCircle2, FileText, Upload, ChevronLeft, Award, FileCheck } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useDataStore } from '../../store/useDataStore';
+import { Clock, CalendarDays, CheckCircle2, Upload, ChevronLeft, Award, FileCheck, ListChecks, PencilLine, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { Card, Pill } from '../../components/siswa/PortalUI';
+import { cn } from '../../lib/utils';
+import { useDataStore } from '../../store/useDataStore';
+import { STUDENT, TASK_MODE_LABEL, taskContentFor } from '../../data/siswaPortal';
+
+const STUDENT_ID = '1001';
+const MAX_MB = 20;
 
 export default function DetailTugasSiswa() {
   const { id } = useParams<{ id: string }>();
   const { assignments, submissions, addSubmission } = useDataStore();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [simulatedFileName, setSimulatedFileName] = useState<string>('');
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [choices, setChoices] = useState<Record<number, number>>({});
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const studentId = '1001';
-  const studentName = 'Budi Santoso';
-  const studentNis = '1001';
+  const assignment = assignments.find((a) => a.id === id) ?? assignments[0];
+  if (!assignment) {
+    return <DashboardLayout><Card className="p-8 text-center">Tugas tidak ditemukan. <Link to="/siswa/tugas" className="text-[#1D4ED8] font-bold">Kembali</Link></Card></DashboardLayout>;
+  }
 
-  const assignment = assignments.find((a) => a.id === id) || assignments[0] || {
-    id: '1',
-    title: 'Makalah Sejarah Kemerdekaan',
-    kelas: 'X IPA 1',
-    subject: 'Sejarah',
-    deadline: '2024-11-25T23:59',
-    description: 'Buatlah makalah tentang peristiwa penting menjelang proklamasi kemerdekaan RI 1945.',
-    submitted: 28,
-    total: 32,
-    status: 'Aktif' as const,
-    type: 'tugas' as const,
+  const content = taskContentFor(assignment.id, assignment.type);
+  const questions = content.questions ?? [];
+  const submission = submissions.find((s) => s.assignmentId === assignment.id && s.studentId === STUDENT_ID);
+  const submitted = !!submission?.submittedAt;
+  const ModeIcon = content.mode === 'pilihan-ganda' ? ListChecks : content.mode === 'isian' ? PencilLine : Upload;
+
+  const answeredCount = content.mode === 'pilihan-ganda'
+    ? Object.keys(choices).length
+    : content.mode === 'isian' ? Object.values(answers).filter((v) => v.trim()).length : file ? 1 : 0;
+  const required = content.mode === 'file' ? 1 : questions.length;
+
+  const pickFile = (f: File | undefined) => {
+    if (!f) return;
+    if (f.size > MAX_MB * 1024 * 1024) { toast.error(`Ukuran file maksimal ${MAX_MB} MB`); return; }
+    setFile(f);
   };
 
-  const currentSubmission = submissions.find(
-    (s) => s.assignmentId === assignment.id && s.studentId === studentId
-  );
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-      setSimulatedFileName(e.target.files[0].name);
+  const handleSubmit = () => {
+    if (answeredCount < required) {
+      toast.error(content.mode === 'file' ? 'Pilih file tugas terlebih dahulu.' : `Jawab semua soal dulu (${answeredCount}/${required}).`);
+      return;
     }
-  };
-
-  const handleSimulateSelect = () => {
-    setSimulatedFileName(`Tugas_${assignment.subject.replace(/\s+/g, '_')}_Budi_Santoso.pdf`);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const fileName = simulatedFileName || selectedFile?.name || `Tugas_${assignment.subject}_Budi.pdf`;
     setIsSubmitting(true);
+
+    // PG dinilai otomatis; isian & file dinilai guru
+    let score: number | null = null;
+    if (content.mode === 'pilihan-ganda') {
+      const correct = questions.filter((q) => choices[q.id] === q.answer).length;
+      score = Math.round((correct / questions.length) * 100);
+    }
+    const fileName = content.mode === 'file'
+      ? file!.name
+      : content.mode === 'isian'
+        ? questions.map((q) => `${q.id}. ${answers[q.id]?.trim()}`).join(' | ')
+        : `Jawaban PG: ${questions.map((q) => `${q.id}${'ABCD'[choices[q.id]]}`).join(', ')}`;
 
     setTimeout(() => {
       addSubmission({
         assignmentId: assignment.id,
-        studentId,
-        studentName,
-        studentNis,
+        studentId: STUDENT_ID,
+        studentName: STUDENT.name,
+        studentNis: STUDENT_ID,
         submittedAt: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
-        status: 'Perlu Dinilai',
-        score: null,
+        status: score !== null ? 'Dinilai' : 'Perlu Dinilai',
+        score,
+        feedback: score !== null ? 'Dinilai otomatis oleh sistem.' : undefined,
         fileName,
       });
       setIsSubmitting(false);
-      toast.success('Tugas berhasil dikumpulkan dan dikirim ke guru!');
-    }, 800);
+      toast.success(score !== null ? `Jawaban terkirim! Nilai kamu: ${score}` : 'Tugas terkirim dan menunggu penilaian tutor.');
+    }, 600);
   };
+
+  const deadline = new Date(assignment.deadline).toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Link 
-            to="/siswa/tugas" 
-            className="flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-4 py-2 rounded-xl transition-colors shadow-sm"
-          >
-            <ChevronLeft className="w-4 h-4" /> Kembali ke Daftar
-          </Link>
-          <h2 className="text-2xl font-bold text-slate-900">Detail Evaluasi</h2>
-        </div>
+      <div className="max-w-4xl space-y-3">
+        <Link to="/siswa/tugas" className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-[#1D4ED8]">
+          <ChevronLeft className="w-4 h-4" /> Kembali ke Tugas & Asesmen
+        </Link>
 
-        <div className="glass p-8 rounded-3xl border border-white/40 shadow-sm space-y-6 relative overflow-hidden bg-white">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-[100px] pointer-events-none"></div>
-          
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+        <Card className="p-5 space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold mb-3 border ${
-                currentSubmission?.status === 'Dinilai' 
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                  : currentSubmission?.submittedAt 
-                  ? 'bg-blue-50 text-blue-700 border-blue-200' 
-                  : 'bg-amber-50 text-amber-600 border-amber-100'
-              }`}>
-                {currentSubmission?.status === 'Dinilai' ? (
-                  <>
-                    <Award className="w-4 h-4 text-emerald-600" />
-                    Sudah Dinilai ({currentSubmission.score}/100)
-                  </>
-                ) : currentSubmission?.submittedAt ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
-                    Sudah Dikumpulkan
-                  </>
-                ) : (
-                  <>
-                    <Clock className="w-4 h-4" />
-                    Belum Dikumpulkan
-                  </>
-                )}
-              </span>
-              <h1 className="text-3xl font-display font-bold text-slate-900 mb-2">{assignment.title}</h1>
-              <p className="text-slate-500 font-medium">Mata Pelajaran: <span className="text-slate-800 font-bold">{assignment.subject}</span> • Kelas {assignment.kelas}</p>
+              <p className="text-xs font-bold text-emerald-600">{assignment.subject} · {assignment.kelas}</p>
+              <h1 className="text-xl md:text-2xl font-extrabold text-[#0F1E4A]">{assignment.title}</h1>
+            </div>
+            {submission?.status === 'Dinilai' ? <Pill tone="green"><Award className="w-3.5 h-3.5" /> Dinilai ({submission.score}/100)</Pill>
+              : submitted ? <Pill tone="blue"><CheckCircle2 className="w-3.5 h-3.5" /> Sudah Dikumpulkan</Pill>
+              : <Pill tone="orange"><Clock className="w-3.5 h-3.5" /> Belum Dikumpulkan</Pill>}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 flex items-center gap-3">
+              <ModeIcon className="w-5 h-5 text-[#1D4ED8]" />
+              <div><p className="text-[11px] font-bold text-slate-500">JENIS TUGAS</p><p className="text-sm font-bold text-[#0F1E4A]">{TASK_MODE_LABEL[content.mode]}</p></div>
+            </div>
+            <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 flex items-center gap-3">
+              <CalendarDays className="w-5 h-5 text-red-500" />
+              <div><p className="text-[11px] font-bold text-slate-500">DEADLINE</p><p className="text-sm font-bold text-red-600">{deadline}</p></div>
+            </div>
+            <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              <div><p className="text-[11px] font-bold text-slate-500">PROGRES</p><p className="text-sm font-bold text-[#0F1E4A]">{submitted ? 'Terkirim' : `${answeredCount} / ${required} terjawab`}</p></div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                <Calendar className="w-5 h-5" />
-              </div>
+          <div>
+            <h2 className="font-extrabold text-[#0F1E4A] text-sm mb-1.5">Instruksi</h2>
+            <p className="text-sm text-slate-700 font-medium leading-relaxed bg-slate-50 rounded-xl border border-slate-100 p-3">{assignment.description}</p>
+          </div>
+
+          {submission?.status === 'Dinilai' && (
+            <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status Pengerjaan</p>
-                <p className="font-semibold text-slate-700">{currentSubmission?.submittedAt ? 'Telah Diserahkan' : 'Menunggu Pengumpulan'}</p>
+                <p className="font-extrabold text-emerald-800 flex items-center gap-2"><Award className="w-5 h-5" /> Hasil Penilaian</p>
+                {submission.feedback && <p className="text-sm text-emerald-900 font-medium mt-1">“{submission.feedback}”</p>}
               </div>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500">
-                <Clock className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Batas Waktu (Deadline)</p>
-                <p className="font-semibold text-rose-600">
-                  {new Date(assignment.deadline).toLocaleDateString('id-ID', {
-                    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-6 border-t border-slate-100">
-            <h3 className="font-bold text-lg text-slate-900 mb-2">Instruksi & Panduan Pengerjaan</h3>
-            <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              {assignment.description || 'Kerjakan tugas sesuai dengan petunjuk yang telah dijelaskan oleh guru di kelas.'}
-            </p>
-          </div>
-
-          {/* Feedback Section if Graded */}
-          {currentSubmission?.status === 'Dinilai' && (
-            <div className="p-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-emerald-800 font-bold">
-                  <Award className="w-5 h-5 text-emerald-600" />
-                  Hasil Penilaian Guru
-                </div>
-                <span className="text-2xl font-black text-emerald-700 bg-white px-4 py-1 rounded-xl shadow-sm border border-emerald-100">
-                  {currentSubmission.score} / 100
-                </span>
-              </div>
-              {currentSubmission.feedback && (
-                <p className="text-sm text-emerald-900 font-medium">
-                  <strong>Catatan Guru:</strong> "{currentSubmission.feedback}"
-                </p>
-              )}
+              <span className="text-2xl font-extrabold text-emerald-700 bg-white rounded-xl px-4 py-1 border border-emerald-100">{submission.score}/100</span>
             </div>
           )}
+        </Card>
 
-          {/* Upload Submission Box */}
-          <div className="pt-6 border-t border-slate-100">
-            <h3 className="font-bold text-lg text-slate-900 mb-3">
-              {currentSubmission?.submittedAt ? 'Berkas yang Telah Dikumpulkan' : 'Kumpulkan Tugas'}
-            </h3>
-
-            {currentSubmission?.submittedAt ? (
-              <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-blue-600 text-white rounded-xl">
-                    <FileCheck className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 text-sm">{currentSubmission.fileName || 'Tugas_Kemerdekaan_Budi.pdf'}</p>
-                    <p className="text-xs text-slate-500">Diserahkan pada: {currentSubmission.submittedAt}</p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">
-                  Tersimpan di Server
-                </span>
+        {submitted ? (
+          <Card className="p-5">
+            <h2 className="font-extrabold text-[#0F1E4A] mb-3">Jawaban yang Dikumpulkan</h2>
+            <div className="rounded-xl bg-blue-50/60 border border-blue-200 p-3 flex items-center gap-3">
+              <span className="w-10 h-10 rounded-lg bg-[#1D4ED8] text-white flex items-center justify-center"><FileCheck className="w-5 h-5" /></span>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-[#0F1E4A] break-words">{submission!.fileName}</p>
+                <p className="text-xs text-slate-500">Dikirim: {submission!.submittedAt}</p>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div 
-                  onClick={handleSimulateSelect}
-                  className="border-2 border-dashed border-slate-300 rounded-3xl p-8 flex flex-col items-center justify-center text-center bg-slate-50/50 hover:bg-blue-50/30 hover:border-blue-400 transition-all cursor-pointer"
-                >
-                  <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-                    <Upload className="w-7 h-7" />
-                  </div>
-                  <h4 className="font-bold text-slate-800 text-sm mb-1">
-                    {simulatedFileName ? simulatedFileName : 'Klik di sini untuk memilih berkas tugas (PDF / DOCX)'}
-                  </h4>
-                  <p className="text-xs text-slate-500">Maksimal ukuran file: 20 MB</p>
-                </div>
+            </div>
+          </Card>
+        ) : (
+          <Card className="p-5 space-y-4">
+            <h2 className="font-extrabold text-[#0F1E4A]">Kerjakan Tugas</h2>
 
-                <div className="flex justify-end gap-3 pt-2">
-                  <button 
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md flex items-center gap-2 disabled:opacity-50 text-sm"
-                  >
-                    <CheckCircle2 className="w-5 h-5" />
-                    {isSubmitting ? 'Mengirim Tugas...' : 'Kumpulkan Tugas Sekarang'}
-                  </button>
+            {content.mode === 'pilihan-ganda' && questions.map((q, qi) => (
+              <div key={q.id} className="rounded-xl border border-slate-200 p-4">
+                <p className="text-sm font-bold text-[#0F1E4A] mb-2">{qi + 1}. {q.question}</p>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {q.options!.map((opt, oi) => (
+                    <label key={oi} className={cn('flex items-center gap-2.5 rounded-lg border px-3 py-2 cursor-pointer text-sm font-semibold transition-colors',
+                      choices[q.id] === oi ? 'border-[#1D4ED8] bg-[#EAF1FF] text-[#1D4ED8]' : 'border-slate-200 text-slate-700 hover:bg-slate-50')}>
+                      <input type="radio" name={`q${q.id}`} className="accent-[#1D4ED8]" checked={choices[q.id] === oi} onChange={() => setChoices({ ...choices, [q.id]: oi })} />
+                      <span className="font-bold">{'ABCD'[oi]}.</span> {opt}
+                    </label>
+                  ))}
                 </div>
-              </form>
+              </div>
+            ))}
+
+            {content.mode === 'isian' && questions.map((q, qi) => (
+              <div key={q.id}>
+                <label htmlFor={`isian-${q.id}`} className="text-sm font-bold text-[#0F1E4A] block mb-1.5">{qi + 1}. {q.question}</label>
+                <textarea id={`isian-${q.id}`} rows={3} value={answers[q.id] ?? ''} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                  placeholder="Tulis jawabanmu di sini..." className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/30" />
+              </div>
+            ))}
+
+            {content.mode === 'file' && (
+              <div>
+                <input ref={fileInput} type="file" accept={content.accept} className="hidden" onChange={(e) => pickFile(e.target.files?.[0])} />
+                {file ? (
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3 flex items-center gap-3">
+                    <FileCheck className="w-6 h-6 text-[#1D4ED8]" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-[#0F1E4A] truncate">{file.name}</p>
+                      <p className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <button onClick={() => setFile(null)} aria-label="Hapus file" className="text-slate-400 hover:text-red-600"><X className="w-4 h-4" /></button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => fileInput.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => { e.preventDefault(); pickFile(e.dataTransfer.files?.[0]); }}
+                    className="w-full border-2 border-dashed border-slate-300 rounded-2xl p-8 flex flex-col items-center text-center hover:border-[#1D4ED8] hover:bg-blue-50/30 transition-colors"
+                  >
+                    <Upload className="w-8 h-8 text-[#1D4ED8] mb-2" />
+                    <span className="text-sm font-bold text-[#0F1E4A]">Klik atau seret file ke sini</span>
+                    <span className="text-xs text-slate-500 mt-1">PDF, DOC/DOCX, JPG, PNG · maks. {MAX_MB} MB</span>
+                  </button>
+                )}
+              </div>
             )}
-          </div>
-        </div>
+
+            <div className="flex justify-end">
+              <button onClick={handleSubmit} disabled={isSubmitting} className="h-11 px-6 rounded-xl bg-[#1D4ED8] hover:bg-blue-800 text-white text-sm font-bold flex items-center gap-2 disabled:opacity-50">
+                <CheckCircle2 className="w-4 h-4" /> {isSubmitting ? 'Mengirim...' : 'Kumpulkan Tugas'}
+              </button>
+            </div>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );

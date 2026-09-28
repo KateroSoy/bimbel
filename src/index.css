@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -54,6 +54,35 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
+}
+
+/* Landing page typography follows the StudyHack reference (rounded sans) */
+.landing-font,
+.landing-font :is(h1, h2, h3, h4, h5, h6, button, input, select) {
+  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* LearnSpace+ student portal typography */
+.portal-font,
+.portal-font :is(h1, h2, h3, h4, h5, h6, button, input, select, textarea) {
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Rapor: only the print sheet is visible when printing */
+.print-root { display: none; }
+@media print {
+  #root { display: none !important; }
+  .print-root { display: block; }
+  @page { size: A4; margin: 14mm; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@utility animate-marquee {
+  animation: marquee 40s linear infinite;
 }
 
 @keyframes blob {

@@ -50,9 +50,12 @@ export default function Toefl() {
         <div className="glass p-8 rounded-2xl border border-white/40 text-center">
           <h3 className="text-2xl font-bold text-slate-900 mb-4">Mulai Simulasi Penuh</h3>
           <p className="text-slate-500 mb-6 max-w-lg mx-auto">Simulasi ini akan memakan waktu kurang lebih 120 menit. Pastikan koneksi internet stabil dan gunakan earphone untuk hasil yang maksimal.</p>
-          <button className="bg-blue-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors">
+          <Link 
+            to="/siswa/quiz/1"
+            className="inline-block bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md shadow-blue-600/20"
+          >
             Mulai Simulasi (120 Menit)
-          </button>
+          </Link>
         </div>
       </div>
     </DashboardLayout>

@@ -74,7 +74,7 @@ export function CertificateModal({ isOpen, onClose, certificate }: CertificateMo
               <Sparkles className="w-3.5 h-3.5" /> SERTIFIKAT KELULUSAN & PENGHARGAAN <Sparkles className="w-3.5 h-3.5" />
             </p>
             <h2 className="text-3xl md:text-4xl font-serif font-black text-slate-900 tracking-tight mb-4">
-              SEKOLAHVERSE ACADEMY
+              LearnSpace+ ACADEMY
             </h2>
 
             <p className="text-sm text-slate-500 italic mb-3">Sertifikat ini dengan bangga dianugerahkan kepada:</p>

@@ -60,6 +60,10 @@ export default function AbsensiKelasGuru() {
     tutor: string;
     room: string;
     records: AttendanceRecord[];
+    hadirCount: number;
+    izinCount: number;
+    sakitCount: number;
+    alphaCount: number;
   } | null>(null);
 
   // Initialize all to 'Hadir' if not set

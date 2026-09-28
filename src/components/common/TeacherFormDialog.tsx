@@ -16,7 +16,7 @@ interface TeacherFormDialogProps {
 }
 
 export function TeacherFormDialog({ isOpen, onClose, onSubmit, initialData }: TeacherFormDialogProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Teacher, 'id'>>({
     name: '',
     subject: '',
     status: 'Aktif',

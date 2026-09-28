@@ -25,7 +25,7 @@ export const useAppStore = create<AppState>()(
       logout: () => set({ user: null }),
     }),
     {
-      name: 'sekolahverse-storage',
+      name: 'LearnSpace+-storage',
     }
   )
 );

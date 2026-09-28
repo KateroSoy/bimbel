@@ -7,6 +7,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, L
 import { DetailsDialog } from '../../components/common/DetailsDialog';
 import { StudentFormDialog } from '../../components/common/StudentFormDialog';
 import { useDataStore, Student } from '../../store/useDataStore';
+import { toast } from 'sonner';
 
 const studentDistribution = [
   { name: 'Kelas X', value: 450, color: '#3B82F6' },
@@ -67,11 +68,16 @@ export default function ManajemenSiswa() {
             <p className="text-slate-500">Kelola data akademik, kehadiran, dan status siswa.</p>
           </div>
           <div className="flex gap-3">
-            <button className="bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm">
+            <button 
+              onClick={() => {
+                toast.success('Mengunduh data siswa (CSV)...');
+              }}
+              className="bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
+            >
               <Download className="w-4 h-4" />
-              Import CSV
+              Export CSV
             </button>
-            <button onClick={handleAdd} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-95">
+            <button onClick={handleAdd} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-95 cursor-pointer">
               <UserPlus className="w-5 h-5" />
               Tambah Siswa
             </button>

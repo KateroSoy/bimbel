@@ -5,8 +5,8 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
-  // VITE_BASE lets us build with /lms/ for ngrok/proxy, default to ./ for local dev
-  const base = process.env.VITE_BASE || './';
+  // VITE_BASE lets us build with /lms/ for ngrok/proxy, default to / for domain hosting
+  const base = process.env.VITE_BASE || '/';
   const outDir = process.env.VITE_OUT_DIR || 'dist';
   return {
     base,

@@ -48,7 +48,7 @@ export default function KirimWaOrtu() {
   const [broadcastCategory, setBroadcastCategory] = useState<'Pengumuman Tryout' | 'Jadwal Bimbel' | 'Umum'>('Pengumuman Tryout');
   const [broadcastTitle, setBroadcastTitle] = useState('Pemberitahuan Pelaksanaan Tryout Akbar SNBT 2025');
   const [broadcastBody, setBroadcastBody] = useState(
-    'Diberitahukan kepada seluruh Orang Tua/Wali Murid BimbelVerse bahwa Tryout Akbar Nasional SNBT 2025 akan diselenggarakan serentak pada hari Sabtu mendatang pukul 08.00 WIB melalui portal CBT eSchool. Mohon pastikan ananda mempersiapkan diri dengan maksimal.'
+    'Diberitahukan kepada seluruh Orang Tua/Wali Murid LearnSpace+ bahwa Tryout Akbar Nasional SNBT 2025 akan diselenggarakan serentak pada hari Sabtu mendatang pukul 08.00 WIB melalui portal CBT eSchool. Mohon pastikan ananda mempersiapkan diri dengan maksimal.'
   );
   const [isBroadcasting, setIsBroadcasting] = useState(false);
 
@@ -87,7 +87,7 @@ export default function KirimWaOrtu() {
           `💳 Pembayaran dapat dilakukan via:\n` +
           `• *QRIS All Payment* di Portal Siswa\n` +
           `• *Virtual Account BCA*: 88012${selectedStudent.id}\n` +
-          `• *Transfer Mandiri*: 137-00-198822-1 a.n BimbelVerse Edukasi\n\n` +
+          `• *Transfer Mandiri*: 137-00-198822-1 a.n LearnSpace+ Edukasi\n\n` +
           `Setelah transfer, kuitansi digital otomatis terbit di portal murid. Terima kasih atas kerja samanya.\n\n` +
           `_Admin Keuangan ${schoolSettings.schoolName}_\n` +
           `_Hotline: ${schoolSettings.phone}_`;
@@ -118,7 +118,7 @@ export default function KirimWaOrtu() {
           `Diberitahukan bahwa ananda dijadwalkan mengikuti *Simulasi Tryout Akbar SNBT 2025* dengan standar sistem penilaian IRT resmi:\n\n` +
           `🗓 *Hari/Tanggal*: Sabtu, 14 Desember 2024\n` +
           `⏰ *Waktu*: 08.30 - 12.00 WIB\n` +
-          `💻 *Platform*: CBT eSchool BimbelVerse\n\n` +
+          `💻 *Platform*: CBT eSchool LearnSpace+\n\n` +
           `Mohon bantuannya untuk mengingatkan ananda agar hadir tepat waktu dan menjaga kondisi kesehatan.\n\n` +
           `_Divisi Evaluasi Belajar ${schoolSettings.schoolName}_`;
 

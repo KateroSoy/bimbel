@@ -125,7 +125,7 @@ export default function LessonDetail() {
                     <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
                       Materi Multimedia
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">BimbelVerse Masterclass</span>
+                    <span className="text-xs text-slate-400 font-medium">LearnSpace+ Masterclass</span>
                   </div>
                   <h1 className="text-2xl md:text-3xl font-display font-bold text-slate-900 mb-2">
                     {lessonFromStore.title}

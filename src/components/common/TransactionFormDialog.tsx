@@ -16,7 +16,7 @@ interface TransactionFormDialogProps {
 }
 
 export function TransactionFormDialog({ isOpen, onClose, onSubmit, initialData }: TransactionFormDialogProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Transaction, 'id'>>({
     date: new Date().toISOString().split('T')[0],
     description: '',
     type: 'income',

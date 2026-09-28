@@ -1,204 +1,186 @@
-import { useState, useMemo } from 'react';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { motion } from 'motion/react';
-import { BookOpen, Search, Filter, PlayCircle, Star, Clock } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BookOpen, CalendarDays, ArrowRight, Layers, PlayCircle, Clock, CheckCircle2, Info, X, Search } from 'lucide-react';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { Card, PageTitle, Pill, ProgressBar } from '../../components/siswa/PortalUI';
+import { cn } from '../../lib/utils';
+import { COURSES, STUDENT, courseStats, subjectById, type PortalCourse } from '../../data/siswaPortal';
 
-const courses = [
-  { id: 1, title: 'Matematika Kelas X', teacher: 'Agus Santoso', lessons: 24, progress: 68, category: 'MIPA', difficulty: 'Sedang', thumbnail: 'bg-blue-100', color: 'text-blue-600' },
-  { id: 2, title: 'Bahasa Inggris TOEFL Dasar', teacher: 'Rina Wulandari', lessons: 15, progress: 55, category: 'Bahasa', difficulty: 'Menengah', thumbnail: 'bg-emerald-100', color: 'text-emerald-600' },
-  { id: 3, title: 'IPA Terpadu', teacher: 'Dewi Kartika', lessons: 32, progress: 20, category: 'MIPA', difficulty: 'Sulit', thumbnail: 'bg-purple-100', color: 'text-purple-600' },
-  { id: 4, title: 'Skill Digital Dasar', teacher: 'Hendra Gunawan', lessons: 12, progress: 0, category: 'Informatika', difficulty: 'Mudah', thumbnail: 'bg-amber-100', color: 'text-amber-600' },
-  { id: 5, title: 'Test Minat Bakat', teacher: 'Maya Sari', lessons: 5, progress: 100, category: 'BK', difficulty: 'Umum', thumbnail: 'bg-rose-100', color: 'text-rose-600' },
-  { id: 6, title: 'Playground AI untuk Siswa', teacher: 'Hendra Gunawan', lessons: 8, progress: 0, category: 'Ekstrakurikuler', difficulty: 'Mudah', thumbnail: 'bg-indigo-100', color: 'text-indigo-600' }
-];
+type Status = 'Sedang Berjalan' | 'Belum Dimulai' | 'Selesai';
+
+const statusOf = (c: PortalCourse): Status => {
+  const { done, total } = courseStats(c);
+  return done === 0 ? 'Belum Dimulai' : done === total ? 'Selesai' : 'Sedang Berjalan';
+};
+
+const LEVEL_TONE = { Mudah: 'orange', Sedang: 'blue', Sulit: 'purple' } as const;
 
 export default function CourseList() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [difficultyFilter, setDifficultyFilter] = useState('');
-  const [teacherFilter, setTeacherFilter] = useState('');
-  
-  // Extract unique filter options
-  const categories = useMemo(() => [...new Set(courses.map(c => c.category))], []);
-  const difficulties = useMemo(() => [...new Set(courses.map(c => c.difficulty))], []);
-  const teachers = useMemo(() => [...new Set(courses.map(c => c.teacher))], []);
+  const [tab, setTab] = useState<'Semua' | Status>('Semua');
+  const [category, setCategory] = useState('Semua Kategori');
+  const [sort, setSort] = useState<'progress' | 'az'>('progress');
+  const [query, setQuery] = useState('');
+  const [showTips, setShowTips] = useState(true);
 
-  const filteredCourses = useMemo(() => {
-    return courses.filter(course => {
-      const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            course.teacher.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = categoryFilter === '' || course.category === categoryFilter;
-      const matchesDifficulty = difficultyFilter === '' || course.difficulty === difficultyFilter;
-      const matchesTeacher = teacherFilter === '' || course.teacher === teacherFilter;
-      
-      return matchesSearch && matchesCategory && matchesDifficulty && matchesTeacher;
-    });
-  }, [searchQuery, categoryFilter, difficultyFilter, teacherFilter]);
+  // Hanya mapel dari program yang diambil siswa
+  const courses = COURSES;
+  const counts = {
+    'Sedang Berjalan': courses.filter((c) => statusOf(c) === 'Sedang Berjalan').length,
+    'Belum Dimulai': courses.filter((c) => statusOf(c) === 'Belum Dimulai').length,
+    'Selesai': courses.filter((c) => statusOf(c) === 'Selesai').length,
+  };
+
+  const categories = ['Semua Kategori', ...Array.from(new Set(courses.map((c) => c.category)))];
+  const list = courses
+    .filter((c) => tab === 'Semua' || statusOf(c) === tab)
+    .filter((c) => category === 'Semua Kategori' || c.category === category)
+    .filter((c) => !query || `${c.title} ${subjectById(c.subjectId).tutor}`.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => sort === 'az' ? a.title.localeCompare(b.title) : courseStats(b).percent - courseStats(a).percent);
+
+  // Course terakhir dipelajari
+  const current = courses.find((c) => c.lastStudied && statusOf(c) === 'Sedang Berjalan') ?? courses[0];
+  const cs = courseStats(current);
+  const nextLesson = current.chapters.flatMap((ch) => ch.lessons).find((l) => !l.done);
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-8">
-        
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Course Saya</h2>
-            <p className="text-slate-500">Lanjutkan pembelajaran dan akses semua materi e-course.</p>
+      <div className="max-w-[1400px] space-y-3">
+        <PageTitle
+          title="Course Saya"
+          subtitle={`Belajar mandiri lewat modul dan video. Mata pelajaran mengikuti program kamu: ${STUDENT.program}.`}
+        />
+
+        {/* Sedang belajar */}
+        <Card className="p-4 bg-[#F1FAF4] border-emerald-100">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            <span className="w-20 h-20 rounded-2xl bg-white border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+              <BookOpen className="w-10 h-10" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <Pill tone="green">Sedang Belajar</Pill>
+              <h2 className="text-lg font-extrabold text-[#0F1E4A] mt-1">{current.title}</h2>
+              <p className="text-xs text-slate-500 font-medium">Materi berikutnya</p>
+              <p className="text-sm font-bold text-[#0F1E4A]">{nextLesson?.title ?? 'Semua materi selesai'}</p>
+              <p className="text-xs text-slate-600 font-medium mt-1">{cs.done} dari {cs.total} materi · {cs.percent}% selesai</p>
+              <ProgressBar value={cs.percent} color="#16A34A" className="mt-1.5 max-w-sm" />
+            </div>
+            <div className="lg:border-l lg:border-emerald-100 lg:pl-6 flex items-start gap-2">
+              <CalendarDays className="w-4 h-4 text-slate-500 mt-0.5" />
+              <div>
+                <p className="text-xs text-slate-500 font-medium">Terakhir dipelajari</p>
+                <p className="text-sm font-bold text-[#0F1E4A]">{current.chapters[0].title}</p>
+                <p className="text-xs text-slate-600 font-medium">{current.lastStudied}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate(`/siswa/course/${current.id}${nextLesson ? `?materi=${nextLesson.id}` : ''}`)}
+              className="flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold"
+            >
+              Lanjutkan Belajar <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-        </div>
+        </Card>
+
+        {/* Stats */}
+        <Card className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100 py-3">
+          {[
+            { v: `${courses.length} Course`, l: 'Total yang kamu ikuti', icon: Layers, c: '#1D4ED8' },
+            { v: counts['Sedang Berjalan'], l: 'Sedang Berjalan', icon: PlayCircle, c: '#1D4ED8' },
+            { v: counts['Belum Dimulai'], l: 'Belum Dimulai', icon: Clock, c: '#F97316' },
+            { v: counts['Selesai'], l: 'Selesai', icon: CheckCircle2, c: '#16A34A' },
+          ].map(({ v, l, icon: Icon, c }) => (
+            <div key={l} className="flex items-center gap-3 px-5 py-1">
+              <Icon className="w-8 h-8" style={{ color: c }} strokeWidth={1.6} />
+              <div>
+                <p className="text-lg font-extrabold text-[#0F1E4A] leading-tight">{v}</p>
+                <p className="text-xs text-slate-500 font-medium">{l}</p>
+              </div>
+            </div>
+          ))}
+        </Card>
 
         {/* Filters */}
-        <div className="glass p-4 rounded-2xl border border-white/40 flex flex-col gap-4 shadow-sm">
-          <div className="relative w-full">
-            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Cari nama course atau pengajar..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium placeholder:font-normal shadow-sm"
-            />
+        <div className="flex flex-wrap items-center gap-2">
+          <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-10 px-3 pr-8 rounded-xl bg-white border border-slate-200 text-sm font-bold text-[#0F1E4A] min-w-[180px]">
+            {categories.map((c) => <option key={c}>{c}</option>)}
+          </select>
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari course atau pengajar..." className="w-full h-10 pl-9 pr-3 rounded-xl bg-white border border-slate-200 text-sm font-medium" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <select 
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 font-medium shadow-sm w-full"
-            >
-              <option value="">Semua Kategori</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            
-            <select 
-              value={difficultyFilter}
-              onChange={(e) => setDifficultyFilter(e.target.value)}
-              className="px-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 font-medium shadow-sm w-full"
-            >
-              <option value="">Semua Tingkat Kesulitan</option>
-              {difficulties.map(diff => (
-                <option key={diff} value={diff}>{diff}</option>
-              ))}
-            </select>
-            
-            <select 
-              value={teacherFilter}
-              onChange={(e) => setTeacherFilter(e.target.value)}
-              className="px-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 font-medium shadow-sm w-full"
-            >
-              <option value="">Semua Pengajar</option>
-              {teachers.map(teacher => (
-                <option key={teacher} value={teacher}>{teacher}</option>
-              ))}
-            </select>
-          </div>
+          <div className="flex-1" />
+          <select value={sort} onChange={(e) => setSort(e.target.value as 'progress' | 'az')} className="h-10 px-3 pr-8 rounded-xl bg-white border border-slate-200 text-sm font-bold text-[#0F1E4A]">
+            <option value="progress">Progress tertinggi</option>
+            <option value="az">Nama A–Z</option>
+          </select>
         </div>
 
-        {/* Course Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.length > 0 ? (
-            filteredCourses.map((course, index) => (
-              <motion.div
-                key={course.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => navigate(`/siswa/course/${course.id}`)}
-                className="glass rounded-3xl border border-white/40 overflow-hidden hover:shadow-2xl hover:-translate-y-2 hover:border-blue-300 transition-all duration-300 cursor-pointer group flex flex-col"
-              >
-                {/* Thumbnail Area */}
-                <div className={`h-48 ${course.thumbnail} relative overflow-hidden flex items-center justify-center`}>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300 z-0"></div>
-                  
-                  {/* Hover Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 shadow-xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                      <PlayCircle className="w-8 h-8 text-white ml-1" />
-                    </div>
-                  </div>
+        <div className="flex flex-wrap gap-2">
+          {(['Semua', 'Sedang Berjalan', 'Belum Dimulai', 'Selesai'] as const).map((t) => (
+            <button key={t} onClick={() => setTab(t)}
+              className={cn('h-8 px-4 rounded-full text-sm font-bold', tab === t ? 'bg-[#1D4ED8] text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200')}>
+              {t} ({t === 'Semua' ? courses.length : counts[t]})
+            </button>
+          ))}
+        </div>
 
-                  <BookOpen className={`w-24 h-24 ${course.color} opacity-30 group-hover:scale-110 transition-transform duration-700 absolute z-0`} />
-                  
-                  {/* Badges Top */}
-                  <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
-                    <div className="bg-white/90 backdrop-blur text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
-                      {course.category}
-                    </div>
-                    <div className="bg-black/40 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 border border-white/10">
-                      <Star className="w-3 h-3 text-amber-400" />
-                      {course.difficulty}
-                    </div>
+        {/* Cards */}
+        {list.length === 0 ? (
+          <Card className="p-8 text-center text-sm text-slate-500 font-medium">Tidak ada course yang cocok.</Card>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+            {list.map((c) => {
+              const s = subjectById(c.subjectId);
+              const st = courseStats(c);
+              const status = statusOf(c);
+              const first = c.chapters.flatMap((ch) => ch.lessons).find((l) => !l.done);
+              return (
+                <Card key={c.id} className="p-4 flex flex-col">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold text-slate-700">{c.category}</span>
+                    <Pill tone={LEVEL_TONE[c.level]}>● {c.level}</Pill>
                   </div>
-                  
-                  {/* Content Bottom */}
-                  <div className="absolute bottom-4 left-4 right-4 z-10">
-                    <h3 className="font-bold text-white text-xl leading-tight line-clamp-2 drop-shadow-md mb-3 group-hover:text-blue-100 transition-colors">{course.title}</h3>
-                    
-                    {/* Progress Bar inside thumbnail */}
-                    <div className="w-full bg-white/20 rounded-full h-1.5 overflow-hidden backdrop-blur-sm">
-                      <div 
-                        className="bg-blue-400 h-1.5 rounded-full transition-all duration-1000 ease-out relative" 
-                        style={{ width: `${course.progress}%` }}
-                      >
-                        <div className="absolute inset-0 bg-white/30 w-full animate-[shimmer_2s_infinite]"></div>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider">{course.progress}% Selesai</span>
-                      <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider">{course.lessons} Materi</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content Area */}
-                <div className="p-5 flex flex-col flex-1 bg-white relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200 shrink-0">
-                      <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${course.teacher}`} alt={course.teacher} className="w-full h-full object-cover" />
-                    </div>
+                  <span className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: s.soft, color: s.color }}>
+                    <BookOpen className="w-7 h-7" />
+                  </span>
+                  <h3 className="font-extrabold text-[#0F1E4A] leading-snug min-h-[44px]">{c.title}</h3>
+                  <p className="text-xs text-slate-500 font-medium mt-1">
+                    <span className="font-bold" style={{ color: st.percent === 100 ? '#DC2626' : s.color }}>{st.percent}% selesai</span> · {st.done}/{st.total} materi
+                  </p>
+                  <ProgressBar value={st.percent} color={s.color} className="mt-1.5" />
+                  {status === 'Selesai' && <Pill tone="green" className="mt-2 self-start">Selesai / Sertifikat tersedia</Pill>}
+                  <div className="flex items-center gap-2 mt-4">
+                    <img src={s.tutorAvatar} alt="" className="w-8 h-8 rounded-full object-cover bg-slate-100" />
                     <div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Pengajar</p>
-                      <span className="text-sm font-bold text-slate-700 leading-none">{course.teacher}</span>
+                      <p className="text-[11px] text-slate-500 font-medium">Pengajar</p>
+                      <p className="text-xs font-bold text-[#0F1E4A]">{s.tutor}</p>
                     </div>
                   </div>
+                  <button
+                    onClick={() => navigate(status === 'Selesai' ? '/siswa/sertifikat' : `/siswa/course/${c.id}${first ? `?materi=${first.id}` : ''}`)}
+                    className={cn('mt-4 h-9 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors border',
+                      status === 'Belum Dimulai' ? 'bg-white' : 'text-white')}
+                    style={status === 'Belum Dimulai' ? { borderColor: s.color, color: s.color } : { backgroundColor: s.color, borderColor: s.color }}
+                  >
+                    {status === 'Belum Dimulai' ? 'Mulai Belajar' : status === 'Selesai' ? 'Lihat Sertifikat' : 'Lanjutkan Belajar'} <ArrowRight className="w-4 h-4" />
+                  </button>
+                </Card>
+              );
+            })}
+          </div>
+        )}
 
-                  {/* Progress & Button */}
-                  <div className="mt-auto pt-4 border-t border-slate-100">
-                    <button className="w-full py-3 rounded-xl font-bold transition-all duration-300 text-sm flex justify-center items-center gap-2 bg-slate-50 text-slate-600 group-hover:bg-blue-600 group-hover:text-white group-hover:shadow-md group-hover:shadow-blue-600/20 border border-slate-200 group-hover:border-blue-600 overflow-hidden relative">
-                      <span className="relative z-10 flex items-center gap-2">
-                        {course.progress === 0 ? 'Mulai Belajar Sekarang' : course.progress === 100 ? 'Lihat Sertifikat' : 'Lanjutkan Belajar'}
-                        <PlayCircle className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          ) : (
-            <div className="col-span-full py-12 text-center text-slate-500 flex flex-col items-center">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                <Search className="w-8 h-8 text-slate-400" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-1">Tidak ada course yang ditemukan</h3>
-              <p>Coba gunakan kata kunci atau filter pencarian yang berbeda.</p>
-              <button 
-                onClick={() => {
-                  setSearchQuery('');
-                  setCategoryFilter('');
-                  setDifficultyFilter('');
-                  setTeacherFilter('');
-                }}
-                className="mt-6 text-blue-600 font-bold hover:underline"
-              >
-                Reset Filter
-              </button>
+        {showTips && (
+          <Card className="px-4 py-3 bg-[#F5F8FF] border-blue-100 flex items-start gap-3">
+            <span className="w-8 h-8 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center shrink-0"><Info className="w-4 h-4" /></span>
+            <div className="flex-1">
+              <p className="text-sm font-extrabold text-[#1D4ED8]">Tips Belajar</p>
+              <p className="text-sm text-slate-700 font-medium">Tonton video, baca catatan, lalu kerjakan latihan soal di setiap bab untuk mengukur pemahamanmu!</p>
             </div>
-          )}
-        </div>
-
+            <button onClick={() => setShowTips(false)} aria-label="Tutup tips" className="text-slate-400 hover:text-slate-700"><X className="w-4 h-4" /></button>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );

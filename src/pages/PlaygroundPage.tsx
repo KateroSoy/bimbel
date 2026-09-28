@@ -5,7 +5,7 @@ import { Orbit, Send, Wand2, Timer, AlignLeft, Zap, ScanFace } from 'lucide-reac
 
 export default function PlaygroundPage() {
   const [messages, setMessages] = useState<{role: 'user'|'ai', content: string}[]>([
-    { role: 'ai', content: 'Halo! Saya AI Assistant Sekolahverse. Ada yang bisa saya bantu untuk pelajaran hari ini?' }
+    { role: 'ai', content: 'Halo! Saya AI Assistant LearnSpace+. Ada yang bisa saya bantu untuk pelajaran hari ini?' }
   ]);
   const [input, setInput] = useState('');
   

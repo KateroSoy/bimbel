@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { useAppStore } from '../store/useAppStore';
 import { ArrowLeft, ScanFace, Library, Sliders } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Logo } from '../components/ui/Logo';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -39,11 +40,11 @@ export default function LoginPage() {
           animate={{ opacity: 1, y: 0 }}
           className="glass rounded-3xl p-8 shadow-2xl"
         >
-          <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-600/20">
-              <span className="text-white font-bold font-display text-xl">S</span>
+          <div className="text-center mb-8 flex flex-col items-center">
+            <div className="mb-5">
+              <Logo variant="learnspace" size="xl" showText={true} />
             </div>
-            <h1 className="font-display font-bold text-2xl text-slate-900">Masuk ke Sekolahverse</h1>
+            <h1 className="font-display font-bold text-2xl text-slate-900">Masuk ke LearnSpace+</h1>
             <p className="text-slate-500 mt-2">Pilih peran untuk masuk ke dashboard demo</p>
           </div>
 
