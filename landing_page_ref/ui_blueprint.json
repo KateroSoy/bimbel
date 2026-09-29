@@ -1,0 +1,155 @@
+{
+  "project": "LearnSpace+ education website visual reconstruction",
+  "source_brand_in_images": "StudyHack",
+  "target_names_mentioned_in_source": [
+    "LearnSpace+",
+    "SekolahVerse"
+  ],
+  "visual_reference": "references/00_full_page_highres.png",
+  "sections": [
+    {
+      "id": "utility_header",
+      "components": [
+        "contact_strip",
+        "navbar",
+        "logo",
+        "nav_links",
+        "search_or_login",
+        "primary_cta"
+      ]
+    },
+    {
+      "id": "hero",
+      "components": [
+        "eyebrow_or_main_message",
+        "headline",
+        "description",
+        "primary_cta",
+        "secondary_cta",
+        "stats",
+        "segmented_student_images"
+      ]
+    },
+    {
+      "id": "promotions",
+      "components": [
+        "promo_carousel",
+        "promo_badge",
+        "promo_title",
+        "promo_copy",
+        "promo_cta"
+      ],
+      "source_promos": 3
+    },
+    {
+      "id": "programs",
+      "components": [
+        "section_title",
+        "filter_chips",
+        "program_cards",
+        "view_all_cta"
+      ],
+      "source_program_count": 8
+    },
+    {
+      "id": "packages",
+      "components": [
+        "billing_toggle_optional",
+        "pricing_cards",
+        "recommended_badge",
+        "feature_lists",
+        "package_ctas"
+      ],
+      "source_packages": [
+        "COMBO",
+        "SUPER",
+        "INTENSIF"
+      ]
+    },
+    {
+      "id": "course_search",
+      "components": [
+        "jenjang_filter",
+        "subject_filter",
+        "curriculum_filter",
+        "material_filter",
+        "search_button",
+        "course_card_grid"
+      ]
+    },
+    {
+      "id": "digital_products",
+      "components": [
+        "benefit_list",
+        "product_visuals",
+        "benefit_side_cards",
+        "view_all_cta"
+      ],
+      "checkout_note": "Lynk; separate from bimbel payment"
+    },
+    {
+      "id": "consultation_about_facilities",
+      "components": [
+        "consultation_banner",
+        "about_or_facilities_heading",
+        "facility_icons",
+        "gallery",
+        "testimonial",
+        "rating_summary"
+      ]
+    },
+    {
+      "id": "trust",
+      "components": [
+        "school_trust_heading",
+        "school_logo_strip",
+        "partner_strip"
+      ]
+    },
+    {
+      "id": "social",
+      "components": [
+        "social_heading",
+        "instagram_card",
+        "tiktok_card",
+        "threads_card",
+        "youtube_card"
+      ]
+    },
+    {
+      "id": "faq_footer",
+      "components": [
+        "faq_accordion",
+        "closing_cta",
+        "footer_contact",
+        "quick_links",
+        "location_map",
+        "copyright"
+      ]
+    }
+  ],
+  "course_card_anatomy": [
+    "subject_tag",
+    "cover_image",
+    "rating",
+    "student_count",
+    "course_title",
+    "tutor_avatar",
+    "tutor_name",
+    "divider",
+    "price",
+    "register_cta"
+  ],
+  "responsive": {
+    "desktop": "3-4 column grids as reference",
+    "tablet": "2 column cards",
+    "mobile": "1 column priority; horizontal scroll chips; stacked pricing"
+  },
+  "fidelity_rules": [
+    "preserve section order",
+    "reuse supplied assets",
+    "avoid visual style drift",
+    "keep shadows restrained",
+    "maintain compact typography and generous whitespace"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "note": "Approximate values derived from the visual reference; tune against reference screenshots during implementation.",
+  "colors": {
+    "background": "#F9F8F9",
+    "surface": "#FFFFFF",
+    "primary_navy": "#062564",
+    "accent_orange": "#F16710",
+    "promo_red": "#E52833",
+    "promo_red_soft": "#FFF1F2",
+    "text_primary": "#171719",
+    "text_muted": "#5D6263",
+    "border_light": "#DCE3EE",
+    "blue_secondary": "#205C96",
+    "success_green": "#19A66A"
+  },
+  "typography": {
+    "family_suggestion": "Inter, Plus Jakarta Sans, or another clean geometric sans-serif",
+    "weight_heading": 700,
+    "weight_body": 400,
+    "weight_button": 600,
+    "desktop_h1_px": "44-56",
+    "desktop_h2_px": "28-36",
+    "body_px": "14-16",
+    "small_px": "12-14"
+  },
+  "layout": {
+    "max_content_width_px": "1180-1240",
+    "section_vertical_spacing_px": "64-96",
+    "card_gap_px": "16-24",
+    "page_side_padding_desktop_px": "24-40",
+    "page_side_padding_mobile_px": "16-20"
+  },
+  "shape": {
+    "radius_button_px": "999/pill where shown",
+    "radius_card_px": "14-24",
+    "radius_large_panel_px": "20-28",
+    "border_width_px": 1
+  },
+  "effects": {
+    "shadow": "very subtle; avoid floating-card look",
+    "image_style": "bright, clean education/lifestyle photography; preserve supplied crops"
+  }
+}
