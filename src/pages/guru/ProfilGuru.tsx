@@ -4,11 +4,16 @@ import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Panel, Btn, Badge, FormDialog, soon, TONE_HEX } from '../../components/portal/Kit';
 import { useAppStore } from '../../store/useAppStore';
-import { TUTOR, ACHIEVEMENTS } from '../../data/guruPortal';
+import { type Achievement } from '../../data/guruPortal';
+import { api, ApiError } from '../../lib/api';
+import type { User } from '../../store/useAppStore';
 
 export default function ProfilGuru() {
-  const { user, login } = useAppStore();
-  const [profile, setProfile] = useState({ name: user?.name || TUTOR.name, email: TUTOR.email, phone: TUTOR.phone, education: TUTOR.education });
+  const { user, setUser } = useAppStore();
+  const extra = user?.profile ?? {};
+  const profile = { name: user?.name ?? '', email: user?.email ?? '', phone: user?.phone ?? '', education: (extra.education as string) ?? '' };
+  const ACHIEVEMENTS: Achievement[] = extra.achievements ?? [];
+  const TUTOR = { role: 'Guru', org: (extra.org as string) ?? 'StudyHack Education', joined: (extra.joined as string) ?? '-', avatar: user?.avatar ?? '' };
   const [editing, setEditing] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
@@ -25,7 +30,9 @@ export default function ProfilGuru() {
         <Panel className="!p-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
             <div className="relative w-28 h-28 shrink-0">
-              <img src={TUTOR.avatar} alt={profile.name} className="w-28 h-28 rounded-full object-cover bg-blue-50" />
+              {TUTOR.avatar
+                ? <img src={TUTOR.avatar} alt={profile.name} className="w-28 h-28 rounded-full object-cover bg-blue-50" />
+                : <span className="w-28 h-28 rounded-full bg-blue-100 text-blue-700 text-4xl font-extrabold flex items-center justify-center">{profile.name[0]}</span>}
               <button aria-label="Ganti foto" onClick={() => soon('Ganti foto profil')} className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-700"><Camera className="w-4 h-4" /></button>
             </div>
             <div className="flex-1 min-w-0">
@@ -77,10 +84,14 @@ export default function ProfilGuru() {
           fields={[{ key: 'name', label: 'Nama Lengkap', required: true }, { key: 'email', label: 'Email', type: 'email', required: true }, { key: 'phone', label: 'Nomor Telepon', type: 'tel', required: true }, { key: 'education', label: 'Pendidikan Terakhir' }]}
           initial={profile}
           onClose={() => setEditing(false)}
-          onSubmit={(v) => {
-            setProfile({ name: v.name, email: v.email, phone: v.phone, education: v.education });
-            if (user) login({ ...user, name: v.name });
-            toast.success('Profil diperbarui');
+          onSubmit={async (v) => {
+            try {
+              const res = await api.put<{ user: User }>('/me', { name: v.name, email: v.email, phone: v.phone, profile: { education: v.education } });
+              setUser(res.user);
+              toast.success('Profil diperbarui');
+            } catch (e) {
+              toast.error(e instanceof ApiError ? e.first : 'Gagal menyimpan profil.');
+            }
           }}
         />
       </div>

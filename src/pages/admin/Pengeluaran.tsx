@@ -8,7 +8,7 @@ import {
   PageHead, StatCards, Tabs, FilterBar, SearchInput, Select, DataTable, Badge, RowActions, Btn, InfoBox, Panel, DonutPanel, QuickList, WithRail,
   Meter, LinkAction, useCrud, exportCsv, rupiah, soon, TONE_HEX, type Col, type Field, type Tone,
 } from '../../components/portal/Kit';
-import { EXPENSES, EXPENSE_CATEGORIES, type ExpenseRow } from '../../data/adminPortal';
+import { EXPENSE_CATEGORIES, type ExpenseRow } from '../../data/adminPortal';
 
 const BUDGET = 25000000;
 const METHODS = ['Transfer Bank', 'Tunai', 'E-Wallet'];
@@ -38,10 +38,10 @@ export default function Pengeluaran() {
   const [category, setCategory] = useState('');
   const [method, setMethod] = useState('');
 
-  const crud = useCrud<ExpenseRow>(EXPENSES, {
+  const crud = useCrud<ExpenseRow>('expenses', {
     label: 'Pengeluaran',
     fields: FIELDS,
-    create: (v, rows) => ({ id: `EXP-${String(rows.length + 1).padStart(3, '0')}`, date: '17 Mei 2025', time: new Date().toTimeString().slice(0, 5), category: v.category, note: v.note, method: v.method, channel: v.channel, amount: Number(v.amount) || 0, status: v.status as ExpenseRow['status'] }),
+    create: (v) => ({ id: '', date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }), time: new Date().toTimeString().slice(0, 5), category: v.category, note: v.note, method: v.method, channel: v.channel, amount: Number(v.amount) || 0, status: v.status as ExpenseRow['status'] }),
     detail: (e) => [['Tanggal', `${e.date}, ${e.time}`], ['Kategori', e.category], ['Keterangan', e.note], ['Metode', `${e.method} ${e.channel}`], ['Nominal', rupiah(e.amount)], ['Status', <Badge>{e.status}</Badge>]],
   });
 

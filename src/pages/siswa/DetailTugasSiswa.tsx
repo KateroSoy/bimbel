@@ -8,7 +8,6 @@ import { cn } from '../../lib/utils';
 import { useDataStore } from '../../store/useDataStore';
 import { STUDENT, TASK_MODE_LABEL, taskContentFor } from '../../data/siswaPortal';
 
-const STUDENT_ID = '1001';
 const MAX_MB = 20;
 
 export default function DetailTugasSiswa() {
@@ -27,7 +26,7 @@ export default function DetailTugasSiswa() {
 
   const content = taskContentFor(assignment.id, assignment.type);
   const questions = content.questions ?? [];
-  const submission = submissions.find((s) => s.assignmentId === assignment.id && s.studentId === STUDENT_ID);
+  const submission = submissions.find((s) => s.assignmentId === assignment.id);
   const submitted = !!submission?.submittedAt;
   const ModeIcon = content.mode === 'pilihan-ganda' ? ListChecks : content.mode === 'isian' ? PencilLine : Upload;
 
@@ -42,40 +41,26 @@ export default function DetailTugasSiswa() {
     setFile(f);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (answeredCount < required) {
       toast.error(content.mode === 'file' ? 'Pilih file tugas terlebih dahulu.' : `Jawab semua soal dulu (${answeredCount}/${required}).`);
       return;
     }
     setIsSubmitting(true);
 
-    // PG dinilai otomatis; isian & file dinilai guru
-    let score: number | null = null;
-    if (content.mode === 'pilihan-ganda') {
-      const correct = questions.filter((q) => choices[q.id] === q.answer).length;
-      score = Math.round((correct / questions.length) * 100);
-    }
-    const fileName = content.mode === 'file'
+    // PG dinilai server dari kunci jawaban yang tidak pernah dikirim ke browser; isian & file dinilai guru.
+    const summary = content.mode === 'file'
       ? file!.name
       : content.mode === 'isian'
         ? questions.map((q) => `${q.id}. ${answers[q.id]?.trim()}`).join(' | ')
         : `Jawaban PG: ${questions.map((q) => `${q.id}${'ABCD'[choices[q.id]]}`).join(', ')}`;
-
-    setTimeout(() => {
-      addSubmission({
-        assignmentId: assignment.id,
-        studentId: STUDENT_ID,
-        studentName: STUDENT.name,
-        studentNis: STUDENT_ID,
-        submittedAt: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
-        status: score !== null ? 'Dinilai' : 'Perlu Dinilai',
-        score,
-        feedback: score !== null ? 'Dinilai otomatis oleh sistem.' : undefined,
-        fileName,
-      });
-      setIsSubmitting(false);
-      toast.success(score !== null ? `Jawaban terkirim! Nilai kamu: ${score}` : 'Tugas terkirim dan menunggu penilaian tutor.');
-    }, 600);
+    const saved = await addSubmission({
+      assignmentId: assignment.id,
+      answers: content.mode === 'pilihan-ganda' ? choices : content.mode === 'isian' ? answers : undefined,
+      fileName: summary.slice(0, 190),
+    });
+    setIsSubmitting(false);
+    if (saved) toast.success(saved.score !== null ? `Jawaban terkirim! Nilai kamu: ${saved.score}` : 'Tugas terkirim dan menunggu penilaian tutor.');
   };
 
   const deadline = new Date(assignment.deadline).toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });

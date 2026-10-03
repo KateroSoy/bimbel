@@ -7,7 +7,8 @@ import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, PageTitle, Pill, statusTone } from '../../components/siswa/PortalUI';
 import { cn } from '../../lib/utils';
-import { ADMIN_WA, ADMIN_WA_LABEL, BILLS, PAYMENT_METHODS, STUDENT, rupiah, type Bill } from '../../data/siswaPortal';
+import { ADMIN_WA, ADMIN_WA_LABEL, BILLS, PAYMENT_METHODS, STUDENT, rupiah, hydrateStudentPortal, type Bill } from '../../data/siswaPortal';
+import { api, ApiError } from '../../lib/api';
 
 const METHOD_ICON = { bank: Landmark, va: Building2, qris: QrCode, card: CreditCard } as const;
 type Tab = 'ringkasan' | 'semua' | 'riwayat' | 'metode';
@@ -26,12 +27,19 @@ export default function PembayaranSppSiswa() {
   const totalPaid = paid.reduce((s, b) => s + b.amount, 0);
   const previous = bills.filter((b) => b !== current);
 
-  const confirmPay = () => {
+  const confirmPay = async () => {
     if (!payFor) return;
     const m = PAYMENT_METHODS.find((x) => x.id === method)!;
-    setBills((list) => list.map((b) => b.id === payFor.id ? { ...b, status: 'Menunggu Verifikasi', method: m.name, paidAt: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) } : b));
-    toast.success('Pembayaran dikirim', { description: `${payFor.title} via ${m.name} — menunggu verifikasi otomatis.` });
-    setPayFor(null);
+    try {
+      const { bill } = await api.post<{ bill: Bill }>(`/student/bills/${encodeURIComponent(payFor.id)}/pay`, { method: m.name });
+      const next = bills.map((b) => (b.id === bill.id ? bill : b));
+      setBills(next);
+      hydrateStudentPortal({ bills: next });
+      toast.success('Pembayaran dikirim', { description: `${payFor.title} via ${m.name} — menunggu verifikasi admin.` });
+      setPayFor(null);
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'Gagal mengirim pembayaran.');
+    }
   };
 
   const BillRow = ({ b }: { b: Bill }) => (

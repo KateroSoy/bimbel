@@ -5,7 +5,8 @@ import {
   PageHead, StatCards, Tabs, FilterBar, SearchInput, Select, DataTable, Badge, RowActions, Btn, InfoBox, LegendBox, Panel, DonutPanel, QuickList,
   WithRail, useCrud, exportCsv, rupiah, TONE_HEX, type Col, type Field,
 } from '../../components/portal/Kit';
-import { PROGRAMS, CATEGORY_TONE, type ProgramRow } from '../../data/adminPortal';
+import { CATEGORY_TONE, type ProgramRow, type RombelRow } from '../../data/adminPortal';
+import { useResource } from '../../store/useRemote';
 
 const LEVELS = ['Pra-Sekolah', 'Pra-SD & SD', 'SD', 'SD (Kelas 1-6)', 'SMP', 'SMA', 'SMP & SMA'];
 const CATEGORIES = Object.keys(CATEGORY_TONE);
@@ -28,11 +29,11 @@ export default function ProgramBimbel() {
   const [level, setLevel] = useState('');
   const [category, setCategory] = useState('');
 
-  const crud = useCrud<ProgramRow>(PROGRAMS, {
+  const crud = useCrud<ProgramRow>('programs', {
     label: 'Program',
     fields: FIELDS,
-    create: (v, rows) => ({
-      id: `PRG-${String(rows.length + 1).padStart(2, '0')}`, name: v.name, level: v.level, category: v.category, desc: v.desc || '-', sessions: Number(v.sessions) || 0,
+    create: (v) => ({
+      id: '', name: v.name, level: v.level, category: v.category, desc: v.desc || '-', sessions: Number(v.sessions) || 0,
       minutes: Number(v.minutes) || 0, fee: Number(v.fee) || 0, classes: 0, students: 0, status: v.status as ProgramRow['status'],
     }),
     detail: (p) => [['Program', p.name], ['Jenjang', p.level], ['Kategori', p.category], ['Deskripsi', <span className="font-medium text-slate-700">{p.desc}</span>], ['Durasi / Sesi', `${p.sessions}x / ${p.minutes} mnt`], ['Biaya / Bulan', rupiah(p.fee)], ['Kelas', p.classes], ['Siswa', p.students], ['Status', <Badge>{p.status}</Badge>]],
@@ -42,6 +43,9 @@ export default function ProgramBimbel() {
     (!TAB_STATUS[tab] || p.status === TAB_STATUS[tab]) && (!q || p.name.toLowerCase().includes(q.toLowerCase())) && (!level || p.level === level) && (!category || p.category === category));
   const active = crud.rows.filter((p) => p.status === 'Aktif');
   const sum = (f: (p: ProgramRow) => number) => active.reduce((a, p) => a + f(p), 0);
+  const rombels = useResource<RombelRow>('rombels').rows.filter((r) => r.status === 'Aktif');
+  const capacity = rombels.reduce((a, r) => a + r.capacity, 0);
+  const filled = rombels.reduce((a, r) => a + r.students, 0);
   const catCount = (c: string) => active.filter((p) => p.category === c).length;
   const levelGroups = ['Pra-Sekolah', 'SD', 'SMP', 'SMA', 'Pra-SD & SD'].map((l) => ({ label: l, count: active.filter((p) => (l === 'SD' ? p.level.startsWith('SD') : l === 'Pra-SD & SD' ? p.level === l : p.level.includes(l))).length }));
 
@@ -81,7 +85,7 @@ export default function ProgramBimbel() {
           { label: 'Total Program', value: active.length, sub: 'Program aktif', icon: BookOpen, tone: 'blue' },
           { label: 'Total Kelas', value: sum((p) => p.classes), sub: 'Kelas/Rombel', icon: Users, tone: 'green' },
           { label: 'Total Siswa', value: sum((p) => p.students), sub: 'Siswa terdaftar', icon: UserRound, tone: 'orange' },
-          { label: 'Rata-rata Kapasitas', value: '74%', sub: 'Dari total kapasitas', icon: BarChart3, tone: 'purple' },
+          { label: 'Rata-rata Kapasitas', value: `${capacity ? Math.round((filled / capacity) * 100) : 0}%`, sub: 'Dari total kapasitas rombel', icon: BarChart3, tone: 'purple' },
           { label: 'Rata-rata Biaya', value: rupiah(Math.round(sum((p) => p.fee) / (active.length || 1) / 500) * 500), sub: 'Per program / bulan', icon: Banknote, tone: 'teal' },
         ]} />
 

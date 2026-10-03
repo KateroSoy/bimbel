@@ -3,15 +3,17 @@ import { MessageCircleMore, Plus, Search, Star, Send, Paperclip, CheckCheck, Arr
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Avatar, RowMenu, FormDialog, soon } from '../../components/portal/Kit';
-import { CONVERSATIONS, type Conversation } from '../../data/guruPortal';
+import { type Conversation } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
 import { cn } from '../../lib/utils';
 
 const TABS = ['Semua', 'Belum Dibaca', 'Dibintangi'] as const;
 const now = () => new Date().toTimeString().slice(0, 5).replace(':', '.');
 
 export default function PesanGuru() {
-  const [chats, setChats] = useState(CONVERSATIONS);
-  const [activeId, setActiveId] = useState(CONVERSATIONS[0].id);
+  const remote = useResource<Conversation>('conversations');
+  const chats = remote.rows;
+  const [activeId, setActiveId] = useState('');
   const [tab, setTab] = useState<(typeof TABS)[number]>('Semua');
   const [q, setQ] = useState('');
   const [draft, setDraft] = useState('');
@@ -22,15 +24,15 @@ export default function PesanGuru() {
   const active = chats.find((c) => c.id === activeId) ?? chats[0];
   const unread = chats.filter((c) => c.unread > 0).length;
   const list = chats.filter((c) => (tab === 'Semua' || (tab === 'Belum Dibaca' ? c.unread > 0 : c.starred)) && (!q || `${c.name} ${c.preview}`.toLowerCase().includes(q.toLowerCase())));
-  const patch = (id: string, changes: Partial<Conversation>) => setChats((prev) => prev.map((c) => (c.id === id ? { ...c, ...changes } : c)));
+  const patch = (id: string, changes: Partial<Conversation>) => remote.update(id, changes);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ block: 'nearest' }); }, [activeId, active?.messages.length]);
+  useEffect(() => { endRef.current?.scrollIntoView({ block: 'nearest' }); }, [activeId, active?.messages?.length]);
 
-  const select = (c: Conversation) => { setActiveId(c.id); setMobileOpen(true); patch(c.id, { unread: 0 }); };
+  const select = (c: Conversation) => { setActiveId(c.id); setMobileOpen(true); if (c.unread > 0) void patch(c.id, { unread: 0 }); };
   const send = () => {
     const text = draft.trim();
     if (!text || !active) return;
-    patch(active.id, { messages: [...active.messages, { from: 'me', text, time: now() }], preview: text, time: now() });
+    void patch(active.id, { messages: [...(active.messages ?? []), { from: 'me', text, time: now() }], preview: text.slice(0, 180), time: now() });
     setDraft('');
   };
 
@@ -89,13 +91,13 @@ export default function PesanGuru() {
                   <RowMenu items={[
                     { label: active.starred ? 'Hapus Bintang' : 'Bintangi', onClick: () => patch(active.id, { starred: !active.starred }) },
                     { label: 'Tandai Belum Dibaca', onClick: () => patch(active.id, { unread: 1 }) },
-                    { label: 'Hapus Percakapan', danger: true, onClick: () => { const rest = chats.filter((c) => c.id !== active.id); setChats(rest); setActiveId(rest[0]?.id ?? ''); setMobileOpen(false); toast.success('Percakapan dihapus'); } },
+                    { label: 'Hapus Percakapan', danger: true, onClick: async () => { if (await remote.remove(active.id)) { setActiveId(''); setMobileOpen(false); toast.success('Percakapan dihapus'); } } },
                   ]} />
                 </header>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[260px]">
                   <p className="flex items-center gap-3 text-[11px] text-slate-500 font-semibold"><span className="flex-1 h-px bg-slate-100" />Percakapan<span className="flex-1 h-px bg-slate-100" /></p>
-                  {active.messages.map((m, i) => (
+                  {(active.messages ?? []).map((m, i) => (
                     <div key={i} className={cn('flex gap-2.5', m.from === 'me' ? 'justify-end' : 'justify-start')}>
                       {m.from === 'them' && <Avatar name={active.name.replace('Orang Tua – ', '')} src={active.avatar} size={32} />}
                       <div className={cn('max-w-[78%] rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-800', m.from === 'me' ? 'bg-[#E3ECFF]' : 'bg-slate-100')}>
@@ -126,11 +128,9 @@ export default function PesanGuru() {
           submitLabel="Kirim"
           fields={[{ key: 'name', label: 'Kepada', required: true, placeholder: 'Nama siswa / orang tua' }, { key: 'role', label: 'Sebagai', type: 'select', options: ['Orang Tua Siswa', 'Siswa', 'Admin'] }, { key: 'text', label: 'Pesan', type: 'textarea', required: true }]}
           onClose={() => setComposing(false)}
-          onSubmit={(v) => {
-            const chat: Conversation = { id: `C${Date.now()}`, name: v.name, role: v.role, time: now(), preview: v.text, unread: 0, starred: false, messages: [{ from: 'me', text: v.text, time: now() }] };
-            setChats((prev) => [chat, ...prev]);
-            setActiveId(chat.id);
-            setMobileOpen(true);
+          onSubmit={async (v) => {
+            const chat = await remote.create({ name: v.name, role: v.role, time: now(), preview: v.text.slice(0, 180), unread: 0, starred: false, messages: [{ from: 'me', text: v.text, time: now() }] });
+            if (chat) { setActiveId(chat.id); setMobileOpen(true); }
           }}
         />
       </div>

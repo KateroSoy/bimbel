@@ -1,0 +1,2561 @@
+{
+ "BILLS": [
+  {
+   "id": "SHK-0001",
+   "name": "Arsyad Alfarizky",
+   "program": "English & Math",
+   "kelas": "Kelas 1A",
+   "amount": 500000,
+   "discount": 50000,
+   "paid": 450000,
+   "due": "10 Mei 2025",
+   "status": "Lunas"
+  },
+  {
+   "id": "SHK-0002",
+   "name": "Hazqila Yasmin R.",
+   "program": "Calistung (Privat)",
+   "kelas": "-",
+   "amount": 300000,
+   "discount": 0,
+   "paid": 200000,
+   "due": "10 Mei 2025",
+   "status": "Belum Lunas"
+  },
+  {
+   "id": "SHK-0003",
+   "name": "Marco Febrian",
+   "program": "Playclub",
+   "kelas": "Pre-school",
+   "amount": 300000,
+   "discount": 0,
+   "paid": 0,
+   "due": "10 Mei 2025",
+   "status": "Terlambat"
+  },
+  {
+   "id": "SHK-0004",
+   "name": "Mecca Putri",
+   "program": "English Teens",
+   "kelas": "Teens A",
+   "amount": 500000,
+   "discount": 50000,
+   "paid": 450000,
+   "due": "10 Mei 2025",
+   "status": "Lunas"
+  },
+  {
+   "id": "SHK-0005",
+   "name": "Nadhira Azzahra",
+   "program": "SMP Intensif",
+   "kelas": "-",
+   "amount": 600000,
+   "discount": 0,
+   "paid": 300000,
+   "due": "10 Mei 2025",
+   "status": "Belum Lunas"
+  },
+  {
+   "id": "SHK-0006",
+   "name": "Ethan Marisi S.",
+   "program": "Afternoon Package",
+   "kelas": "Eng, Math, Mengaji",
+   "amount": 380000,
+   "discount": 0,
+   "paid": 380000,
+   "due": "10 Mei 2025",
+   "status": "Lunas"
+  },
+  {
+   "id": "SHK-0007",
+   "name": "Zafi Arkaan",
+   "program": "Speaking Club",
+   "kelas": "Teens",
+   "amount": 200000,
+   "discount": 0,
+   "paid": 0,
+   "due": "10 Mei 2025",
+   "status": "Terlambat"
+  },
+  {
+   "id": "SHK-0008",
+   "name": "Mutiara A. Putri",
+   "program": "English & Math",
+   "kelas": "Kelas 2B",
+   "amount": 500000,
+   "discount": 25000,
+   "paid": 475000,
+   "due": "10 Mei 2025",
+   "status": "Lunas"
+  },
+  {
+   "id": "SHK-0009",
+   "name": "Cantika Putri",
+   "program": "Calistung (Privat)",
+   "kelas": "-",
+   "amount": 300000,
+   "discount": 0,
+   "paid": 0,
+   "due": "10 Mei 2025",
+   "status": "Terlambat"
+  },
+  {
+   "id": "SHK-0010",
+   "name": "Putra Anfiela S.",
+   "program": "SMP Intensif",
+   "kelas": "-",
+   "amount": 600000,
+   "discount": 0,
+   "paid": 600000,
+   "due": "10 Mei 2025",
+   "status": "Lunas"
+  },
+  {
+   "id": "SHK-0011",
+   "name": "Aisyah Humaira",
+   "program": "English & Math",
+   "kelas": "Kelas 2B",
+   "amount": 500000,
+   "discount": 0,
+   "paid": 500000,
+   "due": "10 Mei 2025",
+   "status": "Lunas"
+  },
+  {
+   "id": "SHK-0012",
+   "name": "Rafa Pratama",
+   "program": "Playclub",
+   "kelas": "Pre-school",
+   "amount": 300000,
+   "discount": 0,
+   "paid": 150000,
+   "due": "10 Mei 2025",
+   "status": "Belum Lunas"
+  },
+  {
+   "id": "SHK-0013",
+   "name": "Khalisa Nur",
+   "program": "English & Math",
+   "kelas": "Kelas 1A",
+   "amount": 500000,
+   "discount": 50000,
+   "paid": 0,
+   "due": "10 Mei 2025",
+   "status": "Terlambat"
+  },
+  {
+   "id": "SHK-0014",
+   "name": "Daffa Alfarezi",
+   "program": "Afternoon Package",
+   "kelas": "Eng, Math, Mengaji",
+   "amount": 380000,
+   "discount": 0,
+   "paid": 380000,
+   "due": "10 Mei 2025",
+   "status": "Lunas"
+  }
+ ],
+ "CATEGORY_TONE": {
+  "Early Learning": "purple",
+  "Calistung": "pink",
+  "Akademik": "green",
+  "Bahasa": "blue",
+  "Paket": "orange"
+ },
+ "DEBTS": [
+  {
+   "id": "SHK-0001",
+   "name": "Arsyad Alfarizky",
+   "program": "English & Math · Kelas 1A",
+   "total": 900000,
+   "paid": 450000,
+   "due": "10 Mei 2025",
+   "late": 5,
+   "status": "Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0002",
+   "name": "Hazqila Yasmin R.",
+   "program": "Calistung (Privat)",
+   "total": 600000,
+   "paid": 300000,
+   "due": "10 Mei 2025",
+   "late": 5,
+   "status": "Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0003",
+   "name": "Marco Febrian",
+   "program": "Playclub (Pre-school)",
+   "total": 300000,
+   "paid": 0,
+   "due": "10 Mei 2025",
+   "late": 5,
+   "status": "Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0004",
+   "name": "Mecca Putri",
+   "program": "English Teens (Teens A)",
+   "total": 900000,
+   "paid": 450000,
+   "due": "20 Mei 2025",
+   "late": 0,
+   "status": "Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0006",
+   "name": "Ethan Marisi S.",
+   "program": "Afternoon Package",
+   "total": 760000,
+   "paid": 380000,
+   "due": "20 Mei 2025",
+   "late": 0,
+   "status": "Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0007",
+   "name": "Zafi Arkaan",
+   "program": "Speaking Club (Teens)",
+   "total": 400000,
+   "paid": 200000,
+   "due": "25 Mei 2025",
+   "late": 0,
+   "status": "Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0005",
+   "name": "Nadhira Azzahra",
+   "program": "SMP Intensif",
+   "total": 600000,
+   "paid": 200000,
+   "due": "30 Apr 2025",
+   "late": 15,
+   "status": "Lalu Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0009",
+   "name": "Cantika Putri",
+   "program": "Calistung (Privat)",
+   "total": 300000,
+   "paid": 100000,
+   "due": "15 Mei 2025",
+   "late": 0,
+   "status": "Sebagian Dibayar"
+  },
+  {
+   "id": "SHK-0010",
+   "name": "Putra Anfiela S.",
+   "program": "SMP Intensif",
+   "total": 600000,
+   "paid": 600000,
+   "due": "-",
+   "late": 0,
+   "status": "Lunas"
+  },
+  {
+   "id": "SHK-0008",
+   "name": "Mutiara A. Putri",
+   "program": "English & Math · Kelas 2B",
+   "total": 950000,
+   "paid": 250000,
+   "due": "05 Mei 2025",
+   "late": 10,
+   "status": "Lalu Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0013",
+   "name": "Khalisa Nur",
+   "program": "English & Math · Kelas 1A",
+   "total": 450000,
+   "paid": 0,
+   "due": "10 Mei 2025",
+   "late": 5,
+   "status": "Jatuh Tempo"
+  },
+  {
+   "id": "SHK-0012",
+   "name": "Rafa Pratama",
+   "program": "Playclub (Pre-school)",
+   "total": 300000,
+   "paid": 150000,
+   "due": "18 Mei 2025",
+   "late": 0,
+   "status": "Sebagian Dibayar"
+  }
+ ],
+ "EXPENSES": [
+  {
+   "id": "EXP-001",
+   "date": "16 Mei 2025",
+   "time": "14:30",
+   "category": "Gaji & Honor",
+   "note": "Gaji Tutor Mei 2025 · 10 Tutor",
+   "method": "Transfer Bank",
+   "channel": "BCA",
+   "amount": 8000000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-002",
+   "date": "15 Mei 2025",
+   "time": "10:20",
+   "category": "Sewa & Utilitas",
+   "note": "Sewa Gedung Mei 2025",
+   "method": "Transfer Bank",
+   "channel": "BNI",
+   "amount": 3500000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-003",
+   "date": "14 Mei 2025",
+   "time": "09:15",
+   "category": "ATK & Perlengkapan",
+   "note": "Pembelian ATK: kertas, pulpen, spidol",
+   "method": "Tunai",
+   "channel": "",
+   "amount": 650000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-004",
+   "date": "12 Mei 2025",
+   "time": "16:40",
+   "category": "Promosi & Marketing",
+   "note": "Desain & Cetak Brosur",
+   "method": "E-Wallet",
+   "channel": "OVO",
+   "amount": 450000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-005",
+   "date": "10 Mei 2025",
+   "time": "11:05",
+   "category": "Kebersihan & Keamanan",
+   "note": "Jasa Kebersihan Mei 2025",
+   "method": "Transfer Bank",
+   "channel": "Mandiri",
+   "amount": 800000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-006",
+   "date": "09 Mei 2025",
+   "time": "15:20",
+   "category": "Perawatan & Perbaikan",
+   "note": "Perbaikan AC Kelas 1",
+   "method": "Transfer Bank",
+   "channel": "BCA",
+   "amount": 750000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-007",
+   "date": "08 Mei 2025",
+   "time": "13:10",
+   "category": "Internet & Telepon",
+   "note": "Internet & Telepon Mei 2025",
+   "method": "Transfer Bank",
+   "channel": "BCA",
+   "amount": 350000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-008",
+   "date": "06 Mei 2025",
+   "time": "09:00",
+   "category": "Pelatihan & Pengembangan",
+   "note": "Workshop Tutor: Metode Mengajar",
+   "method": "Transfer Bank",
+   "channel": "BNI",
+   "amount": 600000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-009",
+   "date": "05 Mei 2025",
+   "time": "16:00",
+   "category": "Konsumsi",
+   "note": "Konsumsi Rapat Bulanan",
+   "method": "Tunai",
+   "channel": "",
+   "amount": 120000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-010",
+   "date": "03 Mei 2025",
+   "time": "10:30",
+   "category": "Lain-lain",
+   "note": "Transportasi Operasional",
+   "method": "E-Wallet",
+   "channel": "DANA",
+   "amount": 280000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-011",
+   "date": "02 Mei 2025",
+   "time": "14:45",
+   "category": "ATK & Perlengkapan",
+   "note": "Tinta printer & kertas HVS",
+   "method": "Tunai",
+   "channel": "",
+   "amount": 950000,
+   "status": "Dibayar"
+  },
+  {
+   "id": "EXP-012",
+   "date": "02 Mei 2025",
+   "time": "09:30",
+   "category": "Promosi & Marketing",
+   "note": "Iklan media sosial",
+   "method": "E-Wallet",
+   "channel": "GoPay",
+   "amount": 1200000,
+   "status": "Dibayar"
+  }
+ ],
+ "EXPENSE_CATEGORIES": [
+  "Gaji & Honor",
+  "Sewa & Utilitas",
+  "ATK & Perlengkapan",
+  "Promosi & Marketing",
+  "Kebersihan & Keamanan",
+  "Perawatan & Perbaikan",
+  "Internet & Telepon",
+  "Pelatihan & Pengembangan",
+  "Konsumsi",
+  "Lain-lain"
+ ],
+ "HONORS": [
+  {
+   "id": "T-001",
+   "name": "Fitri Handayani, S.T.",
+   "program": "English Teens (A)",
+   "level": "SMP Intensif",
+   "sessions": 16,
+   "total": 2400000,
+   "paid": 2400000
+  },
+  {
+   "id": "T-002",
+   "name": "Rizky Ananda, S.Pd.",
+   "program": "Math SD Kelas 1A",
+   "level": "Primary",
+   "sessions": 12,
+   "total": 1200000,
+   "paid": 900000
+  },
+  {
+   "id": "T-003",
+   "name": "Dewi Lestari, S.Pd.",
+   "program": "English Kids (B)",
+   "level": "Playclub",
+   "sessions": 12,
+   "total": 1200000,
+   "paid": 0
+  },
+  {
+   "id": "T-004",
+   "name": "M. Farhan, S.Pd.",
+   "program": "Math SD Kelas 2B",
+   "level": "Primary",
+   "sessions": 16,
+   "total": 1600000,
+   "paid": 1600000
+  },
+  {
+   "id": "T-005",
+   "name": "Siti Aisyah, S.Pd.",
+   "program": "IPA SMP (A)",
+   "level": "SMP Intensif",
+   "sessions": 12,
+   "total": 1200000,
+   "paid": 600000
+  },
+  {
+   "id": "T-006",
+   "name": "Ahmad Fauzan, S.Pd.",
+   "program": "Tahfidz & Mengaji",
+   "level": "Mengaji",
+   "sessions": 20,
+   "total": 1800000,
+   "paid": 1800000
+  },
+  {
+   "id": "T-007",
+   "name": "Putri Amanda, S.Pd.",
+   "program": "English SD Kelas 3A",
+   "level": "Primary",
+   "sessions": 12,
+   "total": 1000000,
+   "paid": 500000
+  },
+  {
+   "id": "T-008",
+   "name": "Budi Hartono, S.Pd.",
+   "program": "Math SMP (B)",
+   "level": "SMP Intensif",
+   "sessions": 16,
+   "total": 1600000,
+   "paid": 0
+  },
+  {
+   "id": "T-009",
+   "name": "Nurul Azmi, S.Pd.",
+   "program": "Science SD Kelas 5",
+   "level": "Primary",
+   "sessions": 8,
+   "total": 800000,
+   "paid": 800000
+  },
+  {
+   "id": "T-010",
+   "name": "Irvan Maulana, S.Pd.",
+   "program": "Math SD Kelas 4B",
+   "level": "Primary",
+   "sessions": 12,
+   "total": 1050000,
+   "paid": 750000
+  },
+  {
+   "id": "T-011",
+   "name": "Andi Saputra, S.Pd.",
+   "program": "Math Primary 2A",
+   "level": "Primary",
+   "sessions": 16,
+   "total": 1600000,
+   "paid": 1600000
+  },
+  {
+   "id": "T-012",
+   "name": "Dinda Puspita, S.Pd.",
+   "program": "English Teens (B)",
+   "level": "SMP Intensif",
+   "sessions": 14,
+   "total": 1400000,
+   "paid": 700000
+  }
+ ],
+ "LEVELS": [
+  {
+   "id": "KLS-01",
+   "name": "Playclub",
+   "sub": "Usia 3-4 tahun",
+   "level": "Pra-Sekolah",
+   "rombel": 2,
+   "students": 36,
+   "capacity": 50,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-02",
+   "name": "Calistung",
+   "sub": "Calistung",
+   "level": "Pra-SD & SD",
+   "rombel": 2,
+   "students": 24,
+   "capacity": 30,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-03",
+   "name": "Kelas 1",
+   "sub": "SD",
+   "level": "SD",
+   "rombel": 4,
+   "students": 48,
+   "capacity": 60,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-04",
+   "name": "Kelas 2",
+   "sub": "SD",
+   "level": "SD",
+   "rombel": 4,
+   "students": 52,
+   "capacity": 60,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-05",
+   "name": "Kelas 3",
+   "sub": "SD",
+   "level": "SD",
+   "rombel": 3,
+   "students": 36,
+   "capacity": 45,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-06",
+   "name": "Kelas 4",
+   "sub": "SD",
+   "level": "SD",
+   "rombel": 3,
+   "students": 32,
+   "capacity": 45,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-07",
+   "name": "Kelas 5",
+   "sub": "SD",
+   "level": "SD",
+   "rombel": 3,
+   "students": 34,
+   "capacity": 45,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-08",
+   "name": "Kelas 6",
+   "sub": "SD",
+   "level": "SD",
+   "rombel": 3,
+   "students": 32,
+   "capacity": 45,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-09",
+   "name": "SMP (7-9)",
+   "sub": "SMP",
+   "level": "SMP",
+   "rombel": 3,
+   "students": 40,
+   "capacity": 60,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-10",
+   "name": "SMA (10-12)",
+   "sub": "SMA",
+   "level": "SMA",
+   "rombel": 2,
+   "students": 28,
+   "capacity": 40,
+   "status": "Aktif"
+  },
+  {
+   "id": "KLS-11",
+   "name": "Speaking Club",
+   "sub": "Teens",
+   "level": "SMP",
+   "rombel": 1,
+   "students": 16,
+   "capacity": 24,
+   "status": "Nonaktif"
+  },
+  {
+   "id": "KLS-12",
+   "name": "Holiday Camp",
+   "sub": "Musiman",
+   "level": "SD",
+   "rombel": 1,
+   "students": 0,
+   "capacity": 30,
+   "status": "Nonaktif"
+  }
+ ],
+ "NOTIFICATIONS": [
+  {
+   "id": "N1",
+   "category": "Siswa",
+   "title": "7 siswa baru menunggu proses pendaftaran",
+   "desc": "Terdapat 7 calon siswa yang telah mengisi formulir dan menunggu verifikasi.",
+   "time": "10 menit yang lalu",
+   "action": "Proses Pendaftaran",
+   "to": "/admin/pendaftaran",
+   "tone": "red",
+   "unread": true
+  },
+  {
+   "id": "N2",
+   "category": "Keuangan",
+   "title": "23 siswa belum membayar SPP",
+   "desc": "Total tagihan yang belum dibayarkan Rp 7.200.000",
+   "time": "25 menit yang lalu",
+   "action": "Lihat Tagihan",
+   "to": "/admin/keuangan",
+   "tone": "orange",
+   "unread": true
+  },
+  {
+   "id": "N3",
+   "category": "Tutor & Staff",
+   "title": "4 tutor belum mengisi absensi hari ini",
+   "desc": "Mohon periksa kehadiran tutor sebelum jam 18.00",
+   "time": "50 menit yang lalu",
+   "action": "Periksa Absensi",
+   "to": "/admin/kehadiran-tutor",
+   "tone": "amber",
+   "unread": true
+  },
+  {
+   "id": "N4",
+   "category": "Kelas & Jadwal",
+   "title": "Perubahan jadwal kelas English Primary 2A",
+   "desc": "Kelas pada hari Selasa, 18 Juni 2025 diubah ke pukul 15:30 - 17:00",
+   "time": "1 jam yang lalu",
+   "action": "Lihat Jadwal",
+   "to": "/admin/jadwal-kelas",
+   "tone": "purple",
+   "unread": true
+  },
+  {
+   "id": "N5",
+   "category": "Komunikasi",
+   "title": "12 pesan baru dari wali murid",
+   "desc": "Pesan terbaru dari wali murid mengenai berbagai hal",
+   "time": "2 jam yang lalu",
+   "action": "Buka WhatsApp",
+   "to": "/admin/whatsapp",
+   "tone": "green",
+   "unread": true
+  },
+  {
+   "id": "N6",
+   "category": "Sistem",
+   "title": "Backup sistem berhasil dilakukan",
+   "desc": "Backup otomatis harian telah selesai pada 09:00 WIB",
+   "time": "3 jam yang lalu",
+   "tone": "blue",
+   "unread": true
+  },
+  {
+   "id": "N7",
+   "category": "Tutor & Staff",
+   "title": "Izin tutor baru menunggu persetujuan",
+   "desc": "Fitri Handayani mengajukan izin pada 20 Juni 2025",
+   "time": "5 jam yang lalu",
+   "action": "Review Izin",
+   "to": "/admin/kehadiran-tutor",
+   "tone": "teal",
+   "unread": true
+  },
+  {
+   "id": "N8",
+   "category": "Operasional",
+   "title": "Stok buku Math Primary 1 hampir habis",
+   "desc": "Sisa stok tinggal 5 unit",
+   "time": "1 hari yang lalu",
+   "tone": "slate",
+   "unread": false
+  }
+ ],
+ "PARENTS": [
+  {
+   "id": "ORT-0001",
+   "name": "Rina Andayani",
+   "child": "Nadhira Putri A.",
+   "relation": "Ibu Kandung",
+   "phone": "0812-3456-7890",
+   "email": "rina.andayani@gmail.com",
+   "address": "Jl. Melati No. 12, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0002",
+   "name": "Budi Santoso",
+   "child": "Arsyad Alfarizky",
+   "relation": "Ayah Kandung",
+   "phone": "0813-2345-6789",
+   "email": "budi.santoso@gmail.com",
+   "address": "Jl. Kenanga No. 45, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0003",
+   "name": "Dewi Lestari",
+   "child": "Yasmin Azzahra",
+   "relation": "Ibu Kandung",
+   "phone": "0812-9876-5432",
+   "email": "dewilestari@gmail.com",
+   "address": "Jl. Anggrek No. 7, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0004",
+   "name": "Andi Wijaya",
+   "child": "Muhammad Marco",
+   "relation": "Ayah Kandung",
+   "phone": "0813-5555-2211",
+   "email": "andiwijaya@gmail.com",
+   "address": "Jl. Cemara No. 3, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0005",
+   "name": "Siti Rahmah",
+   "child": "Mecca A. Ramadhan",
+   "relation": "Ibu Kandung",
+   "phone": "0812-1234-5678",
+   "email": "s.rahmah@gmail.com",
+   "address": "Jl. Karet No. 8, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0006",
+   "name": "Marisi Sitohang",
+   "child": "Ethan Marisi S.",
+   "relation": "Ayah Kandung",
+   "phone": "0813-8765-4321",
+   "email": "marisi.sitohang@gmail.com",
+   "address": "Jl. Pinang No. 20, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0007",
+   "name": "Rina Simangunsong",
+   "child": "Putri Anfielia S.",
+   "relation": "Ibu Kandung",
+   "phone": "0812-3344-5566",
+   "email": "rina.simangunsong@gmail.com",
+   "address": "Jl. Sakura No. 11, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0008",
+   "name": "Ahmad Arkaan",
+   "child": "Zafi Arkaan",
+   "relation": "Ayah Kandung",
+   "phone": "0813-6677-8899",
+   "email": "ahmad.arkaan@gmail.com",
+   "address": "Jl. Merbau No. 9, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0009",
+   "name": "Taufik Hidayat",
+   "child": "Mutiara Azzahra",
+   "relation": "Ayah Kandung",
+   "phone": "0812-1122-3344",
+   "email": "taufik.hidayat@gmail.com",
+   "address": "Jl. Flamboyan No. 15, Medan",
+   "status": "Nonaktif"
+  },
+  {
+   "id": "ORT-0010",
+   "name": "Dian Purnama",
+   "child": "Cantika Putri",
+   "relation": "Ibu Kandung",
+   "phone": "0813-9988-7766",
+   "email": "dian.purnama@gmail.com",
+   "address": "Jl. Azalea No. 2, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0011",
+   "name": "Ratna Sari",
+   "child": "Hazqila Yasmin R.",
+   "relation": "Ibu Kandung",
+   "phone": "0812-7711-2040",
+   "email": "ratna.sari@gmail.com",
+   "address": "Jl. Dahlia No. 31, Medan",
+   "status": "Aktif"
+  },
+  {
+   "id": "ORT-0012",
+   "name": "Hotman Sinaga",
+   "child": "Putra Anfiela S.",
+   "relation": "Wali",
+   "phone": "0813-2090-7755",
+   "email": "hotman.sinaga@gmail.com",
+   "address": "Jl. Teratai No. 5, Medan",
+   "status": "Aktif"
+  }
+ ],
+ "PAYMENTS": [
+  {
+   "id": "TRX-250516-0012",
+   "date": "16 Mei 2025",
+   "time": "10:24",
+   "name": "Arsyad Alfarizky",
+   "sid": "SHK-0001",
+   "program": "English & Math · Kelas 1A",
+   "method": "Transfer Bank",
+   "channel": "BCA",
+   "bill": 500000,
+   "paid": 450000,
+   "discount": 50000,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250516-0011",
+   "date": "16 Mei 2025",
+   "time": "09:15",
+   "name": "Hazqila Yasmin R.",
+   "sid": "SHK-0002",
+   "program": "Calistung (Privat)",
+   "method": "E-Wallet",
+   "channel": "OVO",
+   "bill": 300000,
+   "paid": 300000,
+   "discount": 0,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250515-0010",
+   "date": "15 Mei 2025",
+   "time": "19:08",
+   "name": "Marco Febrian",
+   "sid": "SHK-0003",
+   "program": "Playclub · Pre-school",
+   "method": "QRIS",
+   "channel": "GoPay",
+   "bill": 300000,
+   "paid": 300000,
+   "discount": 0,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250515-0009",
+   "date": "15 Mei 2025",
+   "time": "18:22",
+   "name": "Mecca Putri",
+   "sid": "SHK-0004",
+   "program": "English Teens · Teens A",
+   "method": "Transfer Bank",
+   "channel": "Mandiri",
+   "bill": 500000,
+   "paid": 475000,
+   "discount": 25000,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250515-0008",
+   "date": "15 Mei 2025",
+   "time": "17:05",
+   "name": "Ethan Marisi S.",
+   "sid": "SHK-0006",
+   "program": "Afternoon Package",
+   "method": "Tunai",
+   "channel": "",
+   "bill": 380000,
+   "paid": 380000,
+   "discount": 0,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250515-0007",
+   "date": "15 Mei 2025",
+   "time": "16:40",
+   "name": "Nadhira Azzahra",
+   "sid": "SHK-0005",
+   "program": "SMP Intensif",
+   "method": "Transfer Bank",
+   "channel": "BCA",
+   "bill": 600000,
+   "paid": 300000,
+   "discount": 0,
+   "status": "Tertunda"
+  },
+  {
+   "id": "TRX-250515-0006",
+   "date": "15 Mei 2025",
+   "time": "14:12",
+   "name": "Zafi Arkaan",
+   "sid": "SHK-0007",
+   "program": "Speaking Club · Teens",
+   "method": "E-Wallet",
+   "channel": "DANA",
+   "bill": 200000,
+   "paid": 200000,
+   "discount": 0,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250515-0005",
+   "date": "15 Mei 2025",
+   "time": "11:30",
+   "name": "Mutiara A. Putri",
+   "sid": "SHK-0008",
+   "program": "English & Math · Kelas 2B",
+   "method": "QRIS",
+   "channel": "ShopeePay",
+   "bill": 500000,
+   "paid": 475000,
+   "discount": 25000,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250514-0004",
+   "date": "14 Mei 2025",
+   "time": "20:18",
+   "name": "Cantika Putri",
+   "sid": "SHK-0009",
+   "program": "Calistung (Privat)",
+   "method": "Transfer Bank",
+   "channel": "BNI",
+   "bill": 300000,
+   "paid": 0,
+   "discount": 0,
+   "status": "Gagal"
+  },
+  {
+   "id": "TRX-250514-0003",
+   "date": "14 Mei 2025",
+   "time": "15:05",
+   "name": "Putra Anfiela S.",
+   "sid": "SHK-0010",
+   "program": "SMP Intensif",
+   "method": "Tunai",
+   "channel": "",
+   "bill": 600000,
+   "paid": 600000,
+   "discount": 0,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250514-0002",
+   "date": "14 Mei 2025",
+   "time": "10:41",
+   "name": "Aisyah Humaira",
+   "sid": "SHK-0011",
+   "program": "English & Math · Kelas 2B",
+   "method": "Transfer Bank",
+   "channel": "BCA",
+   "bill": 500000,
+   "paid": 500000,
+   "discount": 0,
+   "status": "Berhasil"
+  },
+  {
+   "id": "TRX-250513-0001",
+   "date": "13 Mei 2025",
+   "time": "13:27",
+   "name": "Rafa Pratama",
+   "sid": "SHK-0012",
+   "program": "Playclub · Pre-school",
+   "method": "E-Wallet",
+   "channel": "OVO",
+   "bill": 300000,
+   "paid": 150000,
+   "discount": 0,
+   "status": "Refund"
+  }
+ ],
+ "PROGRAMS": [
+  {
+   "id": "PRG-01",
+   "name": "Playclub (Pre-school)",
+   "level": "Pra-Sekolah",
+   "category": "Early Learning",
+   "desc": "Program stimulasi untuk anak usia 3-5 tahun melalui bermain, bernyanyi, dan aktivitas kreatif.",
+   "sessions": 12,
+   "minutes": 60,
+   "fee": 300000,
+   "classes": 3,
+   "students": 36,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-02",
+   "name": "Calistung (Privat)",
+   "level": "Pra-SD & SD",
+   "category": "Calistung",
+   "desc": "Program membaca, menulis, dan berhitung 1-on-1 sesuai kebutuhan siswa.",
+   "sessions": 12,
+   "minutes": 60,
+   "fee": 300000,
+   "classes": 0,
+   "students": 24,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-03",
+   "name": "English & Math (Primary)",
+   "level": "SD (Kelas 1-6)",
+   "category": "Akademik",
+   "desc": "Belajar Bahasa Inggris dan Matematika dengan pendekatan fun & concept building.",
+   "sessions": 12,
+   "minutes": 90,
+   "fee": 300000,
+   "classes": 8,
+   "students": 96,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-04",
+   "name": "English (Secondary)",
+   "level": "SMP & SMA",
+   "category": "Bahasa",
+   "desc": "Penguatan kemampuan Bahasa Inggris untuk komunikasi, grammar, dan exam preparation.",
+   "sessions": 8,
+   "minutes": 90,
+   "fee": 350000,
+   "classes": 6,
+   "students": 48,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-05",
+   "name": "Afternoon Package (English, Math, Mengaji)",
+   "level": "SD",
+   "category": "Paket",
+   "desc": "Paket lengkap sore hari: English, Math, dan Mengaji.",
+   "sessions": 12,
+   "minutes": 195,
+   "fee": 380000,
+   "classes": 4,
+   "students": 40,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-06",
+   "name": "SD Bundling 5 Hari",
+   "level": "SD",
+   "category": "Paket",
+   "desc": "Program lengkap 5 hari dalam seminggu (Academic + Support).",
+   "sessions": 20,
+   "minutes": 90,
+   "fee": 500000,
+   "classes": 5,
+   "students": 55,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-07",
+   "name": "SMP Bundling",
+   "level": "SMP",
+   "category": "Paket",
+   "desc": "Program lengkap untuk siswa SMP (Bahasa Inggris, Matematika, IPA, dll).",
+   "sessions": 8,
+   "minutes": 120,
+   "fee": 300000,
+   "classes": 4,
+   "students": 32,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-08",
+   "name": "SMA Bundling",
+   "level": "SMA",
+   "category": "Paket",
+   "desc": "Program lengkap untuk siswa SMA (Bahasa Inggris, Matematika, IPA, dll).",
+   "sessions": 8,
+   "minutes": 120,
+   "fee": 300000,
+   "classes": 4,
+   "students": 25,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-09",
+   "name": "Speaking Club (Teens)",
+   "level": "SMP & SMA",
+   "category": "Bahasa",
+   "desc": "Program speaking intensif untuk meningkatkan kepercayaan diri berbicara Bahasa Inggris.",
+   "sessions": 24,
+   "minutes": 120,
+   "fee": 200000,
+   "classes": 2,
+   "students": 16,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-10",
+   "name": "Intensif SMP",
+   "level": "SMP",
+   "category": "Akademik",
+   "desc": "Persiapan ujian sekolah dan asesmen dengan latihan soal terarah.",
+   "sessions": 12,
+   "minutes": 120,
+   "fee": 600000,
+   "classes": 3,
+   "students": 28,
+   "status": "Aktif"
+  },
+  {
+   "id": "PRG-11",
+   "name": "Mengaji Sore",
+   "level": "SD",
+   "category": "Early Learning",
+   "desc": "Belajar membaca Al-Quran dan tahfidz dasar untuk siswa SD.",
+   "sessions": 12,
+   "minutes": 60,
+   "fee": 150000,
+   "classes": 2,
+   "students": 18,
+   "status": "Nonaktif"
+  },
+  {
+   "id": "PRG-12",
+   "name": "Holiday Camp 2024",
+   "level": "SD",
+   "category": "Paket",
+   "desc": "Program liburan sekolah tahun 2024.",
+   "sessions": 6,
+   "minutes": 180,
+   "fee": 450000,
+   "classes": 0,
+   "students": 0,
+   "status": "Arsip"
+  }
+ ],
+ "PROGRAM_TONE": {
+  "English Primary": "blue",
+  "Math Primary": "green",
+  "Combo": "orange",
+  "Intensif": "purple",
+  "English Teens": "blue",
+  "IPA Junior": "teal",
+  "Calistung": "pink",
+  "Playclub": "amber",
+  "Afternoon Package": "orange",
+  "Speaking Club": "amber",
+  "SMP Intensif": "purple",
+  "Administrasi": "slate",
+  "Keuangan": "slate",
+  "Customer Service": "slate",
+  "IT Support": "slate"
+ },
+ "REGISTRATIONS": [
+  {
+   "id": "REG-250617-001",
+   "date": "17/06/2025",
+   "time": "10:21",
+   "name": "Arsyad Alfarizky",
+   "gender": "L",
+   "age": 7,
+   "program": "English Primary",
+   "source": "Instagram",
+   "status": "Dalam Proses",
+   "stage": "Tes & Interview",
+   "stageNote": "Jadwal: 18/06/2025"
+  },
+  {
+   "id": "REG-250616-002",
+   "date": "16/06/2025",
+   "time": "14:35",
+   "name": "Nadhira Putri A.",
+   "gender": "P",
+   "age": 8,
+   "program": "Combo",
+   "source": "WhatsApp",
+   "status": "Menunggu Verifikasi",
+   "stage": "Verifikasi Data",
+   "stageNote": "Oleh: Admin"
+  },
+  {
+   "id": "REG-250616-003",
+   "date": "16/06/2025",
+   "time": "11:08",
+   "name": "Marco Wijaya",
+   "gender": "L",
+   "age": 7,
+   "program": "Math Primary",
+   "source": "Website",
+   "status": "Dalam Proses",
+   "stage": "Menunggu Pembayaran",
+   "stageNote": "Batas: 18/06/2025"
+  },
+  {
+   "id": "REG-250615-004",
+   "date": "15/06/2025",
+   "time": "16:40",
+   "name": "Yasmin Azzahra",
+   "gender": "P",
+   "age": 6,
+   "program": "Intensif",
+   "source": "Walk-in",
+   "status": "Menunggu Verifikasi",
+   "stage": "Verifikasi Data",
+   "stageNote": "Oleh: Admin"
+  },
+  {
+   "id": "REG-250615-005",
+   "date": "15/06/2025",
+   "time": "09:22",
+   "name": "Ethan Marisi S.",
+   "gender": "L",
+   "age": 8,
+   "program": "Combo",
+   "source": "Referensi Orang Tua",
+   "status": "Diterima",
+   "stage": "Selesai",
+   "stageNote": "Diterima: 16/06/2025"
+  },
+  {
+   "id": "REG-250614-006",
+   "date": "14/06/2025",
+   "time": "13:55",
+   "name": "Putri Anfielia S.",
+   "gender": "P",
+   "age": 7,
+   "program": "English Primary",
+   "source": "Instagram",
+   "status": "Ditolak",
+   "stage": "Ditolak",
+   "stageNote": "Alasan: Kuota Penuh"
+  },
+  {
+   "id": "REG-250614-007",
+   "date": "14/06/2025",
+   "time": "10:11",
+   "name": "Zafi Arkaan",
+   "gender": "L",
+   "age": 6,
+   "program": "Math Primary",
+   "source": "WhatsApp",
+   "status": "Dalam Proses",
+   "stage": "Tes & Interview",
+   "stageNote": "Jadwal: 20/06/2025"
+  },
+  {
+   "id": "REG-250613-008",
+   "date": "13/06/2025",
+   "time": "15:02",
+   "name": "Aisyah Humaira",
+   "gender": "P",
+   "age": 8,
+   "program": "Combo",
+   "source": "Instagram",
+   "status": "Dalam Proses",
+   "stage": "Tes & Interview",
+   "stageNote": "Jadwal: 19/06/2025"
+  },
+  {
+   "id": "REG-250613-009",
+   "date": "13/06/2025",
+   "time": "09:47",
+   "name": "Rafa Pratama",
+   "gender": "L",
+   "age": 6,
+   "program": "English Primary",
+   "source": "Website",
+   "status": "Diterima",
+   "stage": "Selesai",
+   "stageNote": "Diterima: 15/06/2025"
+  },
+  {
+   "id": "REG-250612-010",
+   "date": "12/06/2025",
+   "time": "11:30",
+   "name": "Khalisa Nur",
+   "gender": "P",
+   "age": 7,
+   "program": "Math Primary",
+   "source": "WhatsApp",
+   "status": "Menunggu Verifikasi",
+   "stage": "Verifikasi Data",
+   "stageNote": "Oleh: Admin"
+  },
+  {
+   "id": "REG-250612-011",
+   "date": "12/06/2025",
+   "time": "08:15",
+   "name": "Daffa Alfarezi",
+   "gender": "L",
+   "age": 9,
+   "program": "Combo",
+   "source": "Walk-in",
+   "status": "Dalam Proses",
+   "stage": "Menunggu Pembayaran",
+   "stageNote": "Batas: 19/06/2025"
+  },
+  {
+   "id": "REG-250611-012",
+   "date": "11/06/2025",
+   "time": "14:20",
+   "name": "Kirana Larasati",
+   "gender": "P",
+   "age": 10,
+   "program": "Intensif",
+   "source": "Instagram",
+   "status": "Ditolak",
+   "stage": "Ditolak",
+   "stageNote": "Alasan: Data tidak lengkap"
+  }
+ ],
+ "ROMBELS": [
+  {
+   "id": "EP1A-01",
+   "name": "English Primary 1A",
+   "level": "Kelas 1",
+   "tutor": "Fitri Handayani",
+   "room": "Ruang 2",
+   "students": 8,
+   "capacity": 10,
+   "status": "Aktif"
+  },
+  {
+   "id": "MP2A-02",
+   "name": "Math Primary 2A",
+   "level": "Kelas 2",
+   "tutor": "Andi Saputra",
+   "room": "Ruang 3",
+   "students": 9,
+   "capacity": 10,
+   "status": "Aktif"
+  },
+  {
+   "id": "EP1B-01",
+   "name": "English Primary 1B",
+   "level": "Kelas 1",
+   "tutor": "Fitri Handayani",
+   "room": "Ruang 2",
+   "students": 8,
+   "capacity": 10,
+   "status": "Aktif"
+  },
+  {
+   "id": "CLA-01",
+   "name": "Calistung A",
+   "level": "Calistung",
+   "tutor": "Siti Aisyah",
+   "room": "Ruang 1",
+   "students": 5,
+   "capacity": 6,
+   "status": "Aktif"
+  },
+  {
+   "id": "CLB-01",
+   "name": "Calistung B",
+   "level": "Calistung",
+   "tutor": "Siti Aisyah",
+   "room": "Ruang 1",
+   "students": 6,
+   "capacity": 6,
+   "status": "Aktif"
+  },
+  {
+   "id": "IPAJ1A-01",
+   "name": "IPA Junior 1A",
+   "level": "SMP (7-9)",
+   "tutor": "Dinda Puspita",
+   "room": "Ruang 3",
+   "students": 8,
+   "capacity": 10,
+   "status": "Aktif"
+  },
+  {
+   "id": "IPAJ1B-01",
+   "name": "IPA Junior 1B",
+   "level": "SMP (7-9)",
+   "tutor": "Dinda Puspita",
+   "room": "Ruang 3",
+   "students": 9,
+   "capacity": 10,
+   "status": "Aktif"
+  },
+  {
+   "id": "ETA-01",
+   "name": "English Teens A",
+   "level": "SMP (7-9)",
+   "tutor": "Muhammad Rizki",
+   "room": "Ruang 4",
+   "students": 10,
+   "capacity": 12,
+   "status": "Aktif"
+  },
+  {
+   "id": "ETB-01",
+   "name": "English Teens B",
+   "level": "SMP (7-9)",
+   "tutor": "Muhammad Rizki",
+   "room": "Ruang 4",
+   "students": 11,
+   "capacity": 12,
+   "status": "Aktif"
+  },
+  {
+   "id": "MP3A-02",
+   "name": "Math Primary 3A",
+   "level": "Kelas 3",
+   "tutor": "Fauzan Habibi",
+   "room": "Ruang 2",
+   "students": 9,
+   "capacity": 10,
+   "status": "Aktif"
+  },
+  {
+   "id": "MP3B-01",
+   "name": "Math Primary 3B",
+   "level": "Kelas 3",
+   "tutor": "Fauzan Habibi",
+   "room": "Ruang 2",
+   "students": 8,
+   "capacity": 10,
+   "status": "Aktif"
+  },
+  {
+   "id": "ISMP-01",
+   "name": "Intensif SMP",
+   "level": "SMP (7-9)",
+   "tutor": "Rani Putri",
+   "room": "Ruang 4",
+   "students": 9,
+   "capacity": 12,
+   "status": "Aktif"
+  },
+  {
+   "id": "ISMA-01",
+   "name": "Intensif SMA",
+   "level": "SMA (10-12)",
+   "tutor": "Rani Putri",
+   "room": "Ruang 4",
+   "students": 9,
+   "capacity": 12,
+   "status": "Aktif"
+  },
+  {
+   "id": "SPK-01",
+   "name": "Speaking Club (Teens)",
+   "level": "Speaking Club",
+   "tutor": "Rani Putri",
+   "room": "Ruang 4",
+   "students": 6,
+   "capacity": 8,
+   "status": "Nonaktif"
+  }
+ ],
+ "ROOMS": [
+  {
+   "id": "RNG-1",
+   "name": "Ruang 1",
+   "type": "Ruang Kelas",
+   "floor": "Lantai 1",
+   "capacity": 32,
+   "used": 28,
+   "status": "Aktif",
+   "condition": "Baik"
+  },
+  {
+   "id": "RNG-2",
+   "name": "Ruang 2",
+   "type": "Ruang Kelas",
+   "floor": "Lantai 1",
+   "capacity": 28,
+   "used": 24,
+   "status": "Aktif",
+   "condition": "Baik"
+  },
+  {
+   "id": "RNG-3",
+   "name": "Ruang 3",
+   "type": "Ruang Kelas",
+   "floor": "Lantai 1",
+   "capacity": 28,
+   "used": 20,
+   "status": "Aktif",
+   "condition": "Baik"
+  },
+  {
+   "id": "RNG-4",
+   "name": "Ruang 4",
+   "type": "Ruang Kelas",
+   "floor": "Lantai 2",
+   "capacity": 24,
+   "used": 18,
+   "status": "Aktif",
+   "condition": "Baik"
+  },
+  {
+   "id": "RNG-5",
+   "name": "Ruang Laboratorium IPA",
+   "type": "Laboratorium",
+   "floor": "Lantai 2",
+   "capacity": 24,
+   "used": 16,
+   "status": "Aktif",
+   "condition": "Baik"
+  },
+  {
+   "id": "RNG-6",
+   "name": "Ruang Baca & Diskusi",
+   "type": "Perpustakaan",
+   "floor": "Lantai 2",
+   "capacity": 20,
+   "used": 8,
+   "status": "Aktif",
+   "condition": "Baik"
+  },
+  {
+   "id": "RNG-7",
+   "name": "Ruang Serbaguna",
+   "type": "Aula",
+   "floor": "Lantai 1",
+   "capacity": 40,
+   "used": 32,
+   "status": "Aktif",
+   "condition": "Baik"
+  },
+  {
+   "id": "RNG-8",
+   "name": "Ruang Guru",
+   "type": "Ruang Staff",
+   "floor": "Lantai 1",
+   "capacity": 16,
+   "used": 8,
+   "status": "Aktif",
+   "condition": "Baik"
+  }
+ ],
+ "SCHEDULE": [
+  {
+   "id": "JDW-1",
+   "day": 0,
+   "slot": 0,
+   "kelas": "English Primary 1A",
+   "room": "Ruang 2",
+   "tutor": "Fitri Handayani",
+   "fill": "8/10"
+  },
+  {
+   "id": "JDW-2",
+   "day": 1,
+   "slot": 0,
+   "kelas": "Math Primary 2A",
+   "room": "Ruang 3",
+   "tutor": "Andi Saputra",
+   "fill": "9/10"
+  },
+  {
+   "id": "JDW-3",
+   "day": 2,
+   "slot": 0,
+   "kelas": "English Primary 1B",
+   "room": "Ruang 2",
+   "tutor": "Fitri Handayani",
+   "fill": "8/10"
+  },
+  {
+   "id": "JDW-4",
+   "day": 3,
+   "slot": 0,
+   "kelas": "IPA Junior 1A",
+   "room": "Ruang 3",
+   "tutor": "Dinda Puspita",
+   "fill": "8/10"
+  },
+  {
+   "id": "JDW-5",
+   "day": 5,
+   "slot": 0,
+   "kelas": "Calistung A",
+   "room": "Ruang 1",
+   "tutor": "Siti Aisyah",
+   "fill": "5/6"
+  },
+  {
+   "id": "JDW-6",
+   "day": 0,
+   "slot": 1,
+   "kelas": "Calistung A",
+   "room": "Ruang 1",
+   "tutor": "Siti Aisyah",
+   "fill": "5/6"
+  },
+  {
+   "id": "JDW-7",
+   "day": 2,
+   "slot": 1,
+   "kelas": "Calistung B",
+   "room": "Ruang 1",
+   "tutor": "Siti Aisyah",
+   "fill": "6/6"
+  },
+  {
+   "id": "JDW-8",
+   "day": 4,
+   "slot": 1,
+   "kelas": "English Teens A",
+   "room": "Ruang 4",
+   "tutor": "Muhammad Rizki",
+   "fill": "10/12"
+  },
+  {
+   "id": "JDW-9",
+   "day": 5,
+   "slot": 1,
+   "kelas": "Calistung C",
+   "room": "Ruang 1",
+   "tutor": "Siti Aisyah",
+   "fill": "6/6"
+  },
+  {
+   "id": "JDW-10",
+   "day": 0,
+   "slot": 2,
+   "kelas": "IPA Junior 1B",
+   "room": "Ruang 3",
+   "tutor": "Dinda Puspita",
+   "fill": "9/10"
+  },
+  {
+   "id": "JDW-11",
+   "day": 1,
+   "slot": 2,
+   "kelas": "English Primary 2B",
+   "room": "Ruang 2",
+   "tutor": "Andi Saputra",
+   "fill": "9/10"
+  },
+  {
+   "id": "JDW-12",
+   "day": 3,
+   "slot": 2,
+   "kelas": "IPA Junior 1B",
+   "room": "Ruang 3",
+   "tutor": "Dinda Puspita",
+   "fill": "9/10"
+  },
+  {
+   "id": "JDW-13",
+   "day": 5,
+   "slot": 2,
+   "kelas": "Speaking Club",
+   "room": "Ruang 4",
+   "tutor": "Rani Putri",
+   "fill": "6/8"
+  },
+  {
+   "id": "JDW-14",
+   "day": 0,
+   "slot": 4,
+   "kelas": "English Teens A",
+   "room": "Ruang 4",
+   "tutor": "Muhammad Rizki",
+   "fill": "10/12"
+  },
+  {
+   "id": "JDW-15",
+   "day": 1,
+   "slot": 4,
+   "kelas": "English Teens B",
+   "room": "Ruang 4",
+   "tutor": "Muhammad Rizki",
+   "fill": "11/12"
+  },
+  {
+   "id": "JDW-16",
+   "day": 3,
+   "slot": 4,
+   "kelas": "English Teens A",
+   "room": "Ruang 4",
+   "tutor": "Muhammad Rizki",
+   "fill": "10/12"
+  },
+  {
+   "id": "JDW-17",
+   "day": 4,
+   "slot": 4,
+   "kelas": "English Teens B",
+   "room": "Ruang 4",
+   "tutor": "Muhammad Rizki",
+   "fill": "11/12"
+  },
+  {
+   "id": "JDW-18",
+   "day": 0,
+   "slot": 5,
+   "kelas": "Math Primary 3A",
+   "room": "Ruang 2",
+   "tutor": "Fauzan Habibi",
+   "fill": "9/10"
+  },
+  {
+   "id": "JDW-19",
+   "day": 1,
+   "slot": 5,
+   "kelas": "Math Primary 3B",
+   "room": "Ruang 2",
+   "tutor": "Fauzan Habibi",
+   "fill": "8/10"
+  },
+  {
+   "id": "JDW-20",
+   "day": 2,
+   "slot": 5,
+   "kelas": "Math Primary 3A",
+   "room": "Ruang 2",
+   "tutor": "Fauzan Habibi",
+   "fill": "9/10"
+  },
+  {
+   "id": "JDW-21",
+   "day": 3,
+   "slot": 5,
+   "kelas": "Math Primary 3B",
+   "room": "Ruang 2",
+   "tutor": "Fauzan Habibi",
+   "fill": "8/10"
+  },
+  {
+   "id": "JDW-22",
+   "day": 4,
+   "slot": 5,
+   "kelas": "Afternoon Package",
+   "room": "Ruang 5",
+   "tutor": "Team Tutor",
+   "fill": "10/10"
+  },
+  {
+   "id": "JDW-23",
+   "day": 5,
+   "slot": 5,
+   "kelas": "Afternoon Package",
+   "room": "Ruang 5",
+   "tutor": "Team Tutor",
+   "fill": "10/10"
+  },
+  {
+   "id": "JDW-24",
+   "day": 0,
+   "slot": 6,
+   "kelas": "Intensif SMP",
+   "room": "Ruang 4",
+   "tutor": "Rani Putri",
+   "fill": "9/12"
+  },
+  {
+   "id": "JDW-25",
+   "day": 1,
+   "slot": 6,
+   "kelas": "Intensif SMA",
+   "room": "Ruang 4",
+   "tutor": "Rani Putri",
+   "fill": "9/12"
+  },
+  {
+   "id": "JDW-26",
+   "day": 2,
+   "slot": 6,
+   "kelas": "Intensif SMP",
+   "room": "Ruang 4",
+   "tutor": "Rani Putri",
+   "fill": "9/12"
+  },
+  {
+   "id": "JDW-27",
+   "day": 3,
+   "slot": 6,
+   "kelas": "Intensif SMA",
+   "room": "Ruang 4",
+   "tutor": "Rani Putri",
+   "fill": "9/12"
+  },
+  {
+   "id": "JDW-28",
+   "day": 4,
+   "slot": 6,
+   "kelas": "Speaking Club (Teens)",
+   "room": "Ruang 4",
+   "tutor": "Rani Putri",
+   "fill": "6/8"
+  }
+ ],
+ "SCHEDULE_NOTES": {
+  "1-3": "Persiapan Kelas",
+  "2-3": "Rapat Tutor",
+  "3-3": "Persiapan Kelas",
+  "4-3": "Persiapan Kelas",
+  "5-3": "Persiapan Kelas"
+ },
+ "STAFF": [
+  {
+   "id": "TUT-001",
+   "name": "Fitri Handayani, S.T.",
+   "email": "fitri.handayani@studyhack.id",
+   "role": "Tutor",
+   "programs": [
+    "English Primary",
+    "English Teens"
+   ],
+   "phone": "0812-3456-7890",
+   "status": "Aktif",
+   "joined": "01/08/2022",
+   "avatar": "/assets/portal/tutor-fitri.png"
+  },
+  {
+   "id": "TUT-002",
+   "name": "Andi Saputra, S.Pd.",
+   "email": "andi.saputra@studyhack.id",
+   "role": "Tutor",
+   "programs": [
+    "Math Primary",
+    "Combo"
+   ],
+   "phone": "0813-2345-6789",
+   "status": "Aktif",
+   "joined": "15/09/2022",
+   "avatar": "/assets/portal/tutor-andi.png"
+  },
+  {
+   "id": "TUT-003",
+   "name": "Siti Aisyah, S.Pd.",
+   "email": "siti.aisyah@studyhack.id",
+   "role": "Tutor",
+   "programs": [
+    "English Primary",
+    "Intensif"
+   ],
+   "phone": "0812-9876-5432",
+   "status": "Aktif",
+   "joined": "20/10/2022",
+   "avatar": "/assets/portal/tutor-siti.png"
+  },
+  {
+   "id": "TUT-004",
+   "name": "Muhammad Rizki, S.Pd.",
+   "email": "rizki@studyhack.id",
+   "role": "Tutor",
+   "programs": [
+    "Math Primary",
+    "IPA Junior"
+   ],
+   "phone": "0813-5555-2211",
+   "status": "Aktif",
+   "joined": "05/01/2023"
+  },
+  {
+   "id": "TUT-005",
+   "name": "Dinda Puspita, S.Pd.",
+   "email": "dinda@studyhack.id",
+   "role": "Tutor",
+   "programs": [
+    "English Teens",
+    "Combo"
+   ],
+   "phone": "0812-1234-5678",
+   "status": "Aktif",
+   "joined": "11/02/2023"
+  },
+  {
+   "id": "TUT-006",
+   "name": "Fauzan Habibi, S.Pd.",
+   "email": "fauzan@studyhack.id",
+   "role": "Tutor",
+   "programs": [
+    "IPA Junior",
+    "Intensif"
+   ],
+   "phone": "0813-8765-4321",
+   "status": "Nonaktif",
+   "joined": "20/03/2023"
+  },
+  {
+   "id": "STF-001",
+   "name": "Rani Putri, A.Md.",
+   "email": "rani.putri@studyhack.id",
+   "role": "Staff",
+   "programs": [
+    "Administrasi"
+   ],
+   "phone": "0812-3344-5566",
+   "status": "Aktif",
+   "joined": "01/07/2022"
+  },
+  {
+   "id": "STF-002",
+   "name": "Yusuf Pratama",
+   "email": "yusuf@studyhack.id",
+   "role": "Staff",
+   "programs": [
+    "Keuangan"
+   ],
+   "phone": "0813-6677-8899",
+   "status": "Aktif",
+   "joined": "10/07/2022"
+  },
+  {
+   "id": "STF-003",
+   "name": "Lina Marlina",
+   "email": "lina@studyhack.id",
+   "role": "Staff",
+   "programs": [
+    "Customer Service"
+   ],
+   "phone": "0812-1122-3344",
+   "status": "Aktif",
+   "joined": "15/08/2022"
+  },
+  {
+   "id": "STF-004",
+   "name": "Rahmat Hidayat",
+   "email": "rahmat@studyhack.id",
+   "role": "Staff",
+   "programs": [
+    "IT Support"
+   ],
+   "phone": "0813-9988-7766",
+   "status": "Aktif",
+   "joined": "01/09/2022"
+  },
+  {
+   "id": "TUT-007",
+   "name": "Budi Santoso, S.Pd",
+   "email": "budi.santoso@studyhack.id",
+   "role": "Tutor",
+   "programs": [
+    "Math Primary",
+    "Intensif"
+   ],
+   "phone": "0812-3456-7890",
+   "status": "Aktif",
+   "joined": "15/07/2023",
+   "avatar": "/assets/portal/tutor-budi.png"
+  },
+  {
+   "id": "TUT-008",
+   "name": "Nurul Azmi, S.Pd.",
+   "email": "nurul.azmi@studyhack.id",
+   "role": "Tutor",
+   "programs": [
+    "IPA Junior"
+   ],
+   "phone": "0812-4410-2231",
+   "status": "Aktif",
+   "joined": "02/08/2023",
+   "avatar": "/assets/portal/tutor-nurul.png"
+  }
+ ],
+ "STUDENTS": [
+  {
+   "id": "2401001",
+   "name": "Nadhira Putri A.",
+   "gender": "P",
+   "program": "English Primary",
+   "kelas": "Primary 1A",
+   "dob": "12/05/2017",
+   "age": 7,
+   "parent": "Rina Andayani",
+   "phone": "0812-3456-7890",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401002",
+   "name": "Arsyad Alfarizky",
+   "gender": "L",
+   "program": "Math Primary",
+   "kelas": "Primary 1A",
+   "dob": "21/08/2017",
+   "age": 6,
+   "parent": "Budi Santoso",
+   "phone": "0813-2345-6789",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401003",
+   "name": "Yasmin Azzahra",
+   "gender": "P",
+   "program": "Combo",
+   "kelas": "Primary 2A",
+   "dob": "03/02/2016",
+   "age": 8,
+   "parent": "Dewi Lestari",
+   "phone": "0812-9876-5432",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401004",
+   "name": "Muhammad Marco",
+   "gender": "L",
+   "program": "English Primary",
+   "kelas": "Primary 2A",
+   "dob": "17/07/2016",
+   "age": 7,
+   "parent": "Andi Wijaya",
+   "phone": "0813-5555-2211",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401005",
+   "name": "Mecca A. Ramadhan",
+   "gender": "L",
+   "program": "Intensif",
+   "kelas": "Junior 1A",
+   "dob": "11/11/2012",
+   "age": 11,
+   "parent": "Siti Rahmah",
+   "phone": "0812-1234-5678",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401006",
+   "name": "Ethan Marisi S.",
+   "gender": "L",
+   "program": "Combo",
+   "kelas": "Primary 3A",
+   "dob": "09/04/2015",
+   "age": 9,
+   "parent": "Marisi Sitohang",
+   "phone": "0813-8765-4321",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401007",
+   "name": "Putri Anfielia S.",
+   "gender": "P",
+   "program": "Math Primary",
+   "kelas": "Primary 2B",
+   "dob": "28/09/2016",
+   "age": 7,
+   "parent": "Rina Simangunsong",
+   "phone": "0812-3344-5566",
+   "status": "Nonaktif"
+  },
+  {
+   "id": "2401008",
+   "name": "Zafi Arkaan",
+   "gender": "L",
+   "program": "English Primary",
+   "kelas": "Primary 1B",
+   "dob": "14/03/2017",
+   "age": 7,
+   "parent": "Ahmad Arkaan",
+   "phone": "0813-6677-8899",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401009",
+   "name": "Mutiara Azzahra",
+   "gender": "P",
+   "program": "Combo",
+   "kelas": "Junior 1A",
+   "dob": "25/06/2013",
+   "age": 10,
+   "parent": "Taufik Hidayat",
+   "phone": "0812-1122-3344",
+   "status": "Lulus"
+  },
+  {
+   "id": "2401010",
+   "name": "Cantika Putri",
+   "gender": "P",
+   "program": "Intensif",
+   "kelas": "Junior 2A",
+   "dob": "30/12/2011",
+   "age": 12,
+   "parent": "Dian Purnama",
+   "phone": "0813-9988-7766",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401011",
+   "name": "Hazqila Yasmin R.",
+   "gender": "P",
+   "program": "English Primary",
+   "kelas": "Primary 3A",
+   "dob": "02/01/2015",
+   "age": 9,
+   "parent": "Ratna Sari",
+   "phone": "0812-7711-2040",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401012",
+   "name": "Marco Febrian",
+   "gender": "L",
+   "program": "Math Primary",
+   "kelas": "Primary 3A",
+   "dob": "19/10/2015",
+   "age": 9,
+   "parent": "Febri Kurniawan",
+   "phone": "0813-4412-9087",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401013",
+   "name": "Nadhira Azzahra",
+   "gender": "P",
+   "program": "Intensif",
+   "kelas": "Junior 1A",
+   "dob": "06/06/2012",
+   "age": 12,
+   "parent": "Yuni Astuti",
+   "phone": "0812-5530-1188",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401014",
+   "name": "Putra Anfiela S.",
+   "gender": "L",
+   "program": "Intensif",
+   "kelas": "Junior 2A",
+   "dob": "23/03/2011",
+   "age": 13,
+   "parent": "Hotman Sinaga",
+   "phone": "0813-2090-7755",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401015",
+   "name": "Aisyah Humaira",
+   "gender": "P",
+   "program": "Combo",
+   "kelas": "Primary 2B",
+   "dob": "15/08/2016",
+   "age": 8,
+   "parent": "Nur Hasanah",
+   "phone": "0812-6601-4423",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401016",
+   "name": "Rafa Pratama",
+   "gender": "L",
+   "program": "English Primary",
+   "kelas": "Primary 1B",
+   "dob": "27/11/2017",
+   "age": 6,
+   "parent": "Agus Pratama",
+   "phone": "0813-7745-3310",
+   "status": "Aktif"
+  },
+  {
+   "id": "2401017",
+   "name": "Khalisa Nur",
+   "gender": "P",
+   "program": "Math Primary",
+   "kelas": "Primary 1A",
+   "dob": "08/04/2017",
+   "age": 7,
+   "parent": "Lina Wahyuni",
+   "phone": "0812-8890-2265",
+   "status": "Nonaktif"
+  },
+  {
+   "id": "2401018",
+   "name": "Daffa Alfarezi",
+   "gender": "L",
+   "program": "Combo",
+   "kelas": "Primary 3A",
+   "dob": "31/01/2015",
+   "age": 9,
+   "parent": "Reza Alfarezi",
+   "phone": "0813-1023-5567",
+   "status": "Aktif"
+  }
+ ],
+ "TIME_SLOTS": [
+  "07:00 - 08:30",
+  "08:30 - 10:00",
+  "10:00 - 11:30",
+  "13:00 - 14:30",
+  "14:30 - 16:00",
+  "16:00 - 17:30",
+  "18:30 - 20:00"
+ ],
+ "TUTOR_ATTENDANCE": [
+  {
+   "id": "TUT-001",
+   "name": "Fitri Handayani, S.T.",
+   "program": "English Primary 1A",
+   "code": "EP1A-01",
+   "room": "Ruang 2",
+   "schedule": "07:00 - 08:30",
+   "checkIn": "06:58",
+   "checkOut": "08:32",
+   "status": "Hadir",
+   "note": "-"
+  },
+  {
+   "id": "TUT-002",
+   "name": "Andi Saputra, S.Pd.",
+   "program": "Math Primary 2A",
+   "code": "MP2A-02",
+   "room": "Ruang 3",
+   "schedule": "07:00 - 08:30",
+   "checkIn": "07:05",
+   "checkOut": "08:30",
+   "status": "Terlambat",
+   "note": "Terlambat 5 menit"
+  },
+  {
+   "id": "TUT-003",
+   "name": "Siti Aisyah, S.Pd.",
+   "program": "Calistung B",
+   "code": "CLB-01",
+   "room": "Ruang 1",
+   "schedule": "08:30 - 10:00",
+   "checkIn": "08:28",
+   "checkOut": "10:02",
+   "status": "Hadir",
+   "note": "-"
+  },
+  {
+   "id": "TUT-004",
+   "name": "Muhammad Rizki, S.Pd.",
+   "program": "IPA Junior 1A",
+   "code": "IPAJ1A-01",
+   "room": "Ruang 3",
+   "schedule": "10:00 - 11:30",
+   "checkIn": "-",
+   "checkOut": "-",
+   "status": "Tidak Hadir",
+   "note": "Tanpa Keterangan"
+  },
+  {
+   "id": "TUT-005",
+   "name": "Dinda Puspita, S.Pd.",
+   "program": "English Teens A",
+   "code": "ETA-01",
+   "room": "Ruang 4",
+   "schedule": "14:30 - 16:00",
+   "checkIn": "14:25",
+   "checkOut": "16:05",
+   "status": "Hadir",
+   "note": "-"
+  },
+  {
+   "id": "TUT-006",
+   "name": "Fauzan Habibi, S.Pd.",
+   "program": "Math Primary 3A",
+   "code": "MP3A-02",
+   "room": "Ruang 2",
+   "schedule": "16:00 - 17:30",
+   "checkIn": "16:01",
+   "checkOut": "17:30",
+   "status": "Hadir",
+   "note": "-"
+  },
+  {
+   "id": "STF-001",
+   "name": "Rani Putri, A.Md.",
+   "program": "Administrasi",
+   "code": "",
+   "room": "Kantor",
+   "schedule": "09:00 - 17:00",
+   "checkIn": "09:02",
+   "checkOut": "17:01",
+   "status": "Hadir",
+   "note": "-"
+  },
+  {
+   "id": "STF-002",
+   "name": "Yusuf Pratama",
+   "program": "Keuangan",
+   "code": "",
+   "room": "Kantor",
+   "schedule": "09:00 - 17:00",
+   "checkIn": "-",
+   "checkOut": "-",
+   "status": "Izin",
+   "note": "Izin Keluarga"
+  },
+  {
+   "id": "TUT-007",
+   "name": "Budi Santoso, S.Pd",
+   "program": "Math Primary 3B",
+   "code": "MP3B-01",
+   "room": "Ruang 2",
+   "schedule": "16:00 - 17:30",
+   "checkIn": "16:12",
+   "checkOut": "17:32",
+   "status": "Terlambat",
+   "note": "Terlambat 12 menit"
+  },
+  {
+   "id": "TUT-008",
+   "name": "Nurul Azmi, S.Pd.",
+   "program": "IPA Junior 1B",
+   "code": "IPAJ1B-01",
+   "room": "Ruang 3",
+   "schedule": "10:00 - 11:30",
+   "checkIn": "-",
+   "checkOut": "-",
+   "status": "Sakit",
+   "note": "Surat dokter terlampir"
+  },
+  {
+   "id": "STF-003",
+   "name": "Lina Marlina",
+   "program": "Customer Service",
+   "code": "",
+   "room": "Kantor",
+   "schedule": "09:00 - 17:00",
+   "checkIn": "08:55",
+   "checkOut": "17:03",
+   "status": "Hadir",
+   "note": "-"
+  },
+  {
+   "id": "STF-004",
+   "name": "Rahmat Hidayat",
+   "program": "IT Support",
+   "code": "",
+   "room": "Kantor",
+   "schedule": "09:00 - 17:00",
+   "checkIn": "09:00",
+   "checkOut": "17:00",
+   "status": "Hadir",
+   "note": "-"
+  }
+ ],
+ "WEEK_DAYS": [
+  {
+   "name": "Senin",
+   "date": "12 Mei"
+  },
+  {
+   "name": "Selasa",
+   "date": "13 Mei"
+  },
+  {
+   "name": "Rabu",
+   "date": "14 Mei"
+  },
+  {
+   "name": "Kamis",
+   "date": "15 Mei"
+  },
+  {
+   "name": "Jumat",
+   "date": "16 Mei"
+  },
+  {
+   "name": "Sabtu",
+   "date": "17 Mei"
+  },
+  {
+   "name": "Minggu",
+   "date": "18 Mei"
+  }
+ ],
+ "WORKLOADS": [
+  {
+   "id": "TUT-001",
+   "name": "Fitri Handayani, S.T.",
+   "classes": [
+    "English Primary 1A",
+    "English Teens A"
+   ],
+   "classCount": 4,
+   "hours": "18:00",
+   "sessions": 18,
+   "pct": 90,
+   "status": "Optimal",
+   "note": "-"
+  },
+  {
+   "id": "TUT-002",
+   "name": "Andi Saputra, S.Pd.",
+   "classes": [
+    "Math Primary 2A",
+    "Math Primary 3B"
+   ],
+   "classCount": 5,
+   "hours": "16:30",
+   "sessions": 16.5,
+   "pct": 82.5,
+   "status": "Optimal",
+   "note": "-"
+  },
+  {
+   "id": "TUT-003",
+   "name": "Siti Aisyah, S.Pd.",
+   "classes": [
+    "Calistung B",
+    "Calistung C"
+   ],
+   "classCount": 4,
+   "hours": "12:00",
+   "sessions": 12,
+   "pct": 60,
+   "status": "Ringan",
+   "note": "Masih tersedia 8:00 jam"
+  },
+  {
+   "id": "TUT-004",
+   "name": "Muhammad Rizki, S.Pd.",
+   "classes": [
+    "IPA Junior 1A",
+    "IPA Junior 1B"
+   ],
+   "classCount": 5,
+   "hours": "20:00",
+   "sessions": 20,
+   "pct": 100,
+   "status": "Maksimal",
+   "note": "Sesuai batas maksimal"
+  },
+  {
+   "id": "TUT-005",
+   "name": "Dinda Puspita, S.Pd.",
+   "classes": [
+    "English Teens A",
+    "Intensif SMP"
+   ],
+   "classCount": 4,
+   "hours": "14:30",
+   "sessions": 14.5,
+   "pct": 72.5,
+   "status": "Cukup",
+   "note": "Masih tersedia 5:30 jam"
+  },
+  {
+   "id": "TUT-006",
+   "name": "Fauzan Habibi, S.Pd.",
+   "classes": [
+    "Math Primary 3A",
+    "Math Primary 2B"
+   ],
+   "classCount": 4,
+   "hours": "17:30",
+   "sessions": 17.5,
+   "pct": 87.5,
+   "status": "Optimal",
+   "note": "-"
+  },
+  {
+   "id": "TUT-007",
+   "name": "Budi Santoso, S.Pd",
+   "classes": [
+    "Math Primary 3B",
+    "Intensif SMP"
+   ],
+   "classCount": 3,
+   "hours": "13:00",
+   "sessions": 13,
+   "pct": 65,
+   "status": "Cukup",
+   "note": "Masih tersedia 7:00 jam"
+  },
+  {
+   "id": "TUT-008",
+   "name": "Nurul Azmi, S.Pd.",
+   "classes": [
+    "IPA Junior 1B"
+   ],
+   "classCount": 2,
+   "hours": "8:00",
+   "sessions": 8,
+   "pct": 40,
+   "status": "Ringan",
+   "note": "Masih tersedia 12:00 jam"
+  },
+  {
+   "id": "STF-001",
+   "name": "Rani Putri, A.Md.",
+   "classes": [
+    "Administrasi"
+   ],
+   "classCount": 0,
+   "hours": "-",
+   "sessions": 0,
+   "pct": 0,
+   "status": "Tidak Mengajar",
+   "note": "Staff Administrasi"
+  },
+  {
+   "id": "STF-002",
+   "name": "Yusuf Pratama",
+   "classes": [
+    "Keuangan"
+   ],
+   "classCount": 0,
+   "hours": "-",
+   "sessions": 0,
+   "pct": 0,
+   "status": "Tidak Mengajar",
+   "note": "Staff Keuangan"
+  }
+ ]
+}

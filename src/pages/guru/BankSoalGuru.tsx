@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FileText, UserRound, Plus, Calculator, Languages, FlaskConical, ClipboardList, Globe, Star, type LucideIcon } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Tabs, SearchInput, Select, DataTable, Badge, Btn, RowMenu, useCrud, type Col, type Field } from '../../components/portal/Kit';
-import { QUESTIONS, type QuestionRow } from '../../data/guruPortal';
+import { type QuestionRow } from '../../data/guruPortal';
 
 const SUBJECTS = ['Matematika', 'Bahasa Inggris', 'IPA', 'Fisika', 'Bahasa Indonesia'];
 const SUBJECT_ICON: Record<string, { icon: LucideIcon; cls: string }> = {
@@ -27,10 +27,10 @@ export default function BankSoalGuru() {
   const [level, setLevel] = useState('');
   const [used, setUsed] = useState<Set<string>>(new Set());
 
-  const crud = useCrud<QuestionRow>(QUESTIONS, {
+  const crud = useCrud<QuestionRow>('questions', {
     label: 'Soal',
     fields: FIELDS,
-    create: (v) => ({ id: `Q${Date.now()}`, text: v.text, type: v.type as QuestionRow['type'], subject: v.subject, topic: v.topic, grade: v.grade, level: v.level as QuestionRow['level'], mine: true, fav: false }),
+    create: (v) => ({ id: '', text: v.text, type: v.type as QuestionRow['type'], subject: v.subject, topic: v.topic, grade: v.grade, level: v.level as QuestionRow['level'], mine: true, fav: false }),
     detail: (r) => [['Pertanyaan', <span className="font-medium text-slate-700">{r.text}</span>], ['Jenis', r.type], ['Mata Pelajaran', r.subject], ['Topik', r.topic], ['Kelas', r.grade], ['Kesulitan', r.level]],
   });
 

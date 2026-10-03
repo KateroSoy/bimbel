@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Users, BadgeCheck, TrendingUp, AlertTriangle, ArrowRight } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, StatStrip, Tabs, SearchInput, Select, DataTable, Person, Badge, Btn, RowMenu, Meter, Panel, exportCsv, type Col } from '../../components/portal/Kit';
-import { MY_STUDENTS, gradeStatus, type TutorStudent } from '../../data/guruPortal';
+import { gradeStatus, type TutorStudent } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
 import { StudentProfileModal } from './SiswaSaya';
 import { cn } from '../../lib/utils';
 
@@ -14,6 +15,7 @@ const barColor = (v: number) => (v >= 80 ? '#16A34A' : v >= 60 ? '#F97316' : '#E
 
 export default function NilaiProgress() {
   const navigate = useNavigate();
+  const MY_STUDENTS = useResource<TutorStudent>('class-students').rows;
   const [tab, setTab] = useState('Ringkasan');
   const [q, setQ] = useState('');
   const [kelas, setKelas] = useState('');

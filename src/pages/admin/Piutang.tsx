@@ -6,7 +6,7 @@ import {
   PageHead, StatCards, Tabs, FilterBar, SearchInput, Select, DataTable, Person, Badge, RowMenu, Btn, InfoBox, Panel, DonutPanel, WithRail, Meter,
   LinkAction, FormDialog, useCrud, exportCsv, rupiah, soon, TONE_HEX, type Col, type Field, type Tone,
 } from '../../components/portal/Kit';
-import { DEBTS, type DebtRow, type DebtStatus } from '../../data/adminPortal';
+import { type DebtRow, type DebtStatus } from '../../data/adminPortal';
 
 const TABS = ['Semua Piutang', 'Jatuh Tempo', 'Lalu Jatuh Tempo', 'Sebagian Dibayar', 'Lunas'];
 const STATUSES: DebtStatus[] = ['Jatuh Tempo', 'Lalu Jatuh Tempo', 'Sebagian Dibayar', 'Lunas'];
@@ -26,10 +26,10 @@ export default function Piutang() {
   const [status, setStatus] = useState('');
   const [paying, setPaying] = useState<DebtRow | null>(null);
 
-  const crud = useCrud<DebtRow>(DEBTS, {
+  const crud = useCrud<DebtRow>('debts', {
     label: 'Piutang',
     fields: FIELDS,
-    create: (v, rows) => ({ id: `SHK-${String(rows.length + 20).padStart(4, '0')}`, name: v.name, program: v.program, total: Number(v.total) || 0, paid: Number(v.paid) || 0, due: v.due, late: 0, status: v.status as DebtStatus }),
+    create: (v) => ({ id: '', name: v.name, program: v.program, total: Number(v.total) || 0, paid: Number(v.paid) || 0, due: v.due, late: 0, status: v.status as DebtStatus }),
     detail: (d) => [['Siswa', `${d.name} (${d.id})`], ['Program / Kelas', d.program], ['Total Tagihan', rupiah(d.total)], ['Total Dibayar', rupiah(d.paid)], ['Sisa Piutang', rupiah(rest(d))], ['Jatuh Tempo', d.due], ['Hari Terlambat', d.late ? `${d.late} hari` : '-'], ['Status', <Badge>{d.status}</Badge>]],
   });
 

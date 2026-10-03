@@ -38,6 +38,10 @@ export default function CourseList() {
     .filter((c) => !query || `${c.title} ${subjectById(c.subjectId).tutor}`.toLowerCase().includes(query.toLowerCase()))
     .sort((a, b) => sort === 'az' ? a.title.localeCompare(b.title) : courseStats(b).percent - courseStats(a).percent);
 
+  if (courses.length === 0) {
+    return <DashboardLayout><div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-sm text-slate-600 font-medium">Belum ada course untuk akunmu. Course akan muncul setelah admin mendaftarkanmu ke program.</div></DashboardLayout>;
+  }
+
   // Course terakhir dipelajari
   const current = courses.find((c) => c.lastStudied && statusOf(c) === 'Sedang Berjalan') ?? courses[0];
   const cs = courseStats(current);

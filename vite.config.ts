@@ -63,6 +63,8 @@ export default defineConfig(() => {
     server: {
       port: 3001,
       host: true,
+      // `php artisan serve` in backend/ during development
+      proxy: { '/api': process.env.VITE_API_PROXY || 'http://127.0.0.1:8000' },
       allowedHosts: true,
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâ€”file watching is disabled to prevent flickering during agent edits.

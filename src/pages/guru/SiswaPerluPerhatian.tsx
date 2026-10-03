@@ -3,7 +3,8 @@ import { AlertTriangle, CircleAlert, TrendingUp, TrendingDown, BarChart3, Clipbo
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Tabs, SearchInput, Select, DataTable, Person, Badge, Btn, RowMenu, Panel, FormDialog, type Col } from '../../components/portal/Kit';
-import { ATTENTION, type AttentionRow, type Risk } from '../../data/guruPortal';
+import { type AttentionRow, type Risk } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
 
 const ISSUE_ICON: Record<string, { icon: LucideIcon; color: string }> = {
   'Nilai rendah': { icon: TrendingDown, color: '#EF4444' }, 'Progress rendah': { icon: BarChart3, color: '#F97316' }, 'Tugas belum selesai': { icon: ClipboardList, color: '#EF4444' },
@@ -13,7 +14,8 @@ const STAT_COLOR: Record<Risk, string> = { 'Risiko Tinggi': 'text-red-600', 'Ris
 const ACTION: Record<Risk, string> = { 'Risiko Tinggi': 'Tindak Lanjut', 'Risiko Sedang': 'Tindak Lanjut', Membaik: 'Lihat Perkembangan', 'Remedial Aktif': 'Lihat Remedial' };
 
 export default function SiswaPerluPerhatian() {
-  const [rows, setRows] = useState(ATTENTION);
+  const remote = useResource<AttentionRow>('attention-cases');
+  const rows = remote.rows;
   const [tab, setTab] = useState('Semua');
   const [q, setQ] = useState('');
   const [kelas, setKelas] = useState('');
@@ -35,7 +37,7 @@ export default function SiswaPerluPerhatian() {
         return <div className="flex items-center gap-2.5"><i.icon className="w-6 h-6 shrink-0" style={{ color: i.color }} /><div><p className="font-bold text-[#0F1E4A]">{r.issue}</p><p className="text-xs text-slate-500">{r.issueSub}</p></div></div>;
       },
     },
-    { header: 'KONDISI TERKAIT', cell: (r) => <div className="flex gap-5">{r.stats.map(([l, v]) => <div key={l}><p className="text-[11px] text-slate-500 whitespace-nowrap">{l}</p><p className={`text-[15px] font-extrabold ${STAT_COLOR[r.risk]}`}>{v}</p></div>)}</div> },
+    { header: 'KONDISI TERKAIT', cell: (r) => <div className="flex gap-5">{(r.stats ?? []).map(([l, v]) => <div key={l}><p className="text-[11px] text-slate-500 whitespace-nowrap">{l}</p><p className={`text-[15px] font-extrabold ${STAT_COLOR[r.risk]}`}>{v}</p></div>)}</div> },
     { header: 'TINGKAT RISIKO', cell: (r) => <Badge className="!text-xs !py-1">{r.risk}</Badge> },
     {
       header: 'AKSI', align: 'center',
@@ -44,7 +46,7 @@ export default function SiswaPerluPerhatian() {
           <Btn onClick={() => setActing(r)} className="min-w-[128px]">{ACTION[r.risk]}</Btn>
           <RowMenu items={[
             { label: 'Hubungi Orang Tua', onClick: () => toast.success(`Pesan disiapkan untuk orang tua ${r.name}`) },
-            { label: 'Tandai Membaik', onClick: () => { setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, risk: 'Membaik', issue: 'Membaik', issueSub: 'Perkembangan positif' } : x))); toast.success(`${r.name} ditandai membaik`); } },
+            { label: 'Tandai Membaik', onClick: async () => { if (await remote.update(r.id, { risk: 'Membaik', issue: 'Membaik', issueSub: 'Perkembangan positif' })) toast.success(`${r.name} ditandai membaik`); } },
           ]} />
         </div>
       ),
@@ -91,10 +93,11 @@ export default function SiswaPerluPerhatian() {
             { key: 'note', label: 'Catatan', type: 'textarea', required: true, placeholder: 'Rencana dan catatan untuk siswa ini...' },
           ]}
           onClose={() => setActing(null)}
-          onSubmit={(v) => {
+          onSubmit={async (v) => {
             const target = acting!;
-            if (v.action === 'Program remedial') setRows((prev) => prev.map((x) => (x.id === target.id ? { ...x, risk: 'Remedial Aktif', issue: 'Remedial aktif', issueSub: 'Sedang menjalani program remedial' } : x)));
-            toast.success('Tindak lanjut disimpan', { description: `${target.name} · ${v.action}` });
+            const followUp = `${v.action}${v.due ? ` (target ${v.due})` : ''}: ${v.note}`;
+            const remedial = v.action === 'Program remedial' ? { risk: 'Remedial Aktif' as Risk, issue: 'Remedial aktif', issueSub: 'Sedang menjalani program remedial' } : {};
+            if (await remote.update(target.id, { note: followUp.slice(0, 190), ...remedial })) toast.success('Tindak lanjut disimpan', { description: `${target.name} · ${v.action}` });
           }}
         />
       </div>

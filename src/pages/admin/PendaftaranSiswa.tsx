@@ -10,7 +10,7 @@ import {
   PageHead, StatCards, Tabs, FilterBar, SearchInput, Select, DataTable, Person, Badge, RowActions, Btn, InfoBox, Panel, DonutPanel, QuickList,
   WithRail, useCrud, exportCsv, soon, TONE_HEX, type Col, type Field,
 } from '../../components/portal/Kit';
-import { REGISTRATIONS, programTone, type Registration, type RegStatus } from '../../data/adminPortal';
+import { programTone, type Registration, type RegStatus } from '../../data/adminPortal';
 import { cn } from '../../lib/utils';
 
 const PROGRAMS = ['English Primary', 'Math Primary', 'Combo', 'Intensif'];
@@ -36,11 +36,11 @@ export default function PendaftaranSiswa() {
   const [source, setSource] = useState('');
   const [status, setStatus] = useState('');
 
-  const crud = useCrud<Registration>(REGISTRATIONS, {
+  const crud = useCrud<Registration>('registrations', {
     label: 'Pendaftaran',
     fields: FIELDS,
-    create: (v, rows) => ({
-      id: `REG-250617-${String(rows.length + 1).padStart(3, '0')}`, date: '17/06/2025', time: new Date().toTimeString().slice(0, 5), name: v.name,
+    create: (v) => ({
+      id: '', date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }), time: new Date().toTimeString().slice(0, 5), name: v.name,
       gender: v.gender as 'L' | 'P', age: Number(v.age) || 0, program: v.program, source: v.source, status: v.status as RegStatus,
       stage: 'Verifikasi Data', stageNote: 'Oleh: Admin',
     }),
@@ -72,7 +72,7 @@ export default function PendaftaranSiswa() {
       header: 'Aksi', align: 'center',
       cell: (r) => <RowActions onView={() => crud.view(r)} onEdit={() => crud.edit(r)} menu={[
         { label: 'Verifikasi Data', onClick: () => setStatusOf(r, 'Dalam Proses', 'Tes & Interview', 'Menunggu jadwal') },
-        { label: 'Terima Siswa', onClick: () => setStatusOf(r, 'Diterima', 'Selesai', 'Diterima: 17/06/2025') },
+        { label: 'Terima Siswa', onClick: () => setStatusOf(r, 'Diterima', 'Selesai', `Diterima: ${new Date().toLocaleDateString('id-ID')}`) },
         { label: 'Tolak Pendaftaran', onClick: () => setStatusOf(r, 'Ditolak', 'Ditolak', 'Alasan: Keputusan admin'), danger: true },
         { label: 'Hapus', onClick: () => crud.remove(r), danger: true },
       ]} />,
@@ -92,7 +92,7 @@ export default function PendaftaranSiswa() {
           </>}
         />
         <StatCards items={[
-          { label: 'Total Pendaftaran', value: crud.rows.length, sub: '▲ 16% dari bulan lalu', subTone: 'up', icon: UserPlus, tone: 'blue' },
+          { label: 'Total Pendaftaran', value: crud.rows.length, sub: 'Semua pengajuan', icon: UserPlus, tone: 'blue' },
           { label: 'Dalam Proses', value: count('Dalam Proses'), sub: `${pct(count('Dalam Proses'))} dari total`, icon: Hourglass, tone: 'amber' },
           { label: 'Menunggu Verifikasi', value: count('Menunggu Verifikasi'), sub: `${pct(count('Menunggu Verifikasi'))} dari total`, icon: ClipboardCheck, tone: 'purple' },
           { label: 'Diterima', value: count('Diterima'), sub: `${pct(count('Diterima'))} dari total`, subTone: 'up', icon: CircleCheck, tone: 'green' },

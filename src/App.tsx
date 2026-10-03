@@ -24,8 +24,6 @@ import SertifikatSiswa from './pages/siswa/SertifikatSiswa';
 import KatalogTes from './pages/siswa/KatalogTes';
 import Toefl from './pages/siswa/Toefl';
 
-// Shared
-import Pengumuman from './pages/shared/Pengumuman';
 
 // Guru / Tutor
 import TeacherDashboard from './pages/guru/TeacherDashboard';
@@ -77,6 +75,7 @@ import PengaturanSekolah from './pages/admin/PengaturanSekolah';
 // Shared
 import PlaygroundPage from './pages/PlaygroundPage';
 import { PageTransition } from './components/layout/PageTransition';
+import { Guard } from './components/auth/Guard';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -89,87 +88,87 @@ function AnimatedRoutes() {
         <Route path="/karir" element={<PageTransition><KarirPage /></PageTransition>} />
         
         {/* Siswa Routes */}
-        <Route path="/siswa/dashboard" element={<PageTransition><StudentDashboard /></PageTransition>} />
-        <Route path="/siswa/profil" element={<PageTransition><SiswaProfil /></PageTransition>} />
-        <Route path="/siswa/course" element={<PageTransition><CourseList /></PageTransition>} />
-        <Route path="/siswa/course/:id" element={<PageTransition><CourseDetail /></PageTransition>} />
-        <Route path="/siswa/lesson/:id" element={<PageTransition><LessonDetail /></PageTransition>} />
-        <Route path="/siswa/jadwal" element={<PageTransition><JadwalBelajar /></PageTransition>} />
-        <Route path="/siswa/absensi" element={<PageTransition><AbsensiSiswa /></PageTransition>} />
-        <Route path="/siswa/spp" element={<PageTransition><PembayaranSppSiswa /></PageTransition>} />
-        <Route path="/siswa/tugas" element={<PageTransition><TugasSiswa /></PageTransition>} />
-        <Route path="/siswa/tugas/:id" element={<PageTransition><DetailTugasSiswa /></PageTransition>} />
-        <Route path="/siswa/quiz" element={<PageTransition><Quiz /></PageTransition>} />
-        <Route path="/siswa/quiz/:id" element={<PageTransition><Quiz /></PageTransition>} />
-        <Route path="/siswa/nilai" element={<PageTransition><NilaiSiswa /></PageTransition>} />
-        <Route path="/siswa/sertifikat" element={<PageTransition><SertifikatSiswa /></PageTransition>} />
-        <Route path="/siswa/katalog-tes" element={<PageTransition><KatalogTes /></PageTransition>} />
-        <Route path="/siswa/toefl" element={<PageTransition><Toefl /></PageTransition>} />
-        <Route path="/siswa/pengumuman" element={<PageTransition><Pengumuman /></PageTransition>} />
+        <Route path="/siswa/dashboard" element={<Guard role="siswa"><PageTransition><StudentDashboard /></PageTransition></Guard>} />
+        <Route path="/siswa/profil" element={<Guard role="siswa"><PageTransition><SiswaProfil /></PageTransition></Guard>} />
+        <Route path="/siswa/course" element={<Guard role="siswa"><PageTransition><CourseList /></PageTransition></Guard>} />
+        <Route path="/siswa/course/:id" element={<Guard role="siswa"><PageTransition><CourseDetail /></PageTransition></Guard>} />
+        <Route path="/siswa/lesson/:id" element={<Guard role="siswa"><PageTransition><LessonDetail /></PageTransition></Guard>} />
+        <Route path="/siswa/jadwal" element={<Guard role="siswa"><PageTransition><JadwalBelajar /></PageTransition></Guard>} />
+        <Route path="/siswa/absensi" element={<Guard role="siswa"><PageTransition><AbsensiSiswa /></PageTransition></Guard>} />
+        <Route path="/siswa/spp" element={<Guard role="siswa"><PageTransition><PembayaranSppSiswa /></PageTransition></Guard>} />
+        <Route path="/siswa/tugas" element={<Guard role="siswa"><PageTransition><TugasSiswa /></PageTransition></Guard>} />
+        <Route path="/siswa/tugas/:id" element={<Guard role="siswa"><PageTransition><DetailTugasSiswa /></PageTransition></Guard>} />
+        <Route path="/siswa/quiz" element={<Guard role="siswa"><PageTransition><Quiz /></PageTransition></Guard>} />
+        <Route path="/siswa/quiz/:id" element={<Guard role="siswa"><PageTransition><Quiz /></PageTransition></Guard>} />
+        <Route path="/siswa/nilai" element={<Guard role="siswa"><PageTransition><NilaiSiswa /></PageTransition></Guard>} />
+        <Route path="/siswa/sertifikat" element={<Guard role="siswa"><PageTransition><SertifikatSiswa /></PageTransition></Guard>} />
+        <Route path="/siswa/katalog-tes" element={<Guard role="siswa"><PageTransition><KatalogTes /></PageTransition></Guard>} />
+        <Route path="/siswa/toefl" element={<Guard role="siswa"><PageTransition><Toefl /></PageTransition></Guard>} />
+        <Route path="/siswa/pengumuman" element={<Guard role="siswa"><PageTransition><PengumumanGuru /></PageTransition></Guard>} />
         
-        <Route path="/siswa/pengaturan" element={<PageTransition><SiswaPengaturan /></PageTransition>} />
+        <Route path="/siswa/pengaturan" element={<Guard role="siswa"><PageTransition><SiswaPengaturan /></PageTransition></Guard>} />
         
         {/* Guru / Tutor Routes */}
-        <Route path="/guru/dashboard" element={<PageTransition><TeacherDashboard /></PageTransition>} />
-        <Route path="/guru/kelas" element={<PageTransition><KelasSaya /></PageTransition>} />
-        <Route path="/guru/kelas/:id" element={<PageTransition><DetailKelasGuru /></PageTransition>} />
-        <Route path="/guru/jadwal" element={<PageTransition><JadwalMengajar /></PageTransition>} />
-        <Route path="/guru/course" element={<PageTransition><MateriModul /></PageTransition>} />
-        <Route path="/guru/course/kelola" element={<PageTransition><ManajemenCourseGuru /></PageTransition>} />
-        <Route path="/guru/tugas" element={<PageTransition><TugasAssessment /></PageTransition>} />
-        <Route path="/guru/tugas/:id" element={<PageTransition><DetailTugasGuru /></PageTransition>} />
-        <Route path="/guru/quiz" element={<PageTransition><TugasAssessment /></PageTransition>} />
-        <Route path="/guru/absensi" element={<PageTransition><PresensiKelas /></PageTransition>} />
-        <Route path="/guru/siswa" element={<PageTransition><SiswaSaya /></PageTransition>} />
-        <Route path="/guru/nilai" element={<PageTransition><NilaiProgress /></PageTransition>} />
-        <Route path="/guru/nilai/input" element={<PageTransition><NilaiSiswaGuru /></PageTransition>} />
-        <Route path="/guru/progress-siswa" element={<PageTransition><SiswaPerluPerhatian /></PageTransition>} />
-        <Route path="/guru/bank-soal" element={<PageTransition><BankSoalGuru /></PageTransition>} />
-        <Route path="/guru/ai-bahan-ajar" element={<PageTransition><AiBahanAjar /></PageTransition>} />
-        <Route path="/guru/rpp-generator" element={<PageTransition><AiBahanAjar /></PageTransition>} />
-        <Route path="/guru/pengumuman" element={<PageTransition><PengumumanGuru /></PageTransition>} />
-        <Route path="/guru/pesan" element={<PageTransition><PesanGuru /></PageTransition>} />
-        <Route path="/guru/profil" element={<PageTransition><ProfilGuru /></PageTransition>} />
-        <Route path="/guru/pengaturan" element={<PageTransition><PengaturanGuru /></PageTransition>} />
+        <Route path="/guru/dashboard" element={<Guard role="guru"><PageTransition><TeacherDashboard /></PageTransition></Guard>} />
+        <Route path="/guru/kelas" element={<Guard role="guru"><PageTransition><KelasSaya /></PageTransition></Guard>} />
+        <Route path="/guru/kelas/:id" element={<Guard role="guru"><PageTransition><DetailKelasGuru /></PageTransition></Guard>} />
+        <Route path="/guru/jadwal" element={<Guard role="guru"><PageTransition><JadwalMengajar /></PageTransition></Guard>} />
+        <Route path="/guru/course" element={<Guard role="guru"><PageTransition><MateriModul /></PageTransition></Guard>} />
+        <Route path="/guru/course/kelola" element={<Guard role="guru"><PageTransition><ManajemenCourseGuru /></PageTransition></Guard>} />
+        <Route path="/guru/tugas" element={<Guard role="guru"><PageTransition><TugasAssessment /></PageTransition></Guard>} />
+        <Route path="/guru/tugas/:id" element={<Guard role="guru"><PageTransition><DetailTugasGuru /></PageTransition></Guard>} />
+        <Route path="/guru/quiz" element={<Guard role="guru"><PageTransition><TugasAssessment /></PageTransition></Guard>} />
+        <Route path="/guru/absensi" element={<Guard role="guru"><PageTransition><PresensiKelas /></PageTransition></Guard>} />
+        <Route path="/guru/siswa" element={<Guard role="guru"><PageTransition><SiswaSaya /></PageTransition></Guard>} />
+        <Route path="/guru/nilai" element={<Guard role="guru"><PageTransition><NilaiProgress /></PageTransition></Guard>} />
+        <Route path="/guru/nilai/input" element={<Guard role="guru"><PageTransition><NilaiSiswaGuru /></PageTransition></Guard>} />
+        <Route path="/guru/progress-siswa" element={<Guard role="guru"><PageTransition><SiswaPerluPerhatian /></PageTransition></Guard>} />
+        <Route path="/guru/bank-soal" element={<Guard role="guru"><PageTransition><BankSoalGuru /></PageTransition></Guard>} />
+        <Route path="/guru/ai-bahan-ajar" element={<Guard role="guru"><PageTransition><AiBahanAjar /></PageTransition></Guard>} />
+        <Route path="/guru/rpp-generator" element={<Guard role="guru"><PageTransition><AiBahanAjar /></PageTransition></Guard>} />
+        <Route path="/guru/pengumuman" element={<Guard role="guru"><PageTransition><PengumumanGuru /></PageTransition></Guard>} />
+        <Route path="/guru/pesan" element={<Guard role="guru"><PageTransition><PesanGuru /></PageTransition></Guard>} />
+        <Route path="/guru/profil" element={<Guard role="guru"><PageTransition><ProfilGuru /></PageTransition></Guard>} />
+        <Route path="/guru/pengaturan" element={<Guard role="guru"><PageTransition><PengaturanGuru /></PageTransition></Guard>} />
         
         {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={<PageTransition><AdminDashboard /></PageTransition>} />
-        <Route path="/admin/notifikasi" element={<PageTransition><NotifikasiAdmin /></PageTransition>} />
-        <Route path="/admin/siswa" element={<PageTransition><DataSiswa /></PageTransition>} />
-        <Route path="/admin/pendaftaran" element={<PageTransition><PendaftaranSiswa /></PageTransition>} />
-        <Route path="/admin/ortu" element={<PageTransition><OrangTuaWali /></PageTransition>} />
-        <Route path="/admin/alumni" element={<PageTransition><ManajemenSiswa /></PageTransition>} />
-        <Route path="/admin/guru" element={<PageTransition><DataTutorStaff /></PageTransition>} />
-        <Route path="/admin/jadwal-tutor" element={<PageTransition><JadwalTutor /></PageTransition>} />
-        <Route path="/admin/kehadiran-tutor" element={<PageTransition><KehadiranTutor /></PageTransition>} />
-        <Route path="/admin/beban" element={<PageTransition><BebanMengajar /></PageTransition>} />
-        <Route path="/admin/course" element={<PageTransition><ProgramBimbel /></PageTransition>} />
-        <Route path="/admin/kelas" element={<PageTransition><KelasRombel /></PageTransition>} />
-        <Route path="/admin/jadwal-kelas" element={<PageTransition><JadwalKelas /></PageTransition>} />
-        <Route path="/admin/ruang" element={<PageTransition><RuangKapasitas /></PageTransition>} />
-        <Route path="/admin/keuangan" element={<PageTransition><SppTagihan /></PageTransition>} />
-        <Route path="/admin/pembayaran" element={<PageTransition><PembayaranAdmin /></PageTransition>} />
-        <Route path="/admin/piutang" element={<PageTransition><Piutang /></PageTransition>} />
-        <Route path="/admin/pengeluaran" element={<PageTransition><Pengeluaran /></PageTransition>} />
-        <Route path="/admin/honor" element={<PageTransition><HonorTutor /></PageTransition>} />
-        <Route path="/admin/laporan-keuangan" element={<PageTransition><LaporanKeuangan /></PageTransition>} />
-        <Route path="/admin/whatsapp" element={<PageTransition><KirimWaOrtu /></PageTransition>} />
-        <Route path="/admin/broadcast" element={<PageTransition><KirimWaOrtu /></PageTransition>} />
-        <Route path="/admin/template" element={<PageTransition><KirimWaOrtu /></PageTransition>} />
-        <Route path="/admin/inventaris" element={<PageTransition><InventarisBimbel /></PageTransition>} />
-        <Route path="/admin/buku" element={<PageTransition><InventarisBimbel /></PageTransition>} />
-        <Route path="/admin/cbt" element={<PageTransition><InventarisBimbel /></PageTransition>} />
-        <Route path="/admin/laporan" element={<PageTransition><Laporan /></PageTransition>} />
-        <Route path="/admin/laporan-siswa" element={<PageTransition><Laporan /></PageTransition>} />
-        <Route path="/admin/laporan-kelas" element={<PageTransition><Laporan /></PageTransition>} />
-        <Route path="/admin/laporan-tutor" element={<PageTransition><Laporan /></PageTransition>} />
-        <Route path="/admin/laporan-operasional" element={<PageTransition><Laporan /></PageTransition>} />
-        <Route path="/admin/pengumuman" element={<PageTransition><Pengumuman /></PageTransition>} />
-        <Route path="/admin/pengaturan" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
-        <Route path="/admin/role" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
-        <Route path="/admin/tahun-ajaran" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
-        <Route path="/admin/data-master" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
-        <Route path="/admin/audit" element={<PageTransition><PengaturanSekolah /></PageTransition>} />
+        <Route path="/admin/dashboard" element={<Guard role="admin"><PageTransition><AdminDashboard /></PageTransition></Guard>} />
+        <Route path="/admin/notifikasi" element={<Guard role="admin"><PageTransition><NotifikasiAdmin /></PageTransition></Guard>} />
+        <Route path="/admin/siswa" element={<Guard role="admin"><PageTransition><DataSiswa /></PageTransition></Guard>} />
+        <Route path="/admin/pendaftaran" element={<Guard role="admin"><PageTransition><PendaftaranSiswa /></PageTransition></Guard>} />
+        <Route path="/admin/ortu" element={<Guard role="admin"><PageTransition><OrangTuaWali /></PageTransition></Guard>} />
+        <Route path="/admin/alumni" element={<Guard role="admin"><PageTransition><ManajemenSiswa /></PageTransition></Guard>} />
+        <Route path="/admin/guru" element={<Guard role="admin"><PageTransition><DataTutorStaff /></PageTransition></Guard>} />
+        <Route path="/admin/jadwal-tutor" element={<Guard role="admin"><PageTransition><JadwalTutor /></PageTransition></Guard>} />
+        <Route path="/admin/kehadiran-tutor" element={<Guard role="admin"><PageTransition><KehadiranTutor /></PageTransition></Guard>} />
+        <Route path="/admin/beban" element={<Guard role="admin"><PageTransition><BebanMengajar /></PageTransition></Guard>} />
+        <Route path="/admin/course" element={<Guard role="admin"><PageTransition><ProgramBimbel /></PageTransition></Guard>} />
+        <Route path="/admin/kelas" element={<Guard role="admin"><PageTransition><KelasRombel /></PageTransition></Guard>} />
+        <Route path="/admin/jadwal-kelas" element={<Guard role="admin"><PageTransition><JadwalKelas /></PageTransition></Guard>} />
+        <Route path="/admin/ruang" element={<Guard role="admin"><PageTransition><RuangKapasitas /></PageTransition></Guard>} />
+        <Route path="/admin/keuangan" element={<Guard role="admin"><PageTransition><SppTagihan /></PageTransition></Guard>} />
+        <Route path="/admin/pembayaran" element={<Guard role="admin"><PageTransition><PembayaranAdmin /></PageTransition></Guard>} />
+        <Route path="/admin/piutang" element={<Guard role="admin"><PageTransition><Piutang /></PageTransition></Guard>} />
+        <Route path="/admin/pengeluaran" element={<Guard role="admin"><PageTransition><Pengeluaran /></PageTransition></Guard>} />
+        <Route path="/admin/honor" element={<Guard role="admin"><PageTransition><HonorTutor /></PageTransition></Guard>} />
+        <Route path="/admin/laporan-keuangan" element={<Guard role="admin"><PageTransition><LaporanKeuangan /></PageTransition></Guard>} />
+        <Route path="/admin/whatsapp" element={<Guard role="admin"><PageTransition><KirimWaOrtu /></PageTransition></Guard>} />
+        <Route path="/admin/broadcast" element={<Guard role="admin"><PageTransition><KirimWaOrtu /></PageTransition></Guard>} />
+        <Route path="/admin/template" element={<Guard role="admin"><PageTransition><KirimWaOrtu /></PageTransition></Guard>} />
+        <Route path="/admin/inventaris" element={<Guard role="admin"><PageTransition><InventarisBimbel /></PageTransition></Guard>} />
+        <Route path="/admin/buku" element={<Guard role="admin"><PageTransition><InventarisBimbel /></PageTransition></Guard>} />
+        <Route path="/admin/cbt" element={<Guard role="admin"><PageTransition><InventarisBimbel /></PageTransition></Guard>} />
+        <Route path="/admin/laporan" element={<Guard role="admin"><PageTransition><Laporan /></PageTransition></Guard>} />
+        <Route path="/admin/laporan-siswa" element={<Guard role="admin"><PageTransition><Laporan /></PageTransition></Guard>} />
+        <Route path="/admin/laporan-kelas" element={<Guard role="admin"><PageTransition><Laporan /></PageTransition></Guard>} />
+        <Route path="/admin/laporan-tutor" element={<Guard role="admin"><PageTransition><Laporan /></PageTransition></Guard>} />
+        <Route path="/admin/laporan-operasional" element={<Guard role="admin"><PageTransition><Laporan /></PageTransition></Guard>} />
+        <Route path="/admin/pengumuman" element={<Guard role="admin"><PageTransition><PengumumanGuru /></PageTransition></Guard>} />
+        <Route path="/admin/pengaturan" element={<Guard role="admin"><PageTransition><PengaturanSekolah /></PageTransition></Guard>} />
+        <Route path="/admin/role" element={<Guard role="admin"><PageTransition><PengaturanSekolah /></PageTransition></Guard>} />
+        <Route path="/admin/tahun-ajaran" element={<Guard role="admin"><PageTransition><PengaturanSekolah /></PageTransition></Guard>} />
+        <Route path="/admin/data-master" element={<Guard role="admin"><PageTransition><PengaturanSekolah /></PageTransition></Guard>} />
+        <Route path="/admin/audit" element={<Guard role="admin"><PageTransition><PengaturanSekolah /></PageTransition></Guard>} />
         
         {/* Shared */}
         <Route path="/playground" element={<PageTransition><PlaygroundPage /></PageTransition>} />

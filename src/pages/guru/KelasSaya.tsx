@@ -4,25 +4,28 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Tabs, SearchInput, Select, DataTable, Btn, RowMenu, FormDialog, TONE_HEX, type Col } from '../../components/portal/Kit';
-import { CLASSES, type TutorClass } from '../../data/guruPortal';
+import { type TutorClass } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
 
 const ICONS: LucideIcon[] = [GraduationCap, BookOpen, MessageSquareText, CalendarRange];
 const SORTS = ['Urutkan: Nama A-Z', 'Urutkan: Siswa Terbanyak'];
 
 /** Form "Ajukan Perubahan": tutor tidak mengubah jadwal/ruang/daftar siswa langsung, permintaan ditinjau Admin */
 export function RequestChangeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const classes = useResource<TutorClass>('tutor-classes').rows;
+  const requests = useResource<{ id: string; kelas: string; type: string; detail: string; status: string }>('change-requests');
   return (
     <FormDialog
       open={open}
       title="Ajukan Perubahan"
       submitLabel="Kirim ke Admin"
       fields={[
-        { key: 'kelas', label: 'Kelas', type: 'select', options: CLASSES.map((c) => c.name) },
+        { key: 'kelas', label: 'Kelas', type: 'select', options: classes.map((c) => c.name) },
         { key: 'type', label: 'Jenis Perubahan', type: 'select', options: ['Jadwal', 'Ruang', 'Daftar Siswa', 'Materi / Topik', 'Lainnya'] },
         { key: 'detail', label: 'Detail Permintaan', type: 'textarea', required: true, placeholder: 'Jelaskan perubahan yang diajukan...' },
       ]}
       onClose={onClose}
-      onSubmit={(v) => toast.success('Permintaan dikirim ke Admin', { description: `${v.type} · ${v.kelas}` })}
+      onSubmit={async (v) => { if (await requests.create({ kelas: v.kelas, type: v.type, detail: v.detail, status: 'Menunggu' })) toast.success('Permintaan dikirim ke Admin', { description: `${v.type} · ${v.kelas}` }); }}
     />
   );
 }
@@ -42,6 +45,7 @@ export function RequestChangeBanner({ title, text, onClick }: { title?: string; 
 
 export default function KelasSaya() {
   const navigate = useNavigate();
+  const CLASSES = useResource<TutorClass>('tutor-classes').rows;
   const [tab, setTab] = useState('Aktif');
   const [q, setQ] = useState('');
   const [subject, setSubject] = useState('');
@@ -58,7 +62,7 @@ export default function KelasSaya() {
     {
       header: 'Kelas',
       cell: (c) => {
-        const Icon = ICONS[(Number(c.id) - 1) % ICONS.length];
+        const Icon = ICONS[((Number(c.id) || 1) - 1) % ICONS.length];
         return (
           <div className="flex items-center gap-3 py-1">
             <span className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${TONE_HEX[c.tone]}1A`, color: TONE_HEX[c.tone] }}><Icon className="w-6 h-6" /></span>

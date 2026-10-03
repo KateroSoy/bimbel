@@ -5,7 +5,7 @@ import {
   PageHead, StatCards, FilterBar, SearchInput, Select, DataTable, Person, Badge, RowActions, Btn, InfoBox, Panel, DonutPanel, QuickList, WithRail,
   useCrud, exportCsv, soon, type Col, type Field,
 } from '../../components/portal/Kit';
-import { PARENTS, type ParentRow } from '../../data/adminPortal';
+import { type ParentRow } from '../../data/adminPortal';
 
 const RELATIONS = ['Ibu Kandung', 'Ayah Kandung', 'Wali'];
 const FIELDS: Field[] = [
@@ -24,15 +24,19 @@ export default function OrangTuaWali() {
   const [status, setStatus] = useState('');
   const [relation, setRelation] = useState('');
 
-  const crud = useCrud<ParentRow>(PARENTS, {
+  const crud = useCrud<ParentRow>('guardians', {
     label: 'Orang Tua / Wali',
     fields: FIELDS,
-    create: (v, rows) => ({ id: `ORT-${String(rows.length + 1).padStart(4, '0')}`, name: v.name, child: v.child, relation: v.relation, phone: v.phone, email: v.email || '-', address: v.address || '-', status: v.status as ParentRow['status'] }),
+    create: (v) => ({ id: '', name: v.name, child: v.child, relation: v.relation, phone: v.phone, email: v.email, address: v.address, status: v.status as ParentRow['status'] }),
     detail: (p) => [['ID', p.id], ['Nama', p.name], ['Siswa', p.child], ['Hubungan', p.relation], ['No. HP', p.phone], ['Email', p.email], ['Alamat', p.address], ['Status', <Badge>{p.status}</Badge>]],
   });
 
   const rows = crud.rows.filter((p) =>
     (!q || `${p.name} ${p.phone} ${p.email} ${p.child}`.toLowerCase().includes(q.toLowerCase())) && (!status || p.status === status) && (!relation || p.relation === relation));
+  const all = crud.rows.length;
+  const has = (f: (p: ParentRow) => boolean) => crud.rows.filter(f).length;
+  const hasEmail = (p: ParentRow) => !!p.email && p.email !== '-';
+  const share = (n: number) => `${((n / (all || 1)) * 100).toFixed(1).replace('.', ',')}%`;
   const rel = (r: string) => crud.rows.filter((p) => p.relation === r).length;
   const doExport = () => exportCsv('orang-tua-wali', ['ID', 'Nama', 'Siswa', 'Hubungan', 'No HP', 'Email', 'Alamat', 'Status'], rows.map((p) => [p.id, p.name, p.child, p.relation, p.phone, p.email, p.address, p.status]));
 
@@ -74,23 +78,23 @@ export default function OrangTuaWali() {
           </>}
         />
         <StatCards items={[
-          { label: 'Total Orang Tua / Wali', value: '1.198', sub: '100% dari total siswa', icon: Users, tone: 'blue' },
-          { label: 'Kontak Aktif (WA)', value: '1.067', sub: '89,07% dari total', icon: Phone, tone: 'green' },
-          { label: 'Email Terdaftar', value: '784', sub: '65,44% dari total', icon: Mail, tone: 'purple' },
-          { label: 'Terhubung dengan Siswa', value: '1.248', sub: 'Rata-rata 1,04 wali/siswa', icon: UserCheck, tone: 'orange' },
-          { label: 'Keluarga Aktif', value: '987', sub: '82,47% dari total', icon: HeartHandshake, tone: 'teal' },
+          { label: 'Total Orang Tua / Wali', value: all, sub: 'Terdaftar', icon: Users, tone: 'blue' },
+          { label: 'Kontak Aktif (WA)', value: has((p) => !!p.phone), sub: `${share(has((p) => !!p.phone))} dari total`, icon: Phone, tone: 'green' },
+          { label: 'Email Terdaftar', value: has(hasEmail), sub: `${share(has(hasEmail))} dari total`, icon: Mail, tone: 'purple' },
+          { label: 'Terhubung dengan Siswa', value: has((p) => !!p.child), sub: 'Memiliki data siswa', icon: UserCheck, tone: 'orange' },
+          { label: 'Keluarga Aktif', value: has((p) => p.status === 'Aktif'), sub: `${share(has((p) => p.status === 'Aktif'))} dari total`, icon: HeartHandshake, tone: 'teal' },
         ]} />
 
         <WithRail
           rail={<>
-            <DonutPanel title="Ringkasan Orang Tua / Wali" center="1.198" sub="Total" data={[
-              { label: 'Ibu Kandung', value: rel('Ibu Kandung'), color: '#1D4ED8', note: '689 (57,6%)' },
-              { label: 'Ayah Kandung', value: rel('Ayah Kandung'), color: '#16A34A', note: '461 (38,5%)' },
-              { label: 'Wali / Lainnya', value: rel('Wali'), color: '#F59E0B', note: '48 (4,0%)' },
+            <DonutPanel title="Ringkasan Orang Tua / Wali" center={all} sub="Total" data={[
+              { label: 'Ibu Kandung', value: rel('Ibu Kandung'), color: '#1D4ED8', note: `${rel('Ibu Kandung')} (${share(rel('Ibu Kandung'))})` },
+              { label: 'Ayah Kandung', value: rel('Ayah Kandung'), color: '#16A34A', note: `${rel('Ayah Kandung')} (${share(rel('Ayah Kandung'))})` },
+              { label: 'Wali / Lainnya', value: rel('Wali'), color: '#F59E0B', note: `${rel('Wali')} (${share(rel('Wali'))})` },
             ]} />
             <Panel title="Komunikasi Terbanyak">
               <ul className="space-y-2.5">
-                {([[MessageCircle, 'WhatsApp', '1.067 (89,07%)'], [Mail, 'Email', '784 (65,44%)'], [PhoneCall, 'Telepon', '156 (13,02%)'], [MessageSquare, 'SMS', '32 (2,67%)']] as const).map(([Icon, l, v]) => (
+                {([[MessageCircle, 'WhatsApp', `${has((p) => !!p.phone)} (${share(has((p) => !!p.phone))})`], [Mail, 'Email', `${has(hasEmail)} (${share(has(hasEmail))})`], [PhoneCall, 'Telepon', `${has((p) => !!p.phone)} kontak`], [MessageSquare, 'Tanpa email', `${all - has(hasEmail)} kontak`]] as const).map(([Icon, l, v]) => (
                   <li key={l} className="flex items-center gap-2.5 text-[13px] font-bold text-slate-800"><Icon className="w-4 h-4 text-[#1D4ED8]" /><span className="flex-1">{l}</span><span>{v}</span></li>
                 ))}
               </ul>

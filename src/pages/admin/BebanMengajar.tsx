@@ -5,7 +5,8 @@ import {
   PageHead, StatCards, FilterBar, Select, DataTable, Person, Badge, Btn, InfoBox, LegendBox, Panel, DonutPanel, QuickList, WithRail, Meter, Modal,
   KeyValues, exportCsv, soon, type Col,
 } from '../../components/portal/Kit';
-import { WORKLOADS, programTone, staffAvatar, type Workload, type LoadStatus } from '../../data/adminPortal';
+import { programTone, staffAvatar, weekLabel, type Workload, type LoadStatus } from '../../data/adminPortal';
+import { useResource } from '../../store/useRemote';
 
 const STATUSES: LoadStatus[] = ['Optimal', 'Cukup', 'Ringan', 'Maksimal', 'Tidak Mengajar'];
 const COLOR: Record<LoadStatus, string> = { Optimal: '#16A34A', Cukup: '#1D4ED8', Ringan: '#F59E0B', Maksimal: '#EF4444', 'Tidak Mengajar': '#CBD5E1' };
@@ -17,6 +18,8 @@ export default function BebanMengajar() {
   const [status, setStatus] = useState('');
   const [viewing, setViewing] = useState<Workload | null>(null);
 
+  const WORKLOADS = useResource<Workload>('workloads').rows;
+  useResource('staff');
   const rows = WORKLOADS.filter((w) => (!tutor || w.name === tutor) && (!status || w.status === status));
   const teaching = WORKLOADS.filter((w) => w.sessions > 0);
   const totalHours = teaching.reduce((a, w) => a + w.sessions, 0);
@@ -26,7 +29,7 @@ export default function BebanMengajar() {
   const columns: Col<Workload>[] = [
     { header: 'No.', cell: (_, i) => i + 1, align: 'center' },
     { header: 'Tutor', cell: (w) => <Person name={w.name} sub={w.id} src={staffAvatar(w.name)} /> },
-    { header: 'Program / Kelas', cell: (w) => <div className="flex flex-col gap-1 items-start">{w.classes.map((c) => <Badge key={c} tone={programTone(programOf(c))}>{c}</Badge>)}</div> },
+    { header: 'Program / Kelas', cell: (w) => <div className="flex flex-col gap-1 items-start">{(w.classes ?? []).map((c) => <Badge key={c} tone={programTone(programOf(c))}>{c}</Badge>)}</div> },
     { header: 'Jumlah Kelas', align: 'center', cell: (w) => (w.classCount ? `${w.classCount} kelas` : '-') },
     { header: 'Jam Mengajar / Minggu', align: 'center', cell: (w) => (w.sessions ? <><span className="font-bold text-slate-800">{w.hours}</span><span className="block text-[11px] text-slate-500">({String(w.sessions).replace('.', ',')} pertemuan)</span></> : '-') },
     { header: '% dari Kapasitas', align: 'center', cell: (w) => (w.sessions ? <div className="w-24 mx-auto"><span className="font-bold text-slate-800">{String(w.pct).replace('.', ',')}%</span><Meter value={w.pct} color={COLOR[w.status]} className="mt-1" /></div> : '-') },
@@ -60,8 +63,8 @@ export default function BebanMengajar() {
             <Panel title="Statistik Beban Mengajar">
               <KeyValues rows={[
                 ['Rata-rata Beban / Tutor', `${fmt(totalHours / (teaching.length || 1))} jam`],
-                ['Beban Tertinggi', `${fmt(Math.max(...teaching.map((w) => w.sessions)))} jam`],
-                ['Beban Terendah', `${fmt(Math.min(...teaching.map((w) => w.sessions)))} jam`],
+                ['Beban Tertinggi', `${fmt(Math.max(0, ...teaching.map((w) => w.sessions)))} jam`],
+                ['Beban Terendah', `${fmt(teaching.length ? Math.min(...teaching.map((w) => w.sessions)) : 0)} jam`],
                 ['Total Pertemuan / Minggu', String(totalHours).replace('.', ',')],
                 ['Total Kelas Aktif', teaching.reduce((a, w) => a + w.classCount, 0)],
               ]} />
@@ -78,7 +81,7 @@ export default function BebanMengajar() {
           <FilterBar onReset={() => { setTutor(''); setStatus(''); }}>
             <Select value={tutor} onChange={setTutor} all="Semua Tutor" options={WORKLOADS.map((w) => w.name)} />
             <Select value={status} onChange={setStatus} all="Semua Status Beban" options={STATUSES} />
-            <span className="inline-flex items-center gap-2 h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-bold text-slate-800"><CalendarDays className="w-4 h-4 text-slate-500" /> Minggu, 12 - 18 Mei 2025</span>
+            <span className="inline-flex items-center gap-2 h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-bold text-slate-800"><CalendarDays className="w-4 h-4 text-slate-500" /> Minggu, {weekLabel()}</span>
           </FilterBar>
           <DataTable columns={columns} rows={rows} rowKey={(w) => w.id} />
 

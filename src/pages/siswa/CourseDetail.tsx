@@ -8,7 +8,14 @@ import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, ProgressBar } from '../../components/siswa/PortalUI';
 import { cn } from '../../lib/utils';
-import { COURSES, subjectById, type CourseLesson, type LessonKind } from '../../data/siswaPortal';
+import { COURSES, subjectById, hydrateStudentPortal, type CourseLesson, type LessonKind, type PortalCourse } from '../../data/siswaPortal';
+import { api, ApiError } from '../../lib/api';
+
+// Ditampilkan bila akun belum terdaftar di course mana pun
+const NO_COURSE: PortalCourse = {
+  id: '', subjectId: '', title: 'Belum ada course', category: '', level: 'Mudah', description: '',
+  chapters: [{ id: '-', title: 'Belum ada materi', lessons: [{ id: '-', title: 'Belum ada materi', kind: 'catatan', duration: '', done: false, about: 'Course untuk akun ini belum tersedia. Hubungi admin bimbel untuk pendaftaran course.' }] }],
+};
 
 const KIND_META: Record<LessonKind, { label: string; icon: typeof PlayCircle; color: string; bg: string }> = {
   video: { label: 'Video', icon: PlayCircle, color: '#1D4ED8', bg: '#EAF1FF' },
@@ -31,7 +38,7 @@ export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
-  const course = COURSES.find((c) => c.id === id) ?? COURSES[0];
+  const course = COURSES.find((c) => c.id === id) ?? COURSES[0] ?? NO_COURSE;
   const subject = subjectById(course.subjectId);
 
   const allLessons = useMemo(() => course.chapters.flatMap((ch) => ch.lessons.map((l) => ({ ...l, chapterId: ch.id, locked: !!ch.locked }))), [course]);
@@ -61,9 +68,15 @@ export default function CourseDetail() {
   }, [time]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const markDone = (lessonId: string) => {
-    if (done.has(lessonId)) return;
+    if (done.has(lessonId) || !course.id) return;
     setDone((s) => new Set(s).add(lessonId));
-    toast.success('Materi ditandai selesai');
+    // Progres disimpan di server; bila gagal, tanda selesai dibatalkan.
+    api.post<{ courses: PortalCourse[] }>(`/student/lessons/${encodeURIComponent(lessonId)}/complete`)
+      .then((res) => { hydrateStudentPortal({ courses: res.courses }); toast.success('Materi ditandai selesai'); })
+      .catch((e) => {
+        setDone((s) => { const next = new Set(s); next.delete(lessonId); return next; });
+        toast.error(e instanceof ApiError ? e.message : 'Gagal menyimpan progres.');
+      });
   };
 
   const goTo = (l: (typeof allLessons)[number] | undefined) => {

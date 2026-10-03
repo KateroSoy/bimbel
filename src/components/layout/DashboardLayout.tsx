@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutTemplate, 
@@ -44,8 +44,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { STUDENT } from '../../data/siswaPortal';
-import { TUTOR } from '../../data/guruPortal';
 import { cn } from '../../lib/utils';
+import { api } from '../../lib/api';
 import { useAppStore } from '../../store/useAppStore';
 
 import { Logo } from '../ui/Logo';
@@ -156,14 +156,14 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           heading: 'UTAMA',
           items: [
             { title: 'Dashboard', path: '/admin/dashboard', icon: <LayoutTemplate className="w-5 h-5" /> },
-            { title: 'Notifikasi', path: '/admin/notifikasi', icon: <Bell className="w-5 h-5" />, badge: 8 },
+            { title: 'Notifikasi', path: '/admin/notifikasi', icon: <Bell className="w-5 h-5" /> },
           ]
         },
         {
           heading: 'SISWA',
           items: [
             { title: 'Data Siswa', path: '/admin/siswa', icon: <Users className="w-5 h-5" /> },
-            { title: 'Pendaftaran Siswa Baru', path: '/admin/pendaftaran', icon: <UserCheck className="w-5 h-5" />, badge: 7 },
+            { title: 'Pendaftaran Siswa Baru', path: '/admin/pendaftaran', icon: <UserCheck className="w-5 h-5" /> },
             { title: 'Orang Tua / Wali', path: '/admin/ortu', icon: <UsersRound className="w-5 h-5" /> },
           ]
         },
@@ -190,7 +190,7 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           items: [
             { title: 'SPP & Tagihan', path: '/admin/keuangan', icon: <Landmark className="w-5 h-5" /> },
             { title: 'Pembayaran', path: '/admin/pembayaran', icon: <CreditCard className="w-5 h-5" /> },
-            { title: 'Piutang', path: '/admin/piutang', icon: <Receipt className="w-5 h-5" />, badge: 23 },
+            { title: 'Piutang', path: '/admin/piutang', icon: <Receipt className="w-5 h-5" /> },
             { title: 'Pengeluaran', path: '/admin/pengeluaran', icon: <Wallet className="w-5 h-5" /> },
             { title: 'Honor Tutor', path: '/admin/honor', icon: <HandCoins className="w-5 h-5" /> },
           ]
@@ -207,7 +207,7 @@ const getSidebarItems = (role: string): SidebarSection[] => {
         {
           heading: 'KOMUNIKASI',
           items: [
-            { title: 'WhatsApp Wali Murid', path: '/admin/whatsapp', icon: <MessageSquare className="w-5 h-5" />, badge: 12 },
+            { title: 'WhatsApp Wali Murid', path: '/admin/whatsapp', icon: <MessageSquare className="w-5 h-5" /> },
             { title: 'Broadcast', path: '/admin/broadcast', icon: <Megaphone className="w-5 h-5" /> },
             { title: 'Pengumuman', path: '/admin/pengumuman', icon: <ScrollText className="w-5 h-5" /> },
             { title: 'Template Pesan', path: '/admin/template', icon: <PenTool className="w-5 h-5" /> },
@@ -239,6 +239,27 @@ const getSidebarItems = (role: string): SidebarSection[] => {
   }
 };
 
+/** Angka badge sidebar admin, dihitung server dari data saat ini. */
+function useAdminBadges(enabled: boolean): Record<string, number> {
+  const [badges, setBadges] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (!enabled) return;
+    let alive = true;
+    api.get<{ notifications: { unread: number }; registrations: { byStatus: Record<string, number> }; finance: { unpaidStudents: number } }>('/admin/dashboard')
+      .then((d) => {
+        if (!alive) return;
+        setBadges({
+          '/admin/notifikasi': d.notifications.unread,
+          '/admin/pendaftaran': (d.registrations.byStatus['Dalam Proses'] ?? 0) + (d.registrations.byStatus['Menunggu Verifikasi'] ?? 0),
+          '/admin/keuangan': d.finance.unpaidStudents,
+        });
+      })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, [enabled]);
+  return badges;
+}
+
 const isItemActive = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
@@ -247,7 +268,10 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const currentRole = user?.role || 'siswa';
   
-  const sections = getSidebarItems(currentRole);
+  const badges = useAdminBadges(currentRole === 'admin');
+  const sections = getSidebarItems(currentRole).map((section) => ({
+    ...section, items: section.items.map((item) => (badges[item.path] ? { ...item, badge: badges[item.path] } : item)),
+  }));
   const allItems = sections.flatMap(s => s.items);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -258,9 +282,9 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const displayName = user?.name || (isSiswa ? STUDENT.name : 'Pengguna');
   const isGuru = currentRole === 'guru';
   const displaySub = isSiswa ? STUDENT.level : isGuru ? 'Guru' : 'Administrator';
-  const avatarSrc = isSiswa ? STUDENT.avatar : isGuru ? TUTOR.avatar : undefined;
-  const termLabel = isGuru ? TUTOR.term : 'Tahun Ajaran 2024/2025';
-  const handleLogout = () => { logout(); navigate('/login'); };
+  const avatarSrc = (isSiswa ? STUDENT.avatar : user?.avatar) || undefined;
+  const termLabel = 'Tahun Ajaran Berjalan';
+  const handleLogout = () => { void logout().then(() => navigate('/login')); };
 
   // Swipe-to-navigate logic
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -471,7 +495,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                 </div>
               </div>
               <button 
-                onClick={() => { logout(); navigate('/login'); }}
+                onClick={handleLogout}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl text-red-600 bg-red-50 hover:bg-red-100 transition-colors font-bold text-sm"
               >
                 <LogOut className="w-5 h-5" />

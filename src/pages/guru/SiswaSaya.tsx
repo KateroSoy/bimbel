@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Users, CircleCheck, CircleAlert, Presentation, Award } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, StatStrip, Tabs, SearchInput, Select, DataTable, Person, Badge, Btn, RowMenu, Meter, Modal, KeyValues, Panel, exportCsv, type Col } from '../../components/portal/Kit';
-import { MY_STUDENTS, ACTIVE_CLASSES, studentStatus, gradeStatus, type TutorStudent } from '../../data/guruPortal';
+import { studentStatus, gradeStatus, type TutorStudent, type TutorClass } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
 
 const fmt = (n: number) => n.toFixed(1).replace('.', ',');
 const avg = (list: TutorStudent[], f: (s: TutorStudent) => number) => (list.length ? list.reduce((a, s) => a + f(s), 0) / list.length : 0);
@@ -21,6 +22,8 @@ export function StudentProfileModal({ student, onClose }: { student: TutorStuden
 }
 
 export default function SiswaSaya() {
+  const MY_STUDENTS = useResource<TutorStudent>('class-students').rows;
+  const ACTIVE_CLASSES = useResource<TutorClass>('tutor-classes').rows.filter((c) => c.status === 'Aktif');
   const [tab, setTab] = useState('Daftar Siswa');
   const [q, setQ] = useState('');
   const [kelas, setKelas] = useState('');

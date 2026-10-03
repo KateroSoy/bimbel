@@ -1,0 +1,1263 @@
+{
+ "ACHIEVEMENTS": [
+  {
+   "title": "Guru Inspiratif StudyHack 2025",
+   "desc": "Diberikan atas dedikasi dan kontribusi luar biasa dalam proses pembelajaran.",
+   "date": "10 Mei 2025",
+   "tone": "orange"
+  },
+  {
+   "title": "Sertifikat Google for Education",
+   "desc": "Pelatihan pemanfaatan teknologi dalam pembelajaran.",
+   "date": "18 Februari 2025",
+   "tone": "purple"
+  },
+  {
+   "title": "Pelatihan Pembelajaran Aktif",
+   "desc": "Workshop strategi pembelajaran aktif dan berdiferensiasi.",
+   "date": "12 Oktober 2024",
+   "tone": "green"
+  }
+ ],
+ "ACTIVE_CLASSES": [
+  {
+   "id": "1",
+   "name": "Batch UTBK 1",
+   "code": "KLS-UTBK1",
+   "subject": "Matematika",
+   "days": "Sen, Rab, Jum",
+   "time": "14.00 – 15.30",
+   "students": 32,
+   "status": "Aktif",
+   "tone": "blue"
+  },
+  {
+   "id": "2",
+   "name": "Batch Kedinasan 2",
+   "code": "KLS-KED2",
+   "subject": "Fisika",
+   "days": "Sel, Kamis",
+   "time": "18.30 – 20.30",
+   "students": 28,
+   "status": "Aktif",
+   "tone": "green"
+  },
+  {
+   "id": "3",
+   "name": "Batch English Level 1",
+   "code": "KLS-ENG1",
+   "subject": "Bahasa Inggris",
+   "days": "Sen, Rab",
+   "time": "16.00 – 17.30",
+   "students": 24,
+   "status": "Aktif",
+   "tone": "purple"
+  },
+  {
+   "id": "4",
+   "name": "Batch XI RPL",
+   "code": "KLS-XIRPL",
+   "subject": "Matematika",
+   "days": "Sen, Kamis",
+   "time": "16.00 – 18.00",
+   "students": 30,
+   "status": "Aktif",
+   "tone": "orange"
+  }
+ ],
+ "AI_RESULTS": [
+  {
+   "id": "A1",
+   "title": "Worksheet Penjumlahan Hasil hingga 100",
+   "subject": "Matematika",
+   "grade": "Kelas 2 SD",
+   "type": "Worksheet",
+   "created": "Dibuat hari ini",
+   "date": "15 Mei 2026, 10:30",
+   "fav": true,
+   "body": "15 soal penjumlahan dua bilangan dengan hasil hingga 100, tingkat kesulitan bertahap, dilengkapi kunci jawaban."
+  },
+  {
+   "id": "A2",
+   "title": "Modul Penjumlahan Dua Bilangan",
+   "subject": "Matematika",
+   "grade": "Kelas 2 SD",
+   "type": "Modul",
+   "created": "Dibuat kemarin",
+   "date": "15 Mei 2026, 09:15",
+   "fav": false,
+   "body": "Modul konsep penjumlahan bersusun: tujuan belajar, contoh soal, latihan terbimbing, dan refleksi."
+  },
+  {
+   "id": "A3",
+   "title": "Quiz Penjumlahan Dua Bilangan",
+   "subject": "Matematika",
+   "grade": "Kelas 2 SD",
+   "type": "Quiz / Soal",
+   "created": "Dibuat 2 hari lalu",
+   "date": "14 Mei 2026, 11:20",
+   "fav": false,
+   "body": "10 soal pilihan ganda penjumlahan dua bilangan beserta pembahasan singkat."
+  },
+  {
+   "id": "A4",
+   "title": "PPT Penjumlahan Dua Bilangan",
+   "subject": "Matematika",
+   "grade": "Kelas 2 SD",
+   "type": "Presentasi",
+   "created": "Dibuat 3 hari lalu",
+   "date": "13 Mei 2026, 16:45",
+   "fav": false,
+   "body": "Kerangka 8 slide: apersepsi, konsep, contoh, latihan bersama, kuis cepat, dan rangkuman."
+  },
+  {
+   "id": "A5",
+   "title": "Rubrik Penilaian Matematika",
+   "subject": "Matematika",
+   "grade": "Kelas 2 SD",
+   "type": "Lainnya",
+   "created": "Dibuat 4 hari lalu",
+   "date": "12 Mei 2026, 08:50",
+   "fav": false,
+   "body": "Rubrik 4 kriteria (pemahaman konsep, ketepatan hitung, langkah pengerjaan, kerapian) dengan skala 1–4."
+  }
+ ],
+ "AI_TYPES": [
+  "Worksheet",
+  "Modul",
+  "Quiz / Soal",
+  "Presentasi",
+  "RPP / ATP",
+  "Infografis",
+  "Lainnya"
+ ],
+ "ANNOUNCEMENTS": [
+  {
+   "id": "P1",
+   "title": "Libur Nasional HUT RI ke-81 🇮🇩",
+   "body": "Kelas akan libur pada Minggu, 17 Agustus 2026. Kelas akan kembali berjalan normal pada Senin, 18 Agustus 2026.",
+   "date": "14 Agu 2026",
+   "author": "Admin",
+   "category": "Pengumuman",
+   "important": true,
+   "unread": true,
+   "tone": "red"
+  },
+  {
+   "id": "P2",
+   "title": "StudyHack English Speaking Day 📢",
+   "body": "Ayo tingkatkan kemampuan speaking-mu! Akan ada games, sharing, dan hadiah menarik.",
+   "date": "12 Agu 2026",
+   "author": "Teacher Fitri",
+   "category": "Kegiatan Sekolah",
+   "unread": true,
+   "tone": "green"
+  },
+  {
+   "id": "P3",
+   "title": "Pembagian Modul Bulan Agustus 📖",
+   "body": "Modul Matematika dan Bahasa Inggris bulan Agustus sudah bisa diambil di front office.",
+   "date": "10 Agu 2026",
+   "author": "Admin",
+   "category": "Informasi",
+   "unread": true,
+   "tone": "purple"
+  },
+  {
+   "id": "P4",
+   "title": "Ujian Kenaikan Tingkat A1 ke A2 📈",
+   "body": "Ujian akan dilaksanakan pada 24–25 Agustus 2026. Pastikan kamu sudah siap dan terus berlatih.",
+   "date": "9 Agu 2026",
+   "author": "Teacher Fitri",
+   "category": "Agenda",
+   "unread": false,
+   "tone": "orange"
+  },
+  {
+   "id": "P5",
+   "title": "Pengumpulan Tugas Project Science 🧪",
+   "body": "Tugas project Science dikumpulkan paling lambat 20 Agustus 2026.",
+   "date": "8 Agu 2026",
+   "author": "Teacher Sinta",
+   "category": "Tugas",
+   "unread": false,
+   "tone": "blue"
+  },
+  {
+   "id": "P6",
+   "title": "Rapat Evaluasi Tutor Bulanan",
+   "body": "Rapat evaluasi tutor dilaksanakan Sabtu, 22 Agustus 2026 pukul 10.00 di Ruang Serbaguna.",
+   "date": "7 Agu 2026",
+   "author": "Admin",
+   "category": "Agenda",
+   "unread": false,
+   "tone": "orange"
+  },
+  {
+   "id": "P7",
+   "title": "Pembaruan Bank Soal Semester 1",
+   "body": "Bank soal Matematika dan IPA telah diperbarui dengan 240 soal baru.",
+   "date": "5 Agu 2026",
+   "author": "Admin",
+   "category": "Informasi",
+   "unread": false,
+   "tone": "purple"
+  }
+ ],
+ "ATTENTION": [
+  {
+   "id": "2024005",
+   "name": "Rizky Maulana",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "issue": "Nilai rendah",
+   "issueSub": "Performa di bawah standar",
+   "stats": [
+    [
+     "Nilai rata-rata",
+     "65,2"
+    ],
+    [
+     "Kehadiran",
+     "60%"
+    ]
+   ],
+   "risk": "Risiko Tinggi",
+   "trend": -12,
+   "note": "Kehadiran rendah"
+  },
+  {
+   "id": "2024003",
+   "name": "Budi Santoso Jr.",
+   "kelas": "Batch English Level 1",
+   "subject": "Bahasa Inggris",
+   "issue": "Progress rendah",
+   "issueSub": "Perkembangan belajar lambat",
+   "stats": [
+    [
+     "Progress Belajar",
+     "61%"
+    ],
+    [
+     "Nilai rata-rata",
+     "78,6"
+    ]
+   ],
+   "risk": "Risiko Sedang",
+   "trend": -8,
+   "note": "Tugas belum selesai"
+  },
+  {
+   "id": "2024006",
+   "name": "Nabila Putri",
+   "kelas": "Batch Kedinasan 2",
+   "subject": "Bahasa Inggris",
+   "issue": "Tugas belum selesai",
+   "issueSub": "Beberapa tugas belum dikumpulkan",
+   "stats": [
+    [
+     "Tugas belum dikumpulkan",
+     "3 tugas"
+    ]
+   ],
+   "risk": "Risiko Tinggi",
+   "trend": -7,
+   "note": "Speaking rendah"
+  },
+  {
+   "id": "2024007",
+   "name": "Fauzan Akbar",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "issue": "Nilai di bawah KKM",
+   "issueSub": "Belum mencapai standar KKM",
+   "stats": [
+    [
+     "Nilai rata-rata",
+     "71,5"
+    ]
+   ],
+   "risk": "Risiko Sedang",
+   "trend": -5,
+   "note": "Nilai di bawah KKM"
+  },
+  {
+   "id": "2024002",
+   "name": "Siti Aisyah",
+   "kelas": "Batch Kedinasan 2",
+   "subject": "Fisika",
+   "issue": "Membaik",
+   "issueSub": "Perkembangan positif",
+   "stats": [
+    [
+     "Nilai rata-rata",
+     "86,7"
+    ],
+    [
+     "Progress Belajar",
+     "Meningkat"
+    ]
+   ],
+   "risk": "Membaik",
+   "trend": 6,
+   "note": "Intervensi berhasil"
+  },
+  {
+   "id": "2024001",
+   "name": "Andi Pratama",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "issue": "Remedial aktif",
+   "issueSub": "Sedang menjalani program remedial",
+   "stats": [
+    [
+     "Program Remedial",
+     "Aktif"
+    ],
+    [
+     "Progress Remedial",
+     "65%"
+    ]
+   ],
+   "risk": "Remedial Aktif",
+   "trend": 3,
+   "note": "Remedial berjalan"
+  },
+  {
+   "id": "2024012",
+   "name": "Ilham Ramadhan",
+   "kelas": "Batch XI RPL",
+   "subject": "Matematika",
+   "issue": "Kehadiran rendah",
+   "issueSub": "Sering tidak hadir tanpa keterangan",
+   "stats": [
+    [
+     "Kehadiran",
+     "68%"
+    ],
+    [
+     "Nilai rata-rata",
+     "66,4"
+    ]
+   ],
+   "risk": "Risiko Tinggi",
+   "trend": -9,
+   "note": "Kehadiran rendah"
+  }
+ ],
+ "CLASSES": [
+  {
+   "id": "1",
+   "name": "Batch UTBK 1",
+   "code": "KLS-UTBK1",
+   "subject": "Matematika",
+   "days": "Sen, Rab, Jum",
+   "time": "14.00 – 15.30",
+   "students": 32,
+   "status": "Aktif",
+   "tone": "blue"
+  },
+  {
+   "id": "2",
+   "name": "Batch Kedinasan 2",
+   "code": "KLS-KED2",
+   "subject": "Fisika",
+   "days": "Sel, Kamis",
+   "time": "18.30 – 20.30",
+   "students": 28,
+   "status": "Aktif",
+   "tone": "green"
+  },
+  {
+   "id": "3",
+   "name": "Batch English Level 1",
+   "code": "KLS-ENG1",
+   "subject": "Bahasa Inggris",
+   "days": "Sen, Rab",
+   "time": "16.00 – 17.30",
+   "students": 24,
+   "status": "Aktif",
+   "tone": "purple"
+  },
+  {
+   "id": "4",
+   "name": "Batch XI RPL",
+   "code": "KLS-XIRPL",
+   "subject": "Matematika",
+   "days": "Sen, Kamis",
+   "time": "16.00 – 18.00",
+   "students": 30,
+   "status": "Aktif",
+   "tone": "orange"
+  },
+  {
+   "id": "5",
+   "name": "Batch UTBK 2",
+   "code": "KLS-UTBK2",
+   "subject": "Matematika",
+   "days": "Sel, Jum",
+   "time": "14.00 – 15.30",
+   "students": 0,
+   "status": "Akan Datang",
+   "tone": "blue"
+  },
+  {
+   "id": "6",
+   "name": "Batch Kedinasan 1",
+   "code": "KLS-KED1",
+   "subject": "Fisika",
+   "days": "Sel, Kamis",
+   "time": "18.30 – 20.30",
+   "students": 26,
+   "status": "Selesai",
+   "tone": "green"
+  }
+ ],
+ "CLASS_NAMES": [
+  "Batch UTBK 1",
+  "Batch Kedinasan 2",
+  "Batch English Level 1",
+  "Batch XI RPL"
+ ],
+ "CONVERSATIONS": [
+  {
+   "id": "C1",
+   "name": "Orang Tua – Mecca",
+   "role": "Orang Tua Siswa",
+   "time": "10.30",
+   "preview": "Bu, terima kasih atas update hari ini.",
+   "unread": 2,
+   "starred": true,
+   "avatar": "/assets/portal/ibu.png",
+   "messages": [
+    {
+     "from": "them",
+     "text": "Assalamu'alaikum Pak Budi 🙏",
+     "time": "10.20"
+    },
+    {
+     "from": "them",
+     "text": "Bagaimana perkembangan Mecca hari ini di kelas?",
+     "time": "10.21"
+    },
+    {
+     "from": "me",
+     "text": "Wa'alaikumsalam Ibu 🙂 Alhamdulillah, Mecca hari ini aktif dan semangat sekali. Ia sudah bisa menjawab pertanyaan dengan percaya diri.",
+     "time": "10.25"
+    },
+    {
+     "from": "me",
+     "text": "Tetap semangat belajar di rumah ya, Ibu. Jangan lupa istirahat yang cukup.",
+     "time": "10.26"
+    },
+    {
+     "from": "them",
+     "text": "Terima kasih banyak Pak 😊",
+     "time": "10.30"
+    }
+   ]
+  },
+  {
+   "id": "C2",
+   "name": "Yasmin A.",
+   "role": "Siswa",
+   "time": "09.45",
+   "preview": "Pak, untuk tugas speaking boleh dikirim...",
+   "unread": 1,
+   "starred": false,
+   "messages": [
+    {
+     "from": "them",
+     "text": "Pak, untuk tugas speaking boleh dikirim lewat rekaman suara?",
+     "time": "09.45"
+    },
+    {
+     "from": "me",
+     "text": "Tentu Yasmin, silakan ya.",
+     "time": "09.50"
+    }
+   ]
+  },
+  {
+   "id": "C3",
+   "name": "Orang Tua – Marco",
+   "role": "Orang Tua Siswa",
+   "time": "Kemarin",
+   "preview": "Marco sedikit kurang sehat hari ini...",
+   "unread": 0,
+   "starred": false,
+   "avatar": "/assets/portal/ayah.png",
+   "messages": [
+    {
+     "from": "them",
+     "text": "Marco sedikit kurang sehat hari ini, mohon izin tidak masuk kelas.",
+     "time": "07.10"
+    },
+    {
+     "from": "me",
+     "text": "Terima kasih informasinya, Pak. Semoga Marco lekas sembuh.",
+     "time": "07.25"
+    }
+   ]
+  },
+  {
+   "id": "C4",
+   "name": "Tim Admin StudyHack",
+   "role": "Admin",
+   "time": "Kemarin",
+   "preview": "Pengumuman: Libur Nasional 17 Agustus...",
+   "unread": 0,
+   "starred": true,
+   "messages": [
+    {
+     "from": "them",
+     "text": "Pengumuman: Libur Nasional 17 Agustus, kelas kembali normal 18 Agustus.",
+     "time": "15.00"
+    },
+    {
+     "from": "me",
+     "text": "Baik, terima kasih.",
+     "time": "15.12"
+    }
+   ]
+  },
+  {
+   "id": "C5",
+   "name": "Nadhira",
+   "role": "Siswa",
+   "time": "2 hari lalu",
+   "preview": "Pak, nilai quiz saya belum muncul ya?",
+   "unread": 0,
+   "starred": false,
+   "messages": [
+    {
+     "from": "them",
+     "text": "Pak, nilai quiz saya belum muncul ya?",
+     "time": "13.02"
+    },
+    {
+     "from": "me",
+     "text": "Sudah saya cek, nanti sore ya.",
+     "time": "13.30"
+    }
+   ]
+  },
+  {
+   "id": "C6",
+   "name": "Orang Tua – Askya",
+   "role": "Orang Tua Siswa",
+   "time": "2 hari lalu",
+   "preview": "Terima kasih untuk bimbingannya, Pak.",
+   "unread": 0,
+   "starred": false,
+   "messages": [
+    {
+     "from": "them",
+     "text": "Terima kasih untuk bimbingannya, Pak.",
+     "time": "19.40"
+    },
+    {
+     "from": "me",
+     "text": "Sama-sama, Ibu 😊",
+     "time": "19.55"
+    }
+   ]
+  }
+ ],
+ "MATERIALS": [
+  {
+   "id": "M1",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "students": 32,
+   "status": "Published",
+   "last": "Persamaan Linear",
+   "date": "10 Agustus 2026",
+   "progress": 82,
+   "done": 3,
+   "planned": 4,
+   "color": "#16A34A"
+  },
+  {
+   "id": "M2",
+   "kelas": "Batch Kedinasan 2",
+   "subject": "Fisika",
+   "students": 28,
+   "status": "Published",
+   "last": "Hukum Newton",
+   "date": "9 Agustus 2026",
+   "progress": 74,
+   "done": 2,
+   "planned": 3,
+   "color": "#7C3AED"
+  },
+  {
+   "id": "M3",
+   "kelas": "English Level 1",
+   "subject": "Bahasa Inggris",
+   "students": 24,
+   "status": "Published",
+   "last": "Vocabulary – Daily Activity",
+   "date": "9 Agustus 2026",
+   "progress": 90,
+   "done": 4,
+   "planned": 4,
+   "color": "#F59E0B"
+  },
+  {
+   "id": "M4",
+   "kelas": "Batch XI RPL",
+   "subject": "Matematika",
+   "students": 30,
+   "status": "Draft",
+   "last": "Fungsi Trigonometri",
+   "date": "6 Agustus 2026",
+   "progress": 60,
+   "done": 1,
+   "planned": 3,
+   "color": "#1D4ED8"
+  }
+ ],
+ "MODULES": [
+  {
+   "id": "MD1",
+   "title": "Modul Aljabar & Persamaan Linear",
+   "kelas": "Batch UTBK 1",
+   "topics": 6,
+   "updated": "10 Agustus 2026",
+   "status": "Published"
+  },
+  {
+   "id": "MD2",
+   "title": "Modul Mekanika: Hukum Newton",
+   "kelas": "Batch Kedinasan 2",
+   "topics": 5,
+   "updated": "9 Agustus 2026",
+   "status": "Published"
+  },
+  {
+   "id": "MD3",
+   "title": "Modul Vocabulary & Daily Conversation",
+   "kelas": "English Level 1",
+   "topics": 8,
+   "updated": "9 Agustus 2026",
+   "status": "Published"
+  },
+  {
+   "id": "MD4",
+   "title": "Modul Trigonometri Dasar",
+   "kelas": "Batch XI RPL",
+   "topics": 4,
+   "updated": "6 Agustus 2026",
+   "status": "Draft"
+  }
+ ],
+ "MY_STUDENTS": [
+  {
+   "id": "2024001",
+   "name": "Andi Pratama",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "attendance": 92,
+   "score": 85.3,
+   "progress": 90
+  },
+  {
+   "id": "2024002",
+   "name": "Siti Aisyah",
+   "kelas": "Batch Kedinasan 2",
+   "subject": "Fisika",
+   "attendance": 88,
+   "score": 78.6,
+   "progress": 82
+  },
+  {
+   "id": "2024003",
+   "name": "Budi Santoso Jr.",
+   "kelas": "Batch English Level 1",
+   "subject": "Bahasa Inggris",
+   "attendance": 75,
+   "score": 72.1,
+   "progress": 61
+  },
+  {
+   "id": "2024004",
+   "name": "Citra Dewi",
+   "kelas": "Batch XI RPL",
+   "subject": "Matematika",
+   "attendance": 95,
+   "score": 89.4,
+   "progress": 92
+  },
+  {
+   "id": "2024005",
+   "name": "Rizky Maulana",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "attendance": 60,
+   "score": 65.2,
+   "progress": 58
+  },
+  {
+   "id": "2024006",
+   "name": "Nabila Putri",
+   "kelas": "Batch Kedinasan 2",
+   "subject": "Bahasa Inggris",
+   "attendance": 90,
+   "score": 87.9,
+   "progress": 55
+  },
+  {
+   "id": "2024007",
+   "name": "Fauzan Akbar",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "attendance": 70,
+   "score": 71.5,
+   "progress": 68
+  },
+  {
+   "id": "2024008",
+   "name": "Reza Rahardian",
+   "kelas": "Batch English Level 1",
+   "subject": "Bahasa Inggris",
+   "attendance": 85,
+   "score": 81.2,
+   "progress": 80
+  },
+  {
+   "id": "2024009",
+   "name": "Dinda Ayu",
+   "kelas": "Batch XI RPL",
+   "subject": "Matematika",
+   "attendance": 96,
+   "score": 92.4,
+   "progress": 94
+  },
+  {
+   "id": "2024010",
+   "name": "Galih Permana",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "attendance": 82,
+   "score": 76.8,
+   "progress": 74
+  },
+  {
+   "id": "2024011",
+   "name": "Hana Salsabila",
+   "kelas": "Batch Kedinasan 2",
+   "subject": "Fisika",
+   "attendance": 93,
+   "score": 90.1,
+   "progress": 88
+  },
+  {
+   "id": "2024012",
+   "name": "Ilham Ramadhan",
+   "kelas": "Batch XI RPL",
+   "subject": "Matematika",
+   "attendance": 68,
+   "score": 66.4,
+   "progress": 59
+  }
+ ],
+ "PRESENCE": [
+  {
+   "id": "2024001",
+   "name": "Andi Pratama",
+   "status": "Hadir",
+   "note": "",
+   "time": "14.00"
+  },
+  {
+   "id": "2024002",
+   "name": "Siti Aisyah",
+   "status": "Terlambat",
+   "note": "Terlambat 10 menit",
+   "time": "14.10"
+  },
+  {
+   "id": "2024003",
+   "name": "Budi Santoso",
+   "status": "Hadir",
+   "note": "",
+   "time": "14.00"
+  },
+  {
+   "id": "2024004",
+   "name": "Citra Dewi",
+   "status": "Izin",
+   "note": "Izin keluarga",
+   "time": ""
+  },
+  {
+   "id": "2024005",
+   "name": "Rizky Maulana",
+   "status": "Sakit",
+   "note": "Sakit (demam)",
+   "time": ""
+  },
+  {
+   "id": "2024006",
+   "name": "Nabila Putri",
+   "status": "Hadir",
+   "note": "",
+   "time": "14.00"
+  },
+  {
+   "id": "2024007",
+   "name": "Fauzan Akbar",
+   "status": "Alpa",
+   "note": "",
+   "time": ""
+  },
+  {
+   "id": "2024008",
+   "name": "Reza Rahardian",
+   "status": "Terlambat",
+   "note": "Terlambat 15 menit",
+   "time": "14.15"
+  },
+  {
+   "id": "2024009",
+   "name": "Dinda Ayu",
+   "status": "Hadir",
+   "note": "",
+   "time": "14.00"
+  },
+  {
+   "id": "2024010",
+   "name": "Galih Permana",
+   "status": "Hadir",
+   "note": "",
+   "time": "14.00"
+  },
+  {
+   "id": "2024011",
+   "name": "Hana Salsabila",
+   "status": "Hadir",
+   "note": "",
+   "time": "14.00"
+  },
+  {
+   "id": "2024012",
+   "name": "Ilham Ramadhan",
+   "status": "Hadir",
+   "note": "",
+   "time": "14.00"
+  }
+ ],
+ "PRESENCE_COLOR": {
+  "Hadir": "#16A34A",
+  "Terlambat": "#F97316",
+  "Izin": "#F59E0B",
+  "Sakit": "#1D4ED8",
+  "Alpa": "#EF4444"
+ },
+ "QUESTIONS": [
+  {
+   "id": "Q1",
+   "text": "Jika 48 + 27 = ?",
+   "type": "Pilihan Ganda",
+   "subject": "Matematika",
+   "topic": "Penjumlahan",
+   "grade": "SD 1",
+   "level": "Mudah",
+   "mine": true,
+   "fav": false
+  },
+  {
+   "id": "Q2",
+   "text": "Choose the correct word to complete the sentence: She ___ to school every day.",
+   "type": "Pilihan Ganda",
+   "subject": "Bahasa Inggris",
+   "topic": "Present Simple",
+   "grade": "SD 2",
+   "level": "Sedang",
+   "mine": false,
+   "fav": false
+  },
+  {
+   "id": "Q3",
+   "text": "Benda yang dapat ditarik magnet adalah ...",
+   "type": "Pilihan Ganda",
+   "subject": "IPA",
+   "topic": "Gaya Magnet",
+   "grade": "SD 3",
+   "level": "Mudah",
+   "mine": false,
+   "fav": false
+  },
+  {
+   "id": "Q4",
+   "text": "Bacalah teks berikut, kemudian jawablah pertanyaan di bawahnya!",
+   "type": "Uraian",
+   "subject": "Bahasa Indonesia",
+   "topic": "Teks Bacaan",
+   "grade": "SD 4",
+   "level": "Sulit",
+   "mine": false,
+   "fav": false
+  },
+  {
+   "id": "Q5",
+   "text": "Tentukan keliling persegi panjang berikut jika panjang = 12 cm dan lebar = 7 cm.",
+   "type": "Uraian",
+   "subject": "Matematika",
+   "topic": "Keliling Bangun Datar",
+   "grade": "SD 5",
+   "level": "Sedang",
+   "mine": true,
+   "fav": false
+  },
+  {
+   "id": "Q6",
+   "text": "Sebutkan 3 faktor yang mempengaruhi perubahan iklim!",
+   "type": "Uraian",
+   "subject": "IPA",
+   "topic": "Perubahan Iklim",
+   "grade": "SD 6",
+   "level": "Sulit",
+   "mine": false,
+   "fav": false
+  },
+  {
+   "id": "Q7",
+   "text": "Hasil dari 3x + 5 = 20 adalah x = ...",
+   "type": "Pilihan Ganda",
+   "subject": "Matematika",
+   "topic": "Persamaan Linear",
+   "grade": "SMP 7",
+   "level": "Sedang",
+   "mine": true,
+   "fav": false
+  },
+  {
+   "id": "Q8",
+   "text": "Sebuah benda bermassa 2 kg diberi gaya 10 N. Berapakah percepatannya?",
+   "type": "Pilihan Ganda",
+   "subject": "Fisika",
+   "topic": "Hukum Newton",
+   "grade": "SMA 10",
+   "level": "Sedang",
+   "mine": true,
+   "fav": false
+  },
+  {
+   "id": "Q9",
+   "text": "Write a short paragraph about your daily activity.",
+   "type": "Uraian",
+   "subject": "Bahasa Inggris",
+   "topic": "Writing",
+   "grade": "SMP 8",
+   "level": "Sedang",
+   "mine": false,
+   "fav": false
+  },
+  {
+   "id": "Q10",
+   "text": "Nilai sin 30° + cos 60° adalah ...",
+   "type": "Pilihan Ganda",
+   "subject": "Matematika",
+   "topic": "Trigonometri",
+   "grade": "SMA 11",
+   "level": "Mudah",
+   "mine": true,
+   "fav": false
+  },
+  {
+   "id": "Q11",
+   "text": "Jelaskan perbedaan fotosintesis dan respirasi pada tumbuhan!",
+   "type": "Uraian",
+   "subject": "IPA",
+   "topic": "Fotosintesis",
+   "grade": "SMP 7",
+   "level": "Sulit",
+   "mine": false,
+   "fav": false
+  },
+  {
+   "id": "Q12",
+   "text": "Tentukan ide pokok paragraf kedua pada teks di atas.",
+   "type": "Pilihan Ganda",
+   "subject": "Bahasa Indonesia",
+   "topic": "Ide Pokok",
+   "grade": "SMP 9",
+   "level": "Mudah",
+   "mine": false,
+   "fav": false
+  }
+ ],
+ "TEACH_DAYS": [
+  {
+   "name": "Sen",
+   "date": "11 Agt"
+  },
+  {
+   "name": "Sel",
+   "date": "12 Agt"
+  },
+  {
+   "name": "Rab",
+   "date": "13 Agt"
+  },
+  {
+   "name": "Kam",
+   "date": "14 Agt"
+  },
+  {
+   "name": "Jum",
+   "date": "15 Agt"
+  },
+  {
+   "name": "Sab",
+   "date": "16 Agt"
+  },
+  {
+   "name": "Min",
+   "date": "17 Agt"
+  }
+ ],
+ "TEACH_SESSIONS": [
+  {
+   "id": "S1",
+   "day": 0,
+   "slot": 0,
+   "subject": "Matematika",
+   "kelas": "Batch UTBK 1",
+   "room": "Studio Belajar 1",
+   "title": "Matematika",
+   "lines": [
+    "Batch UTBK 1",
+    "09.00 – 10.30"
+   ],
+   "tone": "green"
+  },
+  {
+   "id": "S2",
+   "day": 0,
+   "slot": 2,
+   "subject": "Bahasa Inggris",
+   "kelas": "English Level 1",
+   "room": "Studio Belajar 2",
+   "title": "Bahasa Inggris",
+   "lines": [
+    "English Level 1",
+    "13.00 – 14.30"
+   ],
+   "tone": "purple"
+  },
+  {
+   "id": "S3",
+   "day": 0,
+   "slot": 4,
+   "subject": "Matematika",
+   "kelas": "Batch XI RPL",
+   "room": "Studio Belajar 1",
+   "title": "Matematika",
+   "lines": [
+    "Batch XI RPL",
+    "16.00 – 18.00"
+   ],
+   "tone": "orange"
+  },
+  {
+   "id": "S4",
+   "day": 1,
+   "slot": 5,
+   "subject": "Fisika",
+   "kelas": "Batch Kedinasan 2",
+   "room": "Lab IPA",
+   "title": "Fisika",
+   "lines": [
+    "Batch Kedinasan 2",
+    "18.30 – 20.30"
+   ],
+   "tone": "teal"
+  },
+  {
+   "id": "S5",
+   "day": 2,
+   "slot": 0,
+   "subject": "Matematika",
+   "kelas": "Batch UTBK 1",
+   "room": "Studio Belajar 1",
+   "title": "Matematika",
+   "lines": [
+    "Batch UTBK 1",
+    "09.00 – 10.30"
+   ],
+   "tone": "green"
+  },
+  {
+   "id": "S6",
+   "day": 2,
+   "slot": 3,
+   "subject": "Matematika",
+   "kelas": "Batch UTBK 1",
+   "room": "Studio Belajar 1",
+   "mark": "next",
+   "title": "Matematika",
+   "lines": [
+    "Batch UTBK 1",
+    "14.00 – 15.30"
+   ],
+   "tone": "green"
+  },
+  {
+   "id": "S7",
+   "day": 2,
+   "slot": 4,
+   "subject": "Bahasa Inggris",
+   "kelas": "English Level 1",
+   "room": "Studio Belajar 2",
+   "title": "Bahasa Inggris",
+   "lines": [
+    "English Level 1",
+    "16.00 – 18.00"
+   ],
+   "tone": "purple"
+  },
+  {
+   "id": "S8",
+   "day": 2,
+   "slot": 5,
+   "subject": "Matematika",
+   "kelas": "Batch XI RPL",
+   "room": "Studio Belajar 1",
+   "mark": "clash",
+   "title": "Matematika",
+   "lines": [
+    "Batch XI RPL",
+    "18.30 – 20.30"
+   ],
+   "tone": "red"
+  },
+  {
+   "id": "S9",
+   "day": 3,
+   "slot": 0,
+   "subject": "Bahasa Inggris",
+   "kelas": "English Level 1",
+   "room": "Studio Belajar 2",
+   "title": "Bahasa Inggris",
+   "lines": [
+    "English Level 1",
+    "09.00 – 10.30"
+   ],
+   "tone": "purple"
+  },
+  {
+   "id": "S10",
+   "day": 3,
+   "slot": 4,
+   "subject": "Matematika",
+   "kelas": "Batch XI RPL",
+   "room": "Studio Belajar 1",
+   "title": "Matematika",
+   "lines": [
+    "Batch XI RPL",
+    "16.00 – 18.00"
+   ],
+   "tone": "orange"
+  },
+  {
+   "id": "S11",
+   "day": 4,
+   "slot": 0,
+   "subject": "Matematika",
+   "kelas": "Batch UTBK 1",
+   "room": "Studio Belajar 1",
+   "title": "Matematika",
+   "lines": [
+    "Batch UTBK 1",
+    "09.00 – 10.30"
+   ],
+   "tone": "green"
+  },
+  {
+   "id": "S12",
+   "day": 4,
+   "slot": 1,
+   "subject": "Matematika",
+   "kelas": "Batch UTBK 1",
+   "room": "Studio Belajar 1",
+   "title": "Matematika",
+   "lines": [
+    "Batch UTBK 1",
+    "11.00 – 12.30"
+   ],
+   "tone": "green"
+  },
+  {
+   "id": "S13",
+   "day": 6,
+   "slot": 5,
+   "subject": "Fisika",
+   "kelas": "Batch Kedinasan 2",
+   "room": "Lab IPA",
+   "title": "Fisika",
+   "lines": [
+    "Batch Kedinasan 2",
+    "18.30 – 20.30"
+   ],
+   "tone": "teal"
+  }
+ ],
+ "TEACH_SLOTS": [
+  "09.00 – 10.30",
+  "11.00 – 12.30",
+  "13.00 – 14.30",
+  "14.00 – 15.30",
+  "16.00 – 18.00",
+  "18.30 – 20.30"
+ ],
+ "TODAY_CLASSES": [
+  {
+   "time": "07.15 - 08.45",
+   "kelas": "Batch UTBK 1",
+   "subject": "Matematika",
+   "status": "Berlangsung",
+   "action": "Buka Kelas",
+   "classId": "1"
+  },
+  {
+   "time": "09.00 - 10.30",
+   "kelas": "Batch Kedinasan 2",
+   "subject": "Fisika",
+   "status": "30 menit lagi",
+   "action": "Siapkan",
+   "classId": "2"
+  },
+  {
+   "time": "13.00 - 14.30",
+   "kelas": "English Level 1",
+   "subject": "Bahasa Inggris",
+   "status": "2 jam lagi",
+   "action": "Detail",
+   "classId": "3"
+  },
+  {
+   "time": "16.00 - 18.00",
+   "kelas": "Batch XI RPL",
+   "subject": "Matematika",
+   "status": "3 jam lagi",
+   "action": "Detail",
+   "classId": "4"
+  }
+ ],
+ "TUTOR": {
+  "name": "Budi Santoso, S.Pd",
+  "firstName": "Budi",
+  "role": "Guru",
+  "org": "StudyHack Education",
+  "email": "budi.santoso@studyhack.id",
+  "phone": "0812-3456-7890",
+  "education": "S1 Pendidikan Matematika",
+  "joined": "15 Juli 2023",
+  "avatar": "/assets/portal/tutor-budi.png",
+  "term": "TA 2026/2027 · Semester 1",
+  "today": "Rabu, 19 Agustus 2026"
+ }
+}

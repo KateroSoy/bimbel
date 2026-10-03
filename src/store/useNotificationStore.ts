@@ -22,40 +22,8 @@ interface NotificationState {
 }
 
 export const useNotificationStore = create<NotificationState>((set, get) => ({
-  notifications: [
-    {
-      id: '1',
-      title: 'Tugas Baru: Algoritma Dasar',
-      description: 'Batas waktu pengerjaan 2 hari lagi.',
-      type: 'info',
-      time: '2 jam yang lalu',
-      unread: true,
-    },
-    {
-      id: '2',
-      title: 'Nilai Kuis Masuk',
-      description: 'Nilai Kuis Matematika Anda adalah 95.',
-      type: 'success',
-      time: '5 jam yang lalu',
-      unread: true,
-    },
-    {
-      id: '3',
-      title: 'Perubahan Jadwal',
-      description: 'Kelas Biologi diundur ke jam 13:00.',
-      type: 'warning',
-      time: 'Kemarin',
-      unread: false,
-    },
-    {
-      id: '4',
-      title: 'Pengumuman Sekolah',
-      description: 'Libur semester akan dimulai minggu depan.',
-      type: 'info',
-      time: '2 hari yang lalu',
-      unread: false,
-    },
-  ],
+  // Diisi oleh aksi di aplikasi (mis. nilai masuk, pengumuman); tidak ada notifikasi bawaan.
+  notifications: [],
   
   addNotification: (notification) => {
     // Show toast

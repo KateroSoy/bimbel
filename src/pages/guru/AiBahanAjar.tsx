@@ -3,7 +3,8 @@ import { Sparkles, History, UserRound, Send, FileText, BookOpen, CircleHelp, Pre
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Panel, Select, Btn, Badge, RowMenu, Modal, type Tone } from '../../components/portal/Kit';
-import { AI_RESULTS, AI_TYPES, type AiResult } from '../../data/guruPortal';
+import { AI_TYPES, type AiResult } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
 import { cn } from '../../lib/utils';
 
 const TYPE_META: Record<string, { icon: LucideIcon; tone: Tone; cls: string }> = {
@@ -27,7 +28,8 @@ const OUTLINE: Record<string, string[]> = {
 };
 
 export default function AiBahanAjar() {
-  const [results, setResults] = useState(AI_RESULTS);
+  const remote = useResource<AiResult>('ai-results');
+  const results = remote.rows;
   const [prompt, setPrompt] = useState('');
   const [subject, setSubject] = useState('Matematika');
   const [grade, setGrade] = useState('2 SD');
@@ -35,18 +37,19 @@ export default function AiBahanAjar() {
   const [mineOnly, setMineOnly] = useState(false);
   const [opened, setOpened] = useState<AiResult | null>(null);
 
-  const generate = () => {
+  const generate = async () => {
     const text = prompt.trim();
     if (!text) { toast.error('Tulis dulu bahan ajar yang ingin dibuat.'); return; }
     const title = `${type} ${text.length > 48 ? `${text.slice(0, 48)}…` : text}`;
-    const item: AiResult = {
-      id: `A${Date.now()}`, title, subject, grade: `Kelas ${grade}`, type, created: 'Dibuat baru saja',
+    const item: Partial<AiResult> = {
+      title, subject, grade: `Kelas ${grade}`, type, created: 'Dibuat baru saja',
       date: new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }), fav: false,
       body: `Instruksi: ${text}\n\nKerangka ${type} (${subject}, Kelas ${grade}):\n${OUTLINE[type].map((o, i) => `${i + 1}. ${o}`).join('\n')}`,
     };
-    setResults((prev) => [item, ...prev]);
+    const saved = await remote.create(item);
+    if (!saved) return;
     setPrompt('');
-    setOpened(item);
+    setOpened(saved);
     toast.success('Draf kerangka dibuat', { description: 'Integrasi AI belum aktif — draf disusun dari kerangka standar.' });
   };
 
@@ -117,7 +120,7 @@ export default function AiBahanAjar() {
                   <div className="flex-1 min-w-[200px]">
                     <p className="flex items-center gap-2 text-[15px] font-extrabold text-[#0F1E4A]">
                       <span className="truncate">{r.title}</span>
-                      <button aria-label={r.fav ? 'Hapus dari favorit' : 'Tambah ke favorit'} onClick={() => setResults((prev) => prev.map((x) => (x.id === r.id ? { ...x, fav: !x.fav } : x)))}><Star className={cn('w-4 h-4', r.fav ? 'fill-amber-400 text-amber-400' : 'text-slate-400')} /></button>
+                      <button aria-label={r.fav ? 'Hapus dari favorit' : 'Tambah ke favorit'} onClick={() => remote.update(r.id, { fav: !r.fav })}><Star className={cn('w-4 h-4', r.fav ? 'fill-amber-400 text-amber-400' : 'text-slate-400')} /></button>
                     </p>
                     <p className="flex flex-wrap items-center gap-2 text-xs text-slate-600 font-medium mt-0.5">{r.subject} · {r.grade} <Badge tone={meta.tone}>{r.type}</Badge></p>
                   </div>
@@ -126,7 +129,7 @@ export default function AiBahanAjar() {
                     <Btn onClick={() => setOpened(r)} className="w-[88px]">Buka</Btn>
                     <RowMenu items={[
                       { label: 'Salin Isi', onClick: () => { navigator.clipboard?.writeText(r.body); toast.success('Isi disalin'); } },
-                      { label: 'Hapus', danger: true, onClick: () => { setResults((prev) => prev.filter((x) => x.id !== r.id)); toast.success('Bahan ajar dihapus'); } },
+                      { label: 'Hapus', danger: true, onClick: async () => { if (await remote.remove(r.id)) toast.success('Bahan ajar dihapus'); } },
                     ]} />
                   </div>
                 </li>

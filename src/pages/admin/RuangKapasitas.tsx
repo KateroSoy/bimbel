@@ -5,7 +5,7 @@ import {
   PageHead, StatCards, FilterBar, SearchInput, Select, DataTable, Badge, RowActions, Btn, InfoBox, LegendBox, Panel, DonutPanel, QuickList, BarList,
   WithRail, Meter, useCrud, exportCsv, type Col, type Field,
 } from '../../components/portal/Kit';
-import { ROOMS, type RoomRow } from '../../data/adminPortal';
+import { type RoomRow } from '../../data/adminPortal';
 
 const TYPES = ['Ruang Kelas', 'Laboratorium', 'Perpustakaan', 'Aula', 'Ruang Staff'];
 const TYPE_ICON = { 'Ruang Kelas': LayoutGrid, Laboratorium: FlaskConical, Perpustakaan: Library, Aula: UsersRound, 'Ruang Staff': Briefcase } as const;
@@ -27,10 +27,10 @@ export default function RuangKapasitas() {
   const [status, setStatus] = useState('');
   const [floor, setFloor] = useState('');
 
-  const crud = useCrud<RoomRow>(ROOMS, {
+  const crud = useCrud<RoomRow>('rooms', {
     label: 'Ruang',
     fields: FIELDS,
-    create: (v) => ({ id: `RNG-${Date.now()}`, name: v.name, type: v.type, floor: v.floor, capacity: Number(v.capacity) || 0, used: Math.min(Number(v.used) || 0, Number(v.capacity) || 0), status: v.status as RoomRow['status'], condition: v.condition }),
+    create: (v) => ({ id: '', name: v.name, type: v.type, floor: v.floor, capacity: Number(v.capacity) || 0, used: Math.min(Number(v.used) || 0, Number(v.capacity) || 0), status: v.status as RoomRow['status'], condition: v.condition }),
     detail: (r) => [['Nama Ruang', r.name], ['Jenis', r.type], ['Lokasi', r.floor], ['Kapasitas Total', r.capacity], ['Terpakai', r.used], ['Tersedia', r.capacity - r.used], ['Utilisasi', pct(util(r))], ['Status', <Badge>{r.status}</Badge>], ['Kondisi', <Badge>{r.condition}</Badge>]],
   });
 

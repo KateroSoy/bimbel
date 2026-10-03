@@ -5,7 +5,7 @@ import {
   PageHead, StatCards, Tabs, FilterBar, SearchInput, Select, DataTable, Badge, RowActions, Btn, InfoBox, LegendBox, Panel, DonutPanel, QuickList,
   BarList, WithRail, Meter, Avatar, useCrud, exportCsv, type Col, type Field,
 } from '../../components/portal/Kit';
-import { LEVELS, ROMBELS, type LevelRow, type RombelRow } from '../../data/adminPortal';
+import { type LevelRow, type RombelRow } from '../../data/adminPortal';
 
 const JENJANG = ['Pra-Sekolah', 'Pra-SD & SD', 'SD', 'SMP', 'SMA'];
 const JENJANG_COLOR: Record<string, string> = { 'Pra-Sekolah': '#1D4ED8', 'Pra-SD & SD': '#EC4899', SD: '#16A34A', SMP: '#F59E0B', SMA: '#EF4444' };
@@ -30,10 +30,10 @@ export default function KelasRombel() {
     { key: 'rombel', label: 'Total Rombel', type: 'number' },
     { key: 'capacity', label: 'Kapasitas Total', type: 'number', required: true },
   ];
-  const levels = useCrud<LevelRow>(LEVELS, {
+  const levels = useCrud<LevelRow>('class-levels', {
     label: 'Kelas',
     fields: levelFields,
-    create: (v, rows) => ({ id: `KLS-${String(rows.length + 1).padStart(2, '0')}`, name: v.name, sub: v.sub || v.level, level: v.level, rombel: Number(v.rombel) || 0, students: 0, capacity: Number(v.capacity) || 0, status: v.status as LevelRow['status'] }),
+    create: (v) => ({ id: '', name: v.name, sub: v.sub || v.level, level: v.level, rombel: Number(v.rombel) || 0, students: 0, capacity: Number(v.capacity) || 0, status: v.status as LevelRow['status'] }),
     detail: (l) => [['Kelas', l.name], ['Jenjang', l.level], ['Total Rombel', l.rombel], ['Total Siswa', l.students], ['Kapasitas Total', l.capacity], ['Terpakai', `${pctOf(l.students, l.capacity)}%`], ['Status', <Badge>{l.status}</Badge>]],
   });
 
@@ -46,10 +46,10 @@ export default function KelasRombel() {
     { key: 'capacity', label: 'Kapasitas', type: 'number', required: true },
     { key: 'status', label: 'Status', type: 'select', options: ['Aktif', 'Nonaktif'] },
   ];
-  const rombels = useCrud<RombelRow>(ROMBELS, {
+  const rombels = useCrud<RombelRow>('rombels', {
     label: 'Rombel',
     fields: rombelFields,
-    create: (v, rows) => ({ id: `RMB-${String(rows.length + 1).padStart(2, '0')}`, name: v.name, level: v.level, tutor: v.tutor, room: v.room, students: Number(v.students) || 0, capacity: Number(v.capacity) || 0, status: v.status as RombelRow['status'] }),
+    create: (v) => ({ id: '', name: v.name, level: v.level, tutor: v.tutor, room: v.room, students: Number(v.students) || 0, capacity: Number(v.capacity) || 0, status: v.status as RombelRow['status'] }),
     detail: (r) => [['Kode', r.id], ['Rombel', r.name], ['Kelas (Tingkat)', r.level], ['Tutor', r.tutor], ['Ruang', r.room], ['Siswa', `${r.students} / ${r.capacity}`], ['Status', <Badge>{r.status}</Badge>]],
   });
 

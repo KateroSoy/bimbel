@@ -10,7 +10,6 @@ import { cn } from '../../lib/utils';
 import { useDataStore, type Assignment } from '../../store/useDataStore';
 import { ADMIN_WA, TASK_MODE_LABEL, taskContentFor, type TaskMode } from '../../data/siswaPortal';
 
-const STUDENT_ID = '1001';
 const NOW = new Date('2024-11-26T09:00'); // tanggal demo agar sisa waktu konsisten
 
 const MODE_ICON: Record<TaskMode, typeof ListChecks> = { 'pilihan-ganda': ListChecks, isian: PencilLine, file: Upload };
@@ -38,7 +37,7 @@ export default function TugasSiswa() {
   const [query, setQuery] = useState('');
   const [subject, setSubject] = useState('Semua Mapel');
 
-  const subOf = (a: Assignment) => submissions.find((s) => s.assignmentId === a.id && s.studentId === STUDENT_ID);
+  const subOf = (a: Assignment) => submissions.find((s) => s.assignmentId === a.id); // server hanya mengirim pengumpulan milik siswa ini
   const todo = assignments.filter((a) => !subOf(a)?.submittedAt).sort((a, b) => a.deadline.localeCompare(b.deadline));
   const doneList = assignments.filter((a) => !!subOf(a)?.submittedAt);
   const graded = doneList.map((a) => subOf(a)?.score).filter((v): v is number => typeof v === 'number');

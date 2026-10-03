@@ -4,25 +4,45 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Panel, Avatar, Btn, Badge } from '../../components/portal/Kit';
 import { useAppStore } from '../../store/useAppStore';
 import { useDataStore } from '../../store/useDataStore';
-import { TUTOR, TODAY_CLASSES, ATTENTION, ANNOUNCEMENTS, MATERIALS, MY_STUDENTS } from '../../data/guruPortal';
+import { TEACH_SLOTS, sessionStatus, type TeachRow, type AttentionRow, type AnnouncementRow, type MaterialRow, type TutorStudent, type TutorClass } from '../../data/guruPortal';
+import { todayIndex } from '../../data/adminPortal';
+import { useResource } from '../../store/useRemote';
 import { cn } from '../../lib/utils';
 
 const More = ({ to, children }: { to: string; children: string }) => (
   <Link to={to} className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#1D4ED8] hover:underline whitespace-nowrap">{children} <ArrowRight className="w-4 h-4" /></Link>
 );
-const DOT: Record<string, string> = { Berlangsung: 'bg-emerald-500', '30 menit lagi': 'bg-orange-400' };
+const dotOf = (status: string) => (status === 'Berlangsung' ? 'bg-emerald-500' : status.endsWith('menit lagi') ? 'bg-orange-400' : 'bg-slate-400');
+const isSoon = (status: string) => status === 'Berlangsung' || status.endsWith('menit lagi');
 
 export default function TeacherDashboard() {
   const { user } = useAppStore();
   const { assignments, submissions } = useDataStore();
-  const firstName = (user?.name || TUTOR.name).split(/[ ,]/)[0];
+  const firstName = (user?.name ?? '').split(/[ ,]/)[0];
+  const classes = useResource<TutorClass>('tutor-classes').rows;
+  const ATTENTION = useResource<AttentionRow>('attention-cases').rows;
+  const ANNOUNCEMENTS = [...useResource<AnnouncementRow>('announcements').rows].reverse();
+  const MATERIALS = useResource<MaterialRow>('materials').rows;
+  const MY_STUDENTS = useResource<TutorStudent>('class-students').rows;
+  // Kelas hari ini diturunkan dari jadwal mengajar pekan ini
+  const TODAY_CLASSES = useResource<TeachRow>('teach-sessions').rows
+    .filter((s) => s.day === todayIndex() && TEACH_SLOTS[s.slot])
+    .sort((a, b) => a.slot - b.slot)
+    .map((s) => {
+      const status = sessionStatus(TEACH_SLOTS[s.slot]);
+      return {
+        time: TEACH_SLOTS[s.slot].replace(' – ', ' - '), kelas: s.kelas, subject: s.subject, status,
+        action: status === 'Berlangsung' ? 'Buka Kelas' : status.endsWith('menit lagi') ? 'Siapkan' : 'Detail',
+        classId: classes.find((c) => c.name === s.kelas || c.name.endsWith(s.kelas))?.id ?? classes[0]?.id ?? '',
+      };
+    });
 
   const toGrade = submissions.filter((s) => s.status === 'Perlu Dinilai').length;
   const active = assignments.filter((a) => a.status === 'Aktif').sort((a, b) => a.deadline.localeCompare(b.deadline));
   const risky = ATTENTION.filter((a) => a.risk.startsWith('Risiko'));
   const drafts = MATERIALS.filter((m) => m.status === 'Draft').length;
-  const avgScore = Math.round(MY_STUDENTS.reduce((a, s) => a + s.score, 0) / MY_STUDENTS.length);
-  const avgAttendance = Math.round(MY_STUDENTS.reduce((a, s) => a + s.attendance, 0) / MY_STUDENTS.length);
+  const avgScore = Math.round(MY_STUDENTS.reduce((a, s) => a + s.score, 0) / (MY_STUDENTS.length || 1));
+  const avgAttendance = Math.round(MY_STUDENTS.reduce((a, s) => a + s.attendance, 0) / (MY_STUDENTS.length || 1));
 
   const top = [
     { icon: CalendarDays, bg: '#EAF1FF', fg: '#1D4ED8', value: TODAY_CLASSES.length, label: 'Kelas Hari Ini', link: 'Lihat Jadwal', to: '/guru/jadwal' },
@@ -32,7 +52,7 @@ export default function TeacherDashboard() {
   const todo = [
     { icon: CalendarDays, color: '#1D4ED8', value: toGrade, label: 'Tugas belum dinilai', to: '/guru/tugas' },
     { icon: Users, color: '#F97316', value: risky.length, label: 'Siswa perlu perhatian', to: '/guru/progress-siswa' },
-    { icon: BookOpen, color: '#1D4ED8', value: 2, label: 'Kelas belum disiapkan', to: '/guru/kelas' },
+    { icon: BookOpen, color: '#1D4ED8', value: TODAY_CLASSES.filter((c) => c.status !== 'Selesai' && c.status !== 'Berlangsung').length, label: 'Kelas belum dimulai', to: '/guru/kelas' },
     { icon: FileText, color: '#16A34A', value: drafts, label: 'Materi belum siap', to: '/guru/course' },
   ];
 
@@ -41,7 +61,7 @@ export default function TeacherDashboard() {
       <div className="space-y-4 max-w-[1300px]">
         <div>
           <h1 className="text-2xl md:text-[26px] font-extrabold text-[#0F1E4A] tracking-tight">Selamat pagi, {firstName} 👋</h1>
-          <p className="text-sm text-slate-600 font-medium mt-0.5">{TUTOR.today}</p>
+          <p className="text-sm text-slate-600 font-medium mt-0.5">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -78,15 +98,16 @@ export default function TeacherDashboard() {
               <table className="w-full text-[13px] min-w-[520px]">
                 <thead><tr className="text-xs text-slate-600 font-bold border-b border-slate-100">{['Waktu', 'Kelas', 'Mata Pelajaran', 'Status', 'Aksi'].map((h) => <th key={h} className="text-left py-2 px-1.5">{h}</th>)}</tr></thead>
                 <tbody className="divide-y divide-slate-100">
+                  {TODAY_CLASSES.length === 0 && <tr><td colSpan={5} className="py-6 text-center text-xs text-slate-500 font-medium">Tidak ada kelas hari ini.</td></tr>}
                   {TODAY_CLASSES.map((c) => (
-                    <tr key={c.time}>
+                    <tr key={c.time + c.kelas}>
                       <td className="py-2.5 px-1.5 font-bold text-[#0F1E4A] whitespace-nowrap">{c.time}</td>
                       <td className="px-1.5 font-bold text-[#0F1E4A]">{c.kelas}</td>
                       <td className="px-1.5 text-slate-600 font-medium">{c.subject}</td>
                       <td className="px-1.5">
                         <span className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 whitespace-nowrap">
-                          <span className={cn('w-2 h-2 rounded-full', DOT[c.status] ?? 'bg-slate-400')} />
-                          {DOT[c.status] ? <Badge tone={c.status === 'Berlangsung' ? 'green' : 'orange'}>{c.status}</Badge> : c.status}
+                          <span className={cn('w-2 h-2 rounded-full', dotOf(c.status))} />
+                          {isSoon(c.status) ? <Badge tone={c.status === 'Berlangsung' ? 'green' : 'orange'}>{c.status}</Badge> : c.status}
                         </span>
                       </td>
                       <td className="px-1.5"><Btn size="sm" variant={c.action === 'Buka Kelas' ? 'primary' : 'outline'} to={c.action === 'Detail' ? `/guru/kelas/${c.classId}` : '/guru/absensi'} className="w-[92px]">{c.action}</Btn></td>
@@ -104,7 +125,7 @@ export default function TeacherDashboard() {
                   <Avatar name={s.name} size={40} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-extrabold text-[#0F1E4A] truncate">{s.name}</p>
-                    <p className="text-xs text-slate-600 font-medium truncate">{s.stats[0][0]}: {s.stats[0][1]} · {s.note}</p>
+                    <p className="text-xs text-slate-600 font-medium truncate">{s.stats?.[0] ? `${s.stats[0][0]}: ${s.stats[0][1]} · ` : ''}{s.note}</p>
                   </div>
                   <span className={cn('flex items-center gap-1 text-xs font-bold', s.trend < 0 ? 'text-red-600' : 'text-emerald-600')}>{s.trend}% {s.trend < 0 ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />}</span>
                 </li>

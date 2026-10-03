@@ -10,8 +10,13 @@ import { useAppStore } from '../../store/useAppStore';
 import { useDataStore } from '../../store/useDataStore';
 import {
   STUDENT, SUBJECTS, LIVE_CLASSES, COURSES, BILLS, ANNOUNCEMENTS, ACHIEVEMENTS, ATTENDANCE,
-  subjectById, canJoinLive, courseStats, rupiah,
+  subjectById, canJoinLive, courseStats, rupiah, TODAY_NAME, type LiveClass, type PortalCourse, type Bill,
 } from '../../data/siswaPortal';
+
+// Tampilan saat akun belum punya jadwal / course / pembayaran
+const NO_LIVE: LiveClass = { id: '', subjectId: '', topic: '-', dayName: '-', date: '', dateShort: '-', start: '--.--', end: '--.--', room: 'Belum ada jadwal', status: 'Akan Datang', openedByTutor: false };
+const NO_COURSE: PortalCourse = { id: '', subjectId: '', title: 'Belum ada course', category: '', level: 'Mudah', description: '', chapters: [{ id: '', title: 'Belum ada materi', lessons: [] }] };
+const NO_BILL: Bill = { id: '', invoice: '', month: '', year: '', title: 'Belum ada pembayaran', description: '', amount: 0, dueDate: '', status: 'Belum Dibayar' };
 
 const QUICK_LINKS = [
   { label: 'Jadwal Live Tutor', to: '/siswa/jadwal', icon: CalendarDays, color: '#7C3AED' },
@@ -29,23 +34,23 @@ export default function StudentDashboard() {
 
   // Tugas terdekat = tugas aktif yang belum dikumpulkan, deadline paling dekat
   const pending = assignments
-    .filter((a) => a.status === 'Aktif' && !submissions.some((s) => s.assignmentId === a.id && s.studentId === '1001'))
+    .filter((a) => a.status === 'Aktif' && !submissions.some((s) => s.assignmentId === a.id))
     .sort((a, b) => a.deadline.localeCompare(b.deadline));
   const nextTask = pending[0];
 
-  const todayClasses = LIVE_CLASSES.filter((c) => c.dayName === 'Kamis');
-  const nextLive = todayClasses.find((c) => c.status !== 'Selesai') ?? todayClasses[0];
+  const todayClasses = LIVE_CLASSES.filter((c) => c.dayName === TODAY_NAME);
+  const nextLive = todayClasses.find((c) => c.status !== 'Selesai') ?? LIVE_CLASSES.find((c) => c.status !== 'Selesai') ?? LIVE_CLASSES[0] ?? NO_LIVE;
   const nextLiveSubject = subjectById(nextLive.subjectId);
   const joinable = canJoinLive(nextLive);
 
-  const currentCourse = COURSES[1];
+  const currentCourse = COURSES.find((c) => { const st = courseStats(c); return st.done > 0 && st.percent < 100; }) ?? COURSES[0] ?? NO_COURSE;
   const currentStats = courseStats(currentCourse);
   const currentChapter = currentCourse.chapters.find((ch) => ch.lessons.some((l) => !l.done)) ?? currentCourse.chapters[0];
 
   const attended = ATTENDANCE.filter((a) => a.status === 'Hadir' || a.status === 'Terlambat').length;
-  const attendancePct = Math.round((attended / ATTENDANCE.length) * 100);
+  const attendancePct = Math.round((attended / (ATTENDANCE.length || 1)) * 100);
 
-  const currentBill = BILLS.find((b) => b.status === 'Lunas')!;
+  const currentBill = BILLS.find((b) => b.status === 'Lunas') ?? BILLS[0] ?? NO_BILL;
 
   const joinClass = () => {
     if (!joinable) {

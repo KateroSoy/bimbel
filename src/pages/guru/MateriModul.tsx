@@ -4,15 +4,19 @@ import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, StatStrip, Tabs, SearchInput, Select, DataTable, Badge, Btn, RowMenu, Meter, FormDialog, soon, type Col } from '../../components/portal/Kit';
 import { useDataStore } from '../../store/useDataStore';
-import { MATERIALS, MODULES, CLASS_NAMES, type MaterialRow } from '../../data/guruPortal';
+import { type MaterialRow, type ModuleRow, type TutorClass } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
 import { RequestChangeBanner, RequestChangeDialog } from './KelasSaya';
 
 const ICONS: LucideIcon[] = [Sigma, FlaskConical, Languages, SquareRadical];
 
 export default function MateriModul() {
   const { courses } = useDataStore();
-  const [rows, setRows] = useState(MATERIALS);
-  const [modules, setModules] = useState(MODULES);
+  const materials = useResource<MaterialRow>('materials');
+  const rows = materials.rows;
+  const moduleRes = useResource<ModuleRow>('modules');
+  const modules = moduleRes.rows;
+  const CLASS_NAMES = useResource<TutorClass>('tutor-classes').rows.filter((c) => c.status === 'Aktif').map((c) => c.name);
   const [tab, setTab] = useState('Materi Kelas');
   const [q, setQ] = useState('');
   const [kelas, setKelas] = useState('');
@@ -20,13 +24,13 @@ export default function MateriModul() {
   const [requesting, setRequesting] = useState(false);
 
   const filtered = rows.filter((m) => (!q || `${m.kelas} ${m.last} ${m.subject}`.toLowerCase().includes(q.toLowerCase())) && (!kelas || m.kelas === kelas));
-  const setStatus = (id: string, status: MaterialRow['status']) => { setRows((prev) => prev.map((m) => (m.id === id ? { ...m, status } : m))); toast.success(status === 'Published' ? 'Materi dipublikasikan' : 'Materi dikembalikan ke draft'); };
+  const setStatus = async (id: string, status: MaterialRow['status']) => { if (await materials.update(id, { status })) toast.success(status === 'Published' ? 'Materi dipublikasikan' : 'Materi dikembalikan ke draft'); };
 
   const columns: Col<MaterialRow>[] = [
     {
       header: 'KELAS',
       cell: (m) => {
-        const Icon = ICONS[(Number(m.id.slice(1)) - 1) % ICONS.length];
+        const Icon = ICONS[((Number(m.id.slice(1)) || 1) - 1) % ICONS.length];
         return (
           <div className="flex items-center gap-3 py-1.5">
             <span className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${m.color}1F`, color: m.color }}><Icon className="w-6 h-6" /></span>
@@ -60,9 +64,9 @@ export default function MateriModul() {
         <PageHead title="Materi & Modul" subtitle="Kelola materi pembelajaran untuk kelas yang Anda ajar." />
         <StatStrip
           items={[
-            { icon: Folder, value: 42, label: 'materi aktif', color: '#1D4ED8' },
+            { icon: Folder, value: rows.reduce((a, m) => a + m.done, 0) + modules.filter((m) => m.status === 'Published').length, label: 'materi aktif', color: '#1D4ED8' },
             { icon: FileText, value: rows.filter((m) => m.status === 'Draft').length + modules.filter((m) => m.status === 'Draft').length, label: 'draft', color: '#7C3AED' },
-            { icon: RefreshCw, value: 6, label: 'perlu diperbarui', color: '#EF4444' },
+            { icon: RefreshCw, value: rows.filter((m) => m.progress < 70).length, label: 'perlu diperbarui', color: '#EF4444' },
           ]}
           action={<Btn variant="primary" icon={Plus} onClick={() => setAdding(true)}>Tambah Materi</Btn>}
         />
@@ -88,7 +92,7 @@ export default function MateriModul() {
               { header: 'TOPIK', align: 'center', cell: (m) => `${m.topics} topik` },
               { header: 'DIPERBARUI', cell: (m) => m.updated },
               { header: 'STATUS', cell: (m) => <Badge>{m.status}</Badge> },
-              { header: 'AKSI', align: 'center', cell: (m) => <div className="inline-flex gap-2"><Btn size="sm" to="/guru/course/kelola">Buka</Btn><RowMenu items={[{ label: 'Hapus', danger: true, onClick: () => { setModules((prev) => prev.filter((x) => x.id !== m.id)); toast.success('Modul dihapus'); } }]} /></div> },
+              { header: 'AKSI', align: 'center', cell: (m) => <div className="inline-flex gap-2"><Btn size="sm" to="/guru/course/kelola">Buka</Btn><RowMenu items={[{ label: 'Hapus', danger: true, onClick: async () => { if (await moduleRes.remove(m.id)) toast.success('Modul dihapus'); } }]} /></div> },
             ]}
           />
         )}
@@ -121,10 +125,11 @@ export default function MateriModul() {
             { key: 'status', label: 'Status', type: 'select', options: ['Draft', 'Published'] },
           ]}
           onClose={() => setAdding(false)}
-          onSubmit={(v) => {
-            setModules((prev) => [{ id: `MD${Date.now()}`, title: v.title, kelas: v.kelas, topics: Number(v.topics) || 1, updated: 'Hari ini', status: v.status }, ...prev]);
-            setTab('Modul');
-            toast.success('Materi ditambahkan', { description: `${v.title} · ${v.kelas}` });
+          onSubmit={async (v) => {
+            if (await moduleRes.create({ title: v.title, kelas: v.kelas, topics: Number(v.topics) || 1, updated: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), status: v.status })) {
+              setTab('Modul');
+              toast.success('Materi ditambahkan', { description: `${v.title} · ${v.kelas}` });
+            }
           }}
         />
         <RequestChangeDialog open={requesting} onClose={() => setRequesting(false)} />

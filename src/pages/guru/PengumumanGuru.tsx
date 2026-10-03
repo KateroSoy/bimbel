@@ -3,7 +3,9 @@ import { Megaphone, CalendarDays, ChevronRight, ChevronDown, MessageSquareText, 
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Tabs, SearchInput, Select, Panel, Badge, Btn, Modal, FormDialog, TONE_HEX, type Tone } from '../../components/portal/Kit';
-import { ANNOUNCEMENTS, TUTOR, type AnnouncementRow } from '../../data/guruPortal';
+import { type AnnouncementRow } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
+import { useAppStore } from '../../store/useAppStore';
 
 const CATEGORIES: AnnouncementRow['category'][] = ['Pengumuman', 'Kegiatan Sekolah', 'Informasi', 'Agenda', 'Tugas'];
 const CATEGORY: Record<string, { icon: LucideIcon; tone: Tone }> = {
@@ -13,7 +15,10 @@ const CATEGORY: Record<string, { icon: LucideIcon; tone: Tone }> = {
 const PAGE = 5;
 
 export default function PengumumanGuru() {
-  const [items, setItems] = useState(ANNOUNCEMENTS);
+  const remote = useResource<AnnouncementRow>('announcements');
+  const items = [...remote.rows].reverse(); // terbaru dulu
+  const author = useAppStore((s) => s.user?.name ?? 'Tutor').split(',')[0];
+  const canPublish = useAppStore((s) => s.user?.role !== 'siswa');
   const [tab, setTab] = useState('Semua');
   const [q, setQ] = useState('');
   const [category, setCategory] = useState('');
@@ -27,7 +32,7 @@ export default function PengumumanGuru() {
   const filtered = items.filter((a) =>
     (tab === 'Semua' || (tab === 'Belum Dibaca' ? a.unread : a.category === 'Agenda')) && (!q || `${a.title} ${a.body}`.toLowerCase().includes(q.toLowerCase())) && (!category || a.category === category));
   const sorted = sort === 'Terbaru' ? filtered : [...filtered].reverse();
-  const open = (a: AnnouncementRow) => { setOpened(a); setItems((prev) => prev.map((x) => (x.id === a.id ? { ...x, unread: false } : x))); };
+  const open = (a: AnnouncementRow) => { setOpened(a); if (a.unread) void remote.update(a.id, { unread: false }); };
 
   return (
     <DashboardLayout>
@@ -35,7 +40,7 @@ export default function PengumumanGuru() {
         <PageHead
           title={<span className="flex items-center gap-2">Pengumuman <Megaphone className="w-5 h-5 text-[#1D4ED8]" /></span>}
           subtitle="Informasi terbaru dari StudyHack Education Center untuk Anda."
-          actions={<Btn variant="primary" icon={Plus} onClick={() => setAdding(true)}>Buat Pengumuman Kelas</Btn>}
+          actions={canPublish ? <Btn variant="primary" icon={Plus} onClick={() => setAdding(true)}>Buat Pengumuman Kelas</Btn> : undefined}
         />
         <div className="inline-flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-blue-100 bg-[#F4F8FF] px-5 py-3 text-sm font-medium text-slate-700">
           <span className="flex items-center gap-2.5"><span className="w-3 h-3 rounded-full bg-[#1D4ED8]" /><b className="text-[#0F1E4A]">{unread}</b> pengumuman belum dibaca</span>
@@ -51,7 +56,7 @@ export default function PengumumanGuru() {
         <Panel className="!py-1">
           <ul className="divide-y divide-slate-100">
             {sorted.slice(0, limit).map((a) => {
-              const c = CATEGORY[a.category];
+              const c = CATEGORY[a.category] ?? CATEGORY.Informasi;
               return (
                 <li key={a.id}>
                   <button onClick={() => open(a)} className="w-full flex items-center gap-4 py-4 text-left group">
@@ -80,7 +85,7 @@ export default function PengumumanGuru() {
         <Modal open={!!opened} title={opened?.title ?? ''} onClose={() => setOpened(null)} footer={<Btn variant="ghost" onClick={() => setOpened(null)}>Tutup</Btn>}>
           {opened && (
             <>
-              <p className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium mb-3">{opened.date} · {opened.author} · <Badge tone={CATEGORY[opened.category].tone}>{opened.category}</Badge></p>
+              <p className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium mb-3">{opened.date} · {opened.author} · <Badge tone={(CATEGORY[opened.category] ?? CATEGORY.Informasi).tone}>{opened.category}</Badge></p>
               <p className="text-sm text-slate-700 font-medium leading-relaxed">{opened.body}</p>
             </>
           )}
@@ -91,10 +96,10 @@ export default function PengumumanGuru() {
           submitLabel="Terbitkan"
           fields={[{ key: 'title', label: 'Judul', required: true }, { key: 'category', label: 'Kategori', type: 'select', options: CATEGORIES }, { key: 'body', label: 'Isi Pengumuman', type: 'textarea', required: true }]}
           onClose={() => setAdding(false)}
-          onSubmit={(v) => {
+          onSubmit={async (v) => {
             const category = v.category as AnnouncementRow['category'];
-            setItems((prev) => [{ id: `P${Date.now()}`, title: v.title, body: v.body, date: 'Hari ini', author: TUTOR.name.split(',')[0], category, unread: false, tone: CATEGORY[category].tone }, ...prev]);
-            toast.success('Pengumuman diterbitkan');
+            const date = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            if (await remote.create({ title: v.title, body: v.body, date, author, category, unread: true, tone: CATEGORY[category].tone })) toast.success('Pengumuman diterbitkan');
           }}
         />
       </div>

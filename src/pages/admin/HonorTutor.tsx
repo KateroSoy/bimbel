@@ -6,7 +6,8 @@ import {
   PageHead, StatCards, Tabs, FilterBar, SearchInput, Select, DataTable, Person, Badge, RowMenu, Btn, InfoBox, Panel, DonutPanel, QuickList, WithRail,
   MiniBars, FormDialog, useCrud, exportCsv, rupiah, type Col, type Field,
 } from '../../components/portal/Kit';
-import { HONORS, honorStatus, staffAvatar, type HonorRow, type HonorStatus } from '../../data/adminPortal';
+import { honorStatus, staffAvatar, type HonorRow, type HonorStatus } from '../../data/adminPortal';
+import { useResource } from '../../store/useRemote';
 
 const TABS = ['Semua Tutor', 'Belum Dibayar', 'Sebagian Dibayar', 'Sudah Dibayar'];
 const TAB_STATUS: Record<string, HonorStatus> = { 'Belum Dibayar': 'Belum Dibayar', 'Sebagian Dibayar': 'Sebagian Dibayar', 'Sudah Dibayar': 'Lunas' };
@@ -19,7 +20,6 @@ const FIELDS: Field[] = [
   { key: 'total', label: 'Total Honor (Rp)', type: 'number', required: true },
   { key: 'paid', label: 'Sudah Dibayar (Rp)', type: 'number' },
 ];
-const HISTORY = [['Des 24', 18.2], ['Jan 25', 20.1], ['Feb 25', 22.6], ['Mar 25', 21.3], ['Apr 25', 24.0]] as const;
 
 export default function HonorTutor() {
   const [tab, setTab] = useState(TABS[0]);
@@ -28,10 +28,10 @@ export default function HonorTutor() {
   const [status, setStatus] = useState('');
   const [paying, setPaying] = useState<HonorRow | null>(null);
 
-  const crud = useCrud<HonorRow>(HONORS, {
+  const crud = useCrud<HonorRow>('honors', {
     label: 'Honor Tutor',
     fields: FIELDS,
-    create: (v, rows) => ({ id: `T-${String(rows.length + 1).padStart(3, '0')}`, name: v.name, program: v.program, level: v.level, sessions: Number(v.sessions) || 0, total: Number(v.total) || 0, paid: Math.min(Number(v.paid) || 0, Number(v.total) || 0) }),
+    create: (v) => ({ id: '', name: v.name, program: v.program, level: v.level, sessions: Number(v.sessions) || 0, total: Number(v.total) || 0, paid: Math.min(Number(v.paid) || 0, Number(v.total) || 0) }),
     detail: (h) => [['Tutor', `${h.name} (${h.id})`], ['Program / Kelas', `${h.program} · ${h.level}`], ['Beban Mengajar', `${h.sessions} sesi`], ['Total Honor', rupiah(h.total)], ['Dibayar', rupiah(h.paid)], ['Sisa', rupiah(h.total - h.paid)], ['Status Pembayaran', <Badge>{honorStatus(h)}</Badge>]],
   });
 
@@ -42,8 +42,8 @@ export default function HonorTutor() {
   const paid = crud.rows.reduce((a, h) => a + h.paid, 0);
   const pct = (v: number) => `${((v / (total || 1)) * 100).toFixed(2).replace('.', ',')}%`;
   const sumBy = (s: HonorStatus, f: (h: HonorRow) => number) => crud.rows.filter((h) => honorStatus(h) === s).reduce((a, h) => a + f(h), 0);
+  useResource('staff');
   const pending = crud.rows.filter((h) => h.paid < h.total).slice(0, 3);
-  const dueDates = ['20 Mei 2025', '22 Mei 2025', '25 Mei 2025'];
   const doExport = () => exportCsv('honor-tutor', ['ID', 'Tutor', 'Program', 'Sesi', 'Total Honor', 'Dibayar', 'Sisa', 'Status'], rows.map((h) => [h.id, h.name, h.program, h.sessions, h.total, h.paid, h.total - h.paid, honorStatus(h)]));
 
   const columns: Col<HonorRow>[] = [
@@ -98,12 +98,12 @@ export default function HonorTutor() {
             ]} />
             <Panel title="Pembayaran Terdekat">
               <ul className="space-y-2.5">
-                {pending.map((h, i) => (
+                {pending.map((h) => (
                   <li key={h.id}>
                     <button onClick={() => setPaying(h)} className="w-full flex items-start gap-2.5 text-left hover:opacity-80">
                       <CalendarCheck className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                       <span className="flex-1 min-w-0"><span className="block text-[13px] font-bold text-[#0F1E4A] truncate">{h.name}</span><span className="block text-[11px] text-slate-500 font-medium truncate">{h.program}</span></span>
-                      <span className="text-right shrink-0"><span className="block text-[10px] text-slate-500 font-semibold">{dueDates[i]}</span><span className="block text-xs font-extrabold text-[#0F1E4A]">{rupiah(h.total - h.paid)}</span></span>
+                      <span className="text-right shrink-0"><span className="block text-[10px] text-slate-500 font-semibold">{honorStatus(h)}</span><span className="block text-xs font-extrabold text-[#0F1E4A]">{rupiah(h.total - h.paid)}</span></span>
                     </button>
                   </li>
                 ))}
@@ -111,8 +111,8 @@ export default function HonorTutor() {
               </ul>
               <button onClick={() => setTab('Belum Dibayar')} className="mt-3 w-full h-9 rounded-lg border border-slate-200 text-[13px] font-bold text-[#1D4ED8] hover:bg-slate-50">Lihat Semua Jadwal Pembayaran</button>
             </Panel>
-            <Panel title="Total Honor per Bulan" action={<Badge tone="slate">6 Bulan Terakhir</Badge>}>
-              <MiniBars color="#BFDBFE" data={[...HISTORY.map(([label, v]) => ({ label, value: v, display: `Rp ${String(v).replace('.', ',')} jt` })), { label: 'Mei 25', value: total / 1e6, display: `Rp ${(total / 1e6).toFixed(1).replace('.', ',')} jt`, color: '#1D4ED8' }]} />
+            <Panel title="Total Honor per Jenjang" action={<Badge tone="slate">Periode ini</Badge>}>
+              <MiniBars color="#1D4ED8" data={LEVELS.map((l) => { const v = crud.rows.filter((h) => h.level === l).reduce((a, h) => a + h.total, 0); return { label: l.split(' ')[0], value: v / 1e6, display: `${(v / 1e6).toFixed(1).replace('.', ',')} jt` }; })} />
             </Panel>
           </>}
         >

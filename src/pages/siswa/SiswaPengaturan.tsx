@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { api, ApiError } from '../../lib/api';
+import { useAppStore, type User as AccountUser } from '../../store/useAppStore';
 import {
   User, Bell, ShieldCheck, Lock, Monitor, Globe, MoreHorizontal, Pencil, Camera, Mail, School, Users, Trash2,
   ChevronRight, Check, ArrowRight, Smartphone, Tablet, Headphones, MessageCircle, X,
@@ -7,7 +9,7 @@ import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, PageTitle, Pill } from '../../components/siswa/PortalUI';
 import { cn } from '../../lib/utils';
-import { ADMIN_WA, STUDENT } from '../../data/siswaPortal';
+import { ADMIN_WA, STUDENT, hydrateStudentPortal } from '../../data/siswaPortal';
 
 type Tab = 'akun' | 'notifikasi' | 'keamanan' | 'privasi' | 'tampilan' | 'bahasa';
 const TABS: { id: Tab; label: string; icon: typeof User }[] = [
@@ -71,7 +73,11 @@ export default function SiswaPengaturan() {
                   {editing ? (
                     <div className="flex gap-2">
                       <button onClick={() => { setEditing(false); setForm({ email: STUDENT.email, phone: STUDENT.phone }); }} className="h-9 px-4 rounded-lg border border-slate-200 text-sm font-bold text-slate-700">Batal</button>
-                      <button onClick={() => { setEditing(false); toast.success('Informasi akun disimpan'); }} className="h-9 px-4 rounded-lg bg-[#1D4ED8] text-white text-sm font-bold">Simpan</button>
+                      <button onClick={() => {
+                        api.put<{ user: AccountUser }>('/me', { email: form.email, phone: form.phone })
+                          .then((res) => { useAppStore.getState().setUser(res.user); hydrateStudentPortal({ student: { ...STUDENT, email: form.email, phone: form.phone } }); setEditing(false); toast.success('Informasi akun disimpan'); })
+                          .catch((err) => toast.error(err instanceof ApiError ? err.first : 'Gagal menyimpan informasi akun.'));
+                      }} className="h-9 px-4 rounded-lg bg-[#1D4ED8] text-white text-sm font-bold">Simpan</button>
                     </div>
                   ) : (
                     <button onClick={() => setEditing(true)} className="h-9 px-4 rounded-lg border border-blue-200 text-sm font-bold text-[#1D4ED8] flex items-center gap-1.5 hover:bg-blue-50"><Pencil className="w-3.5 h-3.5" /> Edit Profil</button>
@@ -224,8 +230,9 @@ export default function SiswaPengaturan() {
               const next = String(data.get('next') ?? '');
               if (next.length < 8) { toast.error('Kata sandi baru minimal 8 karakter'); return; }
               if (next !== data.get('confirm')) { toast.error('Konfirmasi kata sandi tidak sama'); return; }
-              setPwOpen(false);
-              toast.success('Kata sandi berhasil diubah');
+              api.put('/me/password', { currentPassword: String(data.get('current') ?? ''), password: next })
+                .then(() => { setPwOpen(false); toast.success('Kata sandi berhasil diubah'); })
+                .catch((err) => toast.error(err instanceof ApiError ? err.first : 'Gagal mengubah kata sandi.'));
             }}>
             <div className="flex items-center justify-between"><h3 className="text-lg font-extrabold text-[#0F1E4A]">Ubah Kata Sandi</h3><button type="button" onClick={() => setPwOpen(false)} aria-label="Tutup"><X className="w-5 h-5 text-slate-500" /></button></div>
             {[['current', 'Kata sandi saat ini'], ['next', 'Kata sandi baru'], ['confirm', 'Ulangi kata sandi baru']].map(([n, l]) => (

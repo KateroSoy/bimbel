@@ -5,7 +5,7 @@ import {
   PageHead, StatCards, FilterBar, SearchInput, Select, DataTable, Person, Badge, RowActions, Btn, InfoBox, Panel, DonutPanel, QuickList, BarList,
   WithRail, useCrud, exportCsv, soon, TONE_HEX, type Col, type Field,
 } from '../../components/portal/Kit';
-import { STAFF, programTone, type StaffRow } from '../../data/adminPortal';
+import { programTone, type StaffRow } from '../../data/adminPortal';
 
 const TEACH = ['English Primary', 'Math Primary', 'Combo', 'English Teens', 'Intensif', 'IPA Junior'];
 const FIELDS: Field[] = [
@@ -23,7 +23,7 @@ export default function DataTutorStaff() {
   const [status, setStatus] = useState('');
   const [program, setProgram] = useState('');
 
-  const crud = useCrud<StaffRow & { program?: string }>(STAFF.map((s) => ({ ...s, program: s.programs[0] })), {
+  const crud = useCrud<StaffRow & { program?: string }>('staff', {
     label: 'Tutor / Staff',
     fields: FIELDS,
     create: (v, rows) => {
@@ -80,7 +80,7 @@ export default function DataTutorStaff() {
           { label: 'Tutor Aktif', value: tutorAktif, sub: 'Mengajar aktif', icon: UserCheck, tone: 'green' },
           { label: 'Staff Aktif', value: staffAktif, sub: 'Operasional', icon: UserCog, tone: 'orange' },
           { label: 'Tutor Nonaktif', value: nonaktif, sub: 'Tidak aktif', icon: UserX, tone: 'purple' },
-          { label: 'Sertifikasi Aktif', value: Math.round(tutorAktif * 0.65), sub: 'Dari tutor aktif', icon: Award, tone: 'teal' },
+          { label: 'Program Diampu', value: new Set(crud.rows.flatMap(programsOf)).size, sub: 'Program / tugas berbeda', icon: Award, tone: 'teal' },
         ]} />
 
         <WithRail
@@ -120,5 +120,6 @@ export default function DataTutorStaff() {
 
 // Setelah diubah lewat form, program utama mengikuti pilihan form; sisanya tetap.
 function programsOf(s: StaffRow & { program?: string }) {
-  return s.program && s.program !== s.programs[0] ? [s.program, ...s.programs.slice(1)] : s.programs;
+  const programs = s.programs ?? [];
+  return s.program && s.program !== programs[0] ? [s.program, ...programs.slice(1)] : programs;
 }

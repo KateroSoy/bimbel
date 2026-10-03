@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
+import { useResource } from '../../store/useRemote';
 
 /* Kit bersama portal Admin & Tutor LearnSpace+ (mengikuti mockup klien) */
 
@@ -66,7 +67,7 @@ const BTN: Record<BtnVariant, string> = {
 export function Btn({
   variant = 'outline', icon: Icon, children, onClick, to, className, type = 'button', size = 'md',
 }: {
-  variant?: BtnVariant; icon?: LucideIcon; children?: ReactNode; onClick?: () => void; to?: string;
+  variant?: BtnVariant; icon?: LucideIcon; children?: ReactNode; onClick?: () => unknown; to?: string;
   className?: string; type?: 'button' | 'submit'; size?: 'sm' | 'md';
 }) {
   const cls = cn(
@@ -575,7 +576,7 @@ export function Modal({ open, title, onClose, children, footer, wide }: { open: 
 export interface Field { key: string; label: string; type?: 'text' | 'number' | 'date' | 'select' | 'textarea' | 'email' | 'tel'; options?: string[]; required?: boolean; placeholder?: string }
 
 export function FormDialog({ open, title, fields, initial, onSubmit, onClose, submitLabel = 'Simpan' }: {
-  open: boolean; title: string; fields: Field[]; initial?: Record<string, string>; onSubmit: (values: Record<string, string>) => void; onClose: () => void; submitLabel?: string;
+  open: boolean; title: string; fields: Field[]; initial?: Record<string, string>; onSubmit: (values: Record<string, string>) => void | Promise<void>; onClose: () => void; submitLabel?: string;
 }) {
   const [values, setValues] = useState<Record<string, string>>({});
   useEffect(() => {
@@ -587,7 +588,7 @@ export function FormDialog({ open, title, fields, initial, onSubmit, onClose, su
   return (
     <Modal open={open} title={title} onClose={onClose}>
       <form
-        onSubmit={(e) => { e.preventDefault(); onSubmit(values); onClose(); }}
+        onSubmit={(e) => { e.preventDefault(); void onSubmit(values); onClose(); }}
         className="grid grid-cols-1 sm:grid-cols-2 gap-3"
       >
         {fields.map((f) => (
@@ -614,30 +615,28 @@ export function FormDialog({ open, title, fields, initial, onSubmit, onClose, su
 }
 
 /**
- * State CRUD lokal untuk halaman daftar: tambah / ubah / lihat / hapus beserta dialognya.
- * Nilai form berupa string; field bertipe number dikonversi otomatis saat mengubah baris.
+ * CRUD untuk halaman daftar di atas satu resource API (/api/r/{resource}): tambah / ubah / lihat / hapus beserta dialognya.
+ * Nilai form berupa string; field bertipe number dikonversi sebelum dikirim. Id dibuat oleh server.
  */
-export function useCrud<T extends { id: string }>(initial: T[], cfg: {
+export function useCrud<T extends { id: string }>(resource: string, cfg: {
   label: string;
   fields: Field[];
   create: (values: Record<string, string>, rows: T[]) => T;
   detail: (row: T) => [ReactNode, ReactNode][];
 }) {
-  const [rows, setRows] = useState<T[]>(initial);
+  const remote = useResource<T>(resource);
+  const { rows } = remote;
   const [form, setForm] = useState<{ row?: T } | null>(null);
   const [viewing, setViewing] = useState<T | null>(null);
   const [deleting, setDeleting] = useState<T | null>(null);
 
   const coerce = (values: Record<string, string>) =>
-    Object.fromEntries(cfg.fields.map((f) => [f.key, f.type === 'number' ? Number(values[f.key]) || 0 : values[f.key]]));
+    Object.fromEntries(cfg.fields.map((f) => [f.key, f.type === 'number' ? Number(values[f.key]) || 0 : values[f.key]])) as Partial<T>;
 
-  const submit = (values: Record<string, string>) => {
+  const submit = async (values: Record<string, string>) => {
     if (form?.row) {
-      const id = form.row.id;
-      setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...coerce(values) } : r)));
-      toast.success(`${cfg.label} berhasil diperbarui`);
-    } else {
-      setRows((prev) => [cfg.create(values, prev), ...prev]);
+      if (await remote.update(form.row.id, coerce(values))) toast.success(`${cfg.label} berhasil diperbarui`);
+    } else if (await remote.create(cfg.create(values, rows))) {
       toast.success(`${cfg.label} berhasil ditambahkan`);
     }
   };
@@ -658,21 +657,21 @@ export function useCrud<T extends { id: string }>(initial: T[], cfg: {
         onClose={() => setDeleting(null)}
         footer={<>
           <Btn variant="ghost" onClick={() => setDeleting(null)}>Batal</Btn>
-          <Btn variant="danger" onClick={() => { setRows((prev) => prev.filter((r) => r.id !== deleting!.id)); setDeleting(null); toast.success(`${cfg.label} dihapus`); }}>Hapus</Btn>
+          <Btn variant="danger" onClick={async () => { const target = deleting!; setDeleting(null); if (await remote.remove(target.id)) toast.success(`${cfg.label} dihapus`); }}>Hapus</Btn>
         </>}
       >
-        <p className="text-sm text-slate-600 font-medium">Data ini akan dihapus dari daftar. Lanjutkan?</p>
+        <p className="text-sm text-slate-600 font-medium">Data ini akan dihapus permanen. Lanjutkan?</p>
       </Modal>
     </>
   );
 
   return {
-    rows, setRows, dialogs,
+    rows, loading: remote.loading, dialogs,
     add: () => setForm({}),
     edit: (row: T) => setForm({ row }),
     view: (row: T) => setViewing(row),
     remove: (row: T) => setDeleting(row),
-    patch: (id: string, changes: Partial<T>) => setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...changes } : r))),
+    patch: (id: string, changes: Partial<T>) => remote.update(id, changes),
   };
 }
 

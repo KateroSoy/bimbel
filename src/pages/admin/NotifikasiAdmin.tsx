@@ -7,7 +7,8 @@ import {
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Panel, Badge, Select, Donut, QuickList, InfoBox, Pagination, soon, TONE_HEX, WithRail } from '../../components/portal/Kit';
-import { NOTIFICATIONS } from '../../data/adminPortal';
+import { type AdminNotif } from '../../data/adminPortal';
+import { useResource } from '../../store/useRemote';
 import { cn } from '../../lib/utils';
 
 const CATEGORY_ICON: Record<string, LucideIcon> = {
@@ -20,7 +21,8 @@ const CATEGORIES = Object.keys(CATEGORY_ICON);
 const FILTERS = ['Siswa', 'Keuangan', 'Tutor & Staff', 'Kelas & Jadwal', 'Sistem'];
 
 export default function NotifikasiAdmin() {
-  const [items, setItems] = useState(NOTIFICATIONS);
+  const remote = useResource<AdminNotif>('admin-notifications');
+  const items = remote.rows;
   const [filter, setFilter] = useState('Semua');
   const [sort, setSort] = useState('Terbaru');
   const [page, setPage] = useState(1);
@@ -32,7 +34,7 @@ export default function NotifikasiAdmin() {
   const pages = Math.max(1, Math.ceil(sorted.length / perPage));
   const current = Math.min(page, pages);
   const visible = sorted.slice((current - 1) * perPage, current * perPage);
-  const read = (id: string) => setItems((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
+  const read = (id: string) => { if (items.find((n) => n.id === id)?.unread) void remote.update(id, { unread: false }); };
 
   const chips = [
     { label: 'Semua', count: items.length }, { label: 'Belum Dibaca', count: unread },
@@ -58,7 +60,7 @@ export default function NotifikasiAdmin() {
             ))}
           </div>
           <div className="flex items-center gap-4 text-[13px] font-bold text-slate-700">
-            <button onClick={() => { setItems((prev) => prev.map((n) => ({ ...n, unread: false }))); toast.success('Semua notifikasi ditandai dibaca'); }} className="flex items-center gap-1.5 hover:text-[#1D4ED8]"><CheckCheck className="w-4 h-4" /> Tandai semua dibaca</button>
+            <button onClick={async () => { await Promise.all(items.filter((n) => n.unread).map((n) => remote.update(n.id, { unread: false }))); toast.success('Semua notifikasi ditandai dibaca'); }} className="flex items-center gap-1.5 hover:text-[#1D4ED8]"><CheckCheck className="w-4 h-4" /> Tandai semua dibaca</button>
             <button onClick={() => soon('Pengaturan Notifikasi')} className="flex items-center gap-1.5 hover:text-[#1D4ED8]"><Settings className="w-4 h-4" /> Pengaturan Notifikasi</button>
           </div>
         </div>
@@ -79,12 +81,12 @@ export default function NotifikasiAdmin() {
               </div>
               <div className="grid grid-cols-2 gap-2 mt-3">
                 <div className="rounded-xl border border-slate-100 p-3"><p className="text-xs text-slate-500 font-semibold">Belum Dibaca</p><p className="text-lg font-extrabold text-red-600">{unread}</p></div>
-                <div className="rounded-xl border border-slate-100 p-3"><p className="text-xs text-slate-500 font-semibold">Dibaca Hari Ini</p><p className="text-lg font-extrabold text-emerald-600">{15 + items.length - unread - 1}</p></div>
+                <div className="rounded-xl border border-slate-100 p-3"><p className="text-xs text-slate-500 font-semibold">Sudah Dibaca</p><p className="text-lg font-extrabold text-emerald-600">{items.length - unread}</p></div>
               </div>
             </Panel>
             <QuickList items={[
-              { label: 'Lihat Pendaftaran Baru', icon: UserPlus, tone: 'red', to: '/admin/pendaftaran', badge: 7 },
-              { label: 'Lihat Tagihan Belum Lunas', icon: Wallet, tone: 'orange', to: '/admin/piutang', badge: 23 },
+              { label: 'Lihat Pendaftaran Baru', icon: UserPlus, tone: 'red', to: '/admin/pendaftaran' },
+              { label: 'Lihat Tagihan Belum Lunas', icon: Wallet, tone: 'orange', to: '/admin/piutang' },
               { label: 'Periksa Absensi Tutor', icon: ClipboardCheck, tone: 'amber', to: '/admin/kehadiran-tutor' },
               { label: 'Buka WhatsApp Wali Murid', icon: MessageCircle, tone: 'green', to: '/admin/whatsapp' },
               { label: 'Buat Pengumuman / Broadcast', icon: Megaphone, tone: 'blue', to: '/admin/pengumuman' },

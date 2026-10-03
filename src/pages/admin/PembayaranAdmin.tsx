@@ -9,7 +9,7 @@ import {
   PageHead, StatCards, Tabs, FilterBar, SearchInput, Select, DataTable, Person, Badge, RowMenu, Btn, InfoBox, Panel, DonutPanel, QuickList, WithRail,
   KeyValues, LinkAction, Modal, useCrud, exportCsv, rupiah, soon, type Col, type Field,
 } from '../../components/portal/Kit';
-import { PAYMENTS, type PaymentRow, type PayStatus } from '../../data/adminPortal';
+import { type PaymentRow, type PayStatus } from '../../data/adminPortal';
 
 const METHODS = ['Transfer Bank', 'E-Wallet', 'Tunai', 'QRIS'];
 const METHOD_COLOR: Record<string, string> = { 'Transfer Bank': '#1D4ED8', 'E-Wallet': '#16A34A', Tunai: '#F59E0B', QRIS: '#EC4899' };
@@ -33,11 +33,11 @@ export default function PembayaranAdmin() {
   const [status, setStatus] = useState('');
   const [proof, setProof] = useState<PaymentRow | null>(null);
 
-  const crud = useCrud<PaymentRow>(PAYMENTS, {
+  const crud = useCrud<PaymentRow>('payments', {
     label: 'Pembayaran',
     fields: FIELDS,
-    create: (v, rows) => ({
-      id: `TRX-250517-${String(rows.length + 1).padStart(4, '0')}`, date: '17 Mei 2025', time: new Date().toTimeString().slice(0, 5), name: v.name, sid: '-', program: v.program,
+    create: (v) => ({
+      id: '', date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }), time: new Date().toTimeString().slice(0, 5), name: v.name, sid: '-', program: v.program,
       method: v.method, channel: v.channel, bill: Number(v.bill) || 0, paid: Number(v.paid) || 0, discount: Number(v.discount) || 0, status: v.status as PayStatus,
     }),
     detail: (p) => [['No. Transaksi', p.id], ['Tanggal', `${p.date}, ${p.time}`], ['Siswa', `${p.name} (${p.sid})`], ['Program / Kelas', p.program], ['Metode', `${p.method} ${p.channel}`], ['Tagihan', rupiah(p.bill)], ['Dibayar', rupiah(p.paid)], ['Diskon', p.discount ? rupiah(p.discount) : '-'], ['Status', <Badge>{p.status}</Badge>]],

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, PageTitle, Pill, statusTone } from '../../components/siswa/PortalUI';
 import { cn } from '../../lib/utils';
-import { LIVE_CLASSES, WEEK_DAYS, SUBJECTS, subjectById, canJoinLive, type LiveClass, type LiveStatus, type SubjectId } from '../../data/siswaPortal';
+import { LIVE_CLASSES, WEEK_DAYS, SUBJECTS, TODAY_NAME, subjectById, canJoinLive, type LiveClass, type LiveStatus, type SubjectId } from '../../data/siswaPortal';
 
 const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const BASE_MONDAY = new Date(2025, 7, 11); // Senin, 11 Agustus 2025 (minggu demo)
@@ -173,7 +173,7 @@ export default function JadwalBelajar() {
           <div className={cn('grid gap-2.5', visibleDays.length > 1 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7' : 'grid-cols-1 max-w-md')}>
             {visibleDays.map((d) => {
               const list = classes.filter((c) => c.dayName === d.name);
-              const isToday = weekOffset === 0 && d.name === 'Kamis';
+              const isToday = weekOffset === 0 && d.name === TODAY_NAME;
               return (
                 <Card key={d.name} className={cn('p-3 flex flex-col min-h-[220px]', isToday && 'border-[#1D4ED8] ring-1 ring-[#1D4ED8]/30 bg-[#F8FAFF]')}>
                   <div className="flex items-start justify-between pb-2 mb-2 border-b border-slate-100">

@@ -3,23 +3,23 @@ import { ArrowLeft, NotebookPen, Save, CalendarCheck, CalendarDays, Clock, Timer
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Tabs, SearchInput, Select, DataTable, Person, Btn, RowMenu, Panel, Badge, FormDialog, Meter, type Col } from '../../components/portal/Kit';
-import { PRESENCE, PRESENCE_COLOR, type Presence, type PresenceRow } from '../../data/guruPortal';
+import { PRESENCE_COLOR, type Presence, type PresenceRow, type TutorClass } from '../../data/guruPortal';
+import { useResource } from '../../store/useRemote';
 
 const STATUSES: Presence[] = ['Hadir', 'Terlambat', 'Izin', 'Sakit', 'Alpa'];
-const HISTORY = [
-  { date: 'Senin, 11 Agustus 2026', hadir: 29, terlambat: 1, izin: 1, sakit: 0, alpa: 1 },
-  { date: 'Jumat, 8 Agustus 2026', hadir: 30, terlambat: 2, izin: 0, sakit: 0, alpa: 0 },
-  { date: 'Rabu, 6 Agustus 2026', hadir: 27, terlambat: 2, izin: 1, sakit: 1, alpa: 1 },
-  { date: 'Senin, 4 Agustus 2026', hadir: 31, terlambat: 0, izin: 0, sakit: 1, alpa: 0 },
-];
+interface TeachingNote { id: string; kelas: string; date: string; topic: string; homework: string; note: string }
 const now = () => new Date().toTimeString().slice(0, 5).replace(':', '.');
 
 export default function PresensiKelas() {
-  const [rows, setRows] = useState(PRESENCE);
+  const remote = useResource<PresenceRow>('presences');
+  const rows = remote.rows;
+  const notes = useResource<TeachingNote>('teaching-notes');
+  const kelas = useResource<TutorClass>('tutor-classes').rows.find((c) => c.status === 'Aktif');
+  const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const [tab, setTab] = useState('Daftar Siswa');
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState('');
-  const [savedAt, setSavedAt] = useState('14.17');
+  const [savedAt, setSavedAt] = useState(now());
   const [noting, setNoting] = useState<PresenceRow | null>(null);
   const [journal, setJournal] = useState(false);
   const [corrections, setCorrections] = useState<{ name: string; from: Presence; to: Presence; time: string }[]>([]);
@@ -28,8 +28,7 @@ export default function PresensiKelas() {
   const setStatus = (r: PresenceRow, status: Presence) => {
     if (status === r.status) return;
     setCorrections((prev) => [{ name: r.name, from: r.status, to: status, time: now() }, ...prev]);
-    setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, status, time: status === 'Hadir' || status === 'Terlambat' ? x.time || now() : '' } : x)));
-    touch();
+    void remote.update(r.id, { status, time: status === 'Hadir' || status === 'Terlambat' ? r.time || now() : '' }).then((saved) => saved && touch());
   };
   const filtered = rows.filter((r) => (!q || `${r.name} ${r.id}`.toLowerCase().includes(q.toLowerCase())) && (!filter || r.status === filter));
   const n = (s: Presence) => rows.filter((r) => r.status === s).length;
@@ -72,12 +71,12 @@ export default function PresensiKelas() {
             <div className="p-5">
               <div className="flex items-start gap-3.5">
                 <span className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><CalendarCheck className="w-6 h-6" /></span>
-                <div><h2 className="text-lg font-extrabold text-[#0F1E4A]">Matematika - Batch UTBK 1</h2><p className="text-sm text-slate-700 font-medium">Studio Belajar 1 (Utama)</p></div>
+                <div><h2 className="text-lg font-extrabold text-[#0F1E4A]">{kelas ? `${kelas.subject} - ${kelas.name}` : 'Sesi Kelas'}</h2><p className="text-sm text-slate-700 font-medium">{kelas?.code ?? '—'}</p></div>
               </div>
               <div className="flex flex-wrap gap-x-5 gap-y-1.5 mt-3 text-[13px] text-slate-700 font-medium">
-                <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4" /> Rabu, 13 Agustus 2026</span>
-                <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> 14.00 - 15.30 WIB</span>
-                <span className="flex items-center gap-1.5"><Timer className="w-4 h-4" /> Durasi 90 menit</span>
+                <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4" /> {today}</span>
+                <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {kelas?.time ?? '—'} WIB</span>
+                <span className="flex items-center gap-1.5"><Timer className="w-4 h-4" /> {kelas?.days ?? '—'}</span>
               </div>
               <Badge tone="green" className="mt-3 !text-xs !py-1">Sedang berlangsung</Badge>
             </div>
@@ -102,7 +101,7 @@ export default function PresensiKelas() {
           <>
             <div className="flex flex-wrap gap-2">
               <SearchInput value={q} onChange={setQ} placeholder="Cari nama siswa atau NIS..." />
-              <Btn icon={Users} onClick={() => { setRows((prev) => prev.map((r) => ({ ...r, status: 'Hadir', time: r.time || '14.00' }))); touch(); toast.success('Semua siswa ditandai hadir'); }}>Tandai Semua Hadir</Btn>
+              <Btn icon={Users} onClick={async () => { await Promise.all(rows.filter((r) => r.status !== 'Hadir').map((r) => remote.update(r.id, { status: 'Hadir', time: r.time || now() }))); touch(); toast.success('Semua siswa ditandai hadir'); }}>Tandai Semua Hadir</Btn>
               <Select value={filter} onChange={setFilter} all="Semua Status" options={STATUSES} />
             </div>
             <DataTable columns={columns} rows={filtered} rowKey={(r) => r.id} unit="siswa" />
@@ -124,12 +123,16 @@ export default function PresensiKelas() {
 
         {tab === 'Riwayat' && (
           <DataTable
-            unit="sesi"
-            rows={HISTORY}
-            rowKey={(h) => h.date}
+            unit="catatan"
+            rows={notes.rows}
+            rowKey={(h) => h.id}
+            empty="Belum ada catatan mengajar. Gunakan tombol Catatan Mengajar untuk menambahkan."
             columns={[
-              { header: 'SESI', cell: (h) => <span className="font-bold text-[#0F1E4A]">{h.date}</span> },
-              ...(['hadir', 'terlambat', 'izin', 'sakit', 'alpa'] as const).map((k): Col<(typeof HISTORY)[number]> => ({ header: k.toUpperCase(), align: 'center', cell: (h) => h[k] })),
+              { header: 'TANGGAL', cell: (h) => <span className="font-bold text-[#0F1E4A] whitespace-nowrap">{h.date}</span> },
+              { header: 'KELAS', cell: (h) => h.kelas },
+              { header: 'TOPIK', cell: (h) => h.topic },
+              { header: 'TUGAS / PR', cell: (h) => h.homework || '—' },
+              { header: 'CATATAN', cell: (h) => h.note || '—' },
             ]}
           />
         )}
@@ -154,14 +157,14 @@ export default function PresensiKelas() {
           fields={[{ key: 'note', label: 'Catatan', type: 'textarea', placeholder: 'Contoh: Terlambat 10 menit' }]}
           initial={{ note: noting?.note ?? '' }}
           onClose={() => setNoting(null)}
-          onSubmit={(v) => { setRows((prev) => prev.map((r) => (r.id === noting!.id ? { ...r, note: v.note } : r))); touch(); }}
+          onSubmit={async (v) => { if (await remote.update(noting!.id, { note: v.note })) touch(); }}
         />
         <FormDialog
           open={journal}
           title="Catatan Mengajar"
           fields={[{ key: 'topic', label: 'Topik yang Diajarkan', required: true }, { key: 'homework', label: 'Tugas / PR' }, { key: 'note', label: 'Catatan Sesi', type: 'textarea' }]}
           onClose={() => setJournal(false)}
-          onSubmit={(v) => toast.success('Catatan mengajar disimpan', { description: v.topic })}
+          onSubmit={async (v) => { if (await notes.create({ kelas: kelas?.name ?? '', date: today, topic: v.topic, homework: v.homework, note: v.note })) toast.success('Catatan mengajar disimpan', { description: v.topic }); }}
         />
       </div>
     </DashboardLayout>

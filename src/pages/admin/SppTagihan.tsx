@@ -10,15 +10,17 @@ import {
   PageHead, StatCards, Tabs, FilterBar, SearchInput, Select, DataTable, Person, Badge, RowMenu, Btn, InfoBox, Panel, DonutPanel, QuickList, WithRail,
   KeyValues, FormDialog, exportCsv, rupiah, soon, type Col,
 } from '../../components/portal/Kit';
-import { BILLS, type BillRow, type BillStatus } from '../../data/adminPortal';
+import { type BillRow, type BillStatus } from '../../data/adminPortal';
+import { useResource } from '../../store/useRemote';
 
 const TAB_TO: Record<string, string> = { 'Riwayat Pembayaran': '/admin/pembayaran', Piutang: '/admin/piutang' };
-const statusOf = (paid: number, total: number): BillStatus => (paid >= total ? 'Lunas' : paid > 0 ? 'Belum Lunas' : 'Terlambat');
 const total = (b: BillRow) => b.amount - b.discount;
 
 export default function SppTagihan() {
   const navigate = useNavigate();
-  const [rows, setRows] = useState(BILLS);
+  const remote = useResource<BillRow>('bills');
+  const rows = remote.rows;
+  const pending = rows.filter((b) => b.verification === 'pending').length;
   const [tab, setTab] = useState('Ringkasan Tagihan');
   const [q, setQ] = useState('');
   const [program, setProgram] = useState('');
@@ -45,7 +47,7 @@ export default function SppTagihan() {
     { header: 'Terbayar', cell: (b) => <span className={`whitespace-nowrap font-bold ${b.paid ? 'text-emerald-600' : 'text-red-600'}`}>{rupiah(b.paid)}</span> },
     { header: 'Sisa Tagihan', cell: (b) => <span className={`whitespace-nowrap font-bold ${total(b) - b.paid ? 'text-red-600' : 'text-slate-700'}`}>{rupiah(total(b) - b.paid)}</span> },
     { header: 'Jatuh Tempo', cell: (b) => <span className="whitespace-nowrap">{b.due}</span> },
-    { header: 'Status', cell: (b) => <Badge>{b.status}</Badge> },
+    { header: 'Status', cell: (b) => <span className="inline-flex flex-col gap-1 items-start"><Badge>{b.status}</Badge>{b.verification === 'pending' && <Badge tone="purple">Menunggu Verifikasi</Badge>}</span> },
     {
       header: 'Aksi', align: 'center',
       cell: (b) => <RowMenu items={[
@@ -90,7 +92,7 @@ export default function SppTagihan() {
               <button onClick={() => setTab('Tagihan Per Siswa')} className="mt-3 w-full h-9 rounded-lg border border-slate-200 text-[13px] font-bold text-[#1D4ED8] hover:bg-slate-50">Lihat Detail</button>
             </Panel>
             <Panel title="Pengingat Pembayaran">
-              {[['Jatuh tempo hari ini', '5 siswa'], ['Jatuh tempo 3 hari lagi', '12 siswa'], ['Terlambat lebih dari 7 hari', `${n('Terlambat')} siswa`]].map(([l, v]) => (
+              {[['Menunggu verifikasi', `${pending} siswa`], ['Belum lunas (sebagian)', `${n('Belum Lunas')} siswa`], ['Belum membayar', `${n('Terlambat')} siswa`]].map(([l, v]) => (
                 <button key={l} onClick={() => toast.success('Pengingat pembayaran dikirim', { description: `${l}: ${v}` })} className="w-full flex items-center gap-2 py-2 text-[13px] font-bold text-slate-800 hover:text-[#1D4ED8]">
                   <BellRing className="w-4 h-4 text-red-500" /><span className="flex-1 text-left">{l}</span><span className="text-slate-600">{v}</span><ChevronRight className="w-4 h-4 text-slate-400" />
                 </button>
@@ -109,7 +111,7 @@ export default function SppTagihan() {
             <SearchInput value={q} onChange={setQ} placeholder="Cari siswa / nama orang tua / ID..." />
             <Select value={program} onChange={setProgram} all="Semua Program" options={[...new Set(rows.map((b) => b.program))].sort()} />
             <Select value={status} onChange={setStatus} all="Semua Status" options={['Lunas', 'Belum Lunas', 'Terlambat']} />
-            <span className="inline-flex items-center gap-2 h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-bold text-slate-800"><CalendarDays className="w-4 h-4 text-slate-500" /> Mei 2025</span>
+            <span className="inline-flex items-center gap-2 h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-bold text-slate-800"><CalendarDays className="w-4 h-4 text-slate-500" /> {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
           </FilterBar>
           <DataTable columns={columns} rows={tab === 'Tagihan Per Siswa' ? [...filtered].sort((a, b) => a.name.localeCompare(b.name)) : filtered} rowKey={(b) => b.id} />
 
@@ -134,11 +136,12 @@ export default function SppTagihan() {
           fields={[{ key: 'amount', label: 'Nominal Dibayar (Rp)', type: 'number', required: true }, { key: 'method', label: 'Metode', type: 'select', options: ['Tunai', 'Transfer Bank', 'QRIS', 'E-Wallet'] }]}
           initial={{ amount: String(paying ? total(paying) - paying.paid : 0), method: 'Tunai' }}
           onClose={() => setPaying(null)}
-          onSubmit={(v) => {
+          onSubmit={async (v) => {
             const target = paying!;
-            const nextPaid = Math.min(total(target), target.paid + (Number(v.amount) || 0));
-            setRows((prev) => prev.map((b) => (b.id === target.id ? { ...b, paid: nextPaid, status: statusOf(nextPaid, total(b)) } : b)));
-            toast.success('Pembayaran dicatat', { description: `${target.name} · ${rupiah(Number(v.amount) || 0)} via ${v.method}` });
+            // status tagihan dihitung server dari jumlah terbayar
+            if (await remote.update(target.id, { paid: target.paid + (Number(v.amount) || 0), method: v.method })) {
+              toast.success('Pembayaran dicatat', { description: `${target.name} · ${rupiah(Number(v.amount) || 0)} via ${v.method}` });
+            }
           }}
         />
         <FormDialog
@@ -146,9 +149,9 @@ export default function SppTagihan() {
           title="Buat Tagihan"
           fields={[{ key: 'name', label: 'Nama Siswa', required: true }, { key: 'program', label: 'Program', required: true }, { key: 'kelas', label: 'Kelas' }, { key: 'amount', label: 'Tagihan (Rp)', type: 'number', required: true }, { key: 'discount', label: 'Diskon (Rp)', type: 'number' }]}
           onClose={() => setAdding(false)}
-          onSubmit={(v) => {
-            setRows((prev) => [{ id: `SHK-${String(prev.length + 1).padStart(4, '0')}`, name: v.name, program: v.program, kelas: v.kelas || '-', amount: Number(v.amount) || 0, discount: Number(v.discount) || 0, paid: 0, due: '10 Jun 2025', status: 'Belum Lunas' }, ...prev]);
-            toast.success('Tagihan dibuat');
+          onSubmit={async (v) => {
+            const due = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 10).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            if (await remote.create({ name: v.name, program: v.program, kelas: v.kelas || '-', amount: Number(v.amount) || 0, discount: Number(v.discount) || 0, paid: 0, due })) toast.success('Tagihan dibuat');
           }}
         />
       </div>

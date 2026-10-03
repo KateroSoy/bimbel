@@ -4,20 +4,21 @@ import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import {
   PageHead, StatCards, Tabs, FilterBar, Select, DataTable, Person, Badge, RowMenu, Btn, InfoBox, LegendBox, Panel, DonutPanel, QuickList, WithRail,
-  FormDialog, DotLegend, exportCsv, soon, type Col, type Field,
+  FormDialog, BarList, exportCsv, soon, type Col, type Field,
 } from '../../components/portal/Kit';
-import { TUTOR_ATTENDANCE, staffAvatar, type TutorAttendance, type AttStatus } from '../../data/adminPortal';
+import { staffAvatar, type TutorAttendance, type AttStatus } from '../../data/adminPortal';
+import { useResource } from '../../store/useRemote';
 
 const STATUSES: AttStatus[] = ['Hadir', 'Terlambat', 'Tidak Hadir', 'Izin', 'Sakit'];
 const COLOR: Record<AttStatus, string> = { Hadir: '#16A34A', Terlambat: '#F59E0B', 'Tidak Hadir': '#EF4444', Izin: '#7C3AED', Sakit: '#A855F7' };
 const TIME_COLOR: Partial<Record<AttStatus, string>> = { Hadir: 'text-emerald-600', Terlambat: 'text-orange-500' };
-const WEEK = [['Sen', 29, 2, 1], ['Sel', 30, 1, 1], ['Rab', 27, 3, 2], ['Kam', 30, 1, 1], ['Jum', 26, 3, 3], ['Sab', 0, 0, 0], ['Min', 0, 0, 0]] as const;
-const DATES = ['Kamis, 15 Mei 2025', 'Jumat, 16 Mei 2025', 'Sabtu, 17 Mei 2025'];
 
 export default function KehadiranTutor() {
-  const [rows, setRows] = useState(TUTOR_ATTENDANCE);
+  const remote = useResource<TutorAttendance>('tutor-attendances');
+  const rows = remote.rows;
+  useResource('staff');
+  const todayLabel = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const [tab, setTab] = useState('Harian');
-  const [dateIdx, setDateIdx] = useState(1);
   const [tutor, setTutor] = useState('');
   const [room, setRoom] = useState('');
   const [status, setStatus] = useState('');
@@ -26,9 +27,15 @@ export default function KehadiranTutor() {
   const filtered = rows.filter((r) => (!tutor || r.name === tutor) && (!room || r.room === room) && (!status || r.status === status));
   const n = (s: AttStatus | AttStatus[]) => rows.filter((r) => (Array.isArray(s) ? s.includes(r.status) : r.status === s)).length;
   const pct = (v: number) => `${((v / (rows.length || 1)) * 100).toFixed(2).replace('.', ',')}%`;
-  const mark = (r: TutorAttendance, s: AttStatus) => {
-    setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, status: s, checkIn: s === 'Hadir' || s === 'Terlambat' ? (x.checkIn === '-' ? x.schedule.slice(0, 5) : x.checkIn) : '-', checkOut: s === 'Hadir' || s === 'Terlambat' ? (x.checkOut === '-' ? x.schedule.slice(-5) : x.checkOut) : '-', note: s === 'Hadir' ? '-' : x.note === '-' ? s : x.note } : x)));
-    toast.success(`${r.name.split(',')[0]} ditandai ${s}`);
+  const mark = async (r: TutorAttendance, s: AttStatus) => {
+    const present = s === 'Hadir' || s === 'Terlambat';
+    const saved = await remote.update(r.id, {
+      status: s,
+      checkIn: present ? (r.checkIn === '-' ? (r.schedule ?? '').slice(0, 5) : r.checkIn) : '-',
+      checkOut: present ? (r.checkOut === '-' ? (r.schedule ?? '').slice(-5) : r.checkOut) : '-',
+      note: s === 'Hadir' ? '-' : r.note === '-' ? s : r.note,
+    });
+    if (saved) toast.success(`${r.name.split(',')[0]} ditandai ${s}`);
   };
   const doExport = (label = 'kehadiran-tutor') => exportCsv(label, ['ID', 'Tutor', 'Program / Kelas', 'Ruang', 'Jadwal', 'Masuk', 'Pulang', 'Status', 'Keterangan'], filtered.map((r) => [r.id, r.name, r.program, r.room, r.schedule, r.checkIn, r.checkOut, r.status, r.note]));
 
@@ -80,22 +87,9 @@ export default function KehadiranTutor() {
               { label: 'Tidak Hadir', value: n('Tidak Hadir'), color: COLOR['Tidak Hadir'], note: `${n('Tidak Hadir')} (${pct(n('Tidak Hadir'))})` },
               { label: 'Izin / Sakit', value: n(['Izin', 'Sakit']), color: COLOR.Izin, note: `${n(['Izin', 'Sakit'])} (${pct(n(['Izin', 'Sakit']))})` },
             ]} />
-            <Panel title="Kehadiran Mingguan">
-              <p className="text-xs font-bold text-slate-700 mb-2">12 - 18 Mei 2025</p>
-              <div className="flex items-end justify-between gap-2 h-[130px]">
-                {WEEK.map(([day, hadir, telat, absen], i) => (
-                  <div key={day} className="flex-1 flex flex-col items-center justify-end gap-1">
-                    <span className="text-[10px] font-bold text-slate-700">{hadir || ''}</span>
-                    <div className="flex items-end gap-0.5">
-                      <span className="w-2 rounded-t" style={{ height: Math.max(3, hadir * 2.6), backgroundColor: hadir ? COLOR.Hadir : '#E2E8F0' }} />
-                      {telat > 0 && <span className="w-1.5 rounded-t" style={{ height: telat * 5, backgroundColor: COLOR.Terlambat }} />}
-                      {absen > 0 && <span className="w-1.5 rounded-t" style={{ height: absen * 5, backgroundColor: COLOR['Tidak Hadir'] }} />}
-                    </div>
-                    <span className="text-[10px] font-semibold text-slate-500 text-center leading-tight">{day}<br />{12 + i}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-2"><DotLegend items={[{ label: 'Hadir', color: COLOR.Hadir }, { label: 'Terlambat', color: COLOR.Terlambat }, { label: 'Tidak Hadir', color: COLOR['Tidak Hadir'] }]} /></div>
+            <Panel title="Kehadiran per Status">
+              <p className="text-xs font-bold text-slate-700 mb-2">{todayLabel}</p>
+              <BarList rows={STATUSES.map((s) => ({ label: s, value: n(s), max: rows.length || 1, display: `${n(s)} orang`, color: COLOR[s] }))} />
             </Panel>
             <QuickList items={[
               { label: 'Catat Kehadiran Manual', icon: Plus, onClick: () => setAdding(true) },
@@ -111,15 +105,15 @@ export default function KehadiranTutor() {
             <>
               <FilterBar onReset={() => { setTutor(''); setRoom(''); setStatus(''); }}>
                 <div className="inline-flex items-center gap-1">
-                  <button aria-label="Hari sebelumnya" disabled={dateIdx === 0} onClick={() => setDateIdx((i) => i - 1)} className="w-9 h-10 rounded-lg border border-slate-200 bg-white flex items-center justify-center disabled:opacity-40"><ChevronLeft className="w-4 h-4" /></button>
-                  <button aria-label="Hari berikutnya" disabled={dateIdx === DATES.length - 1} onClick={() => setDateIdx((i) => i + 1)} className="w-9 h-10 rounded-lg border border-slate-200 bg-white flex items-center justify-center disabled:opacity-40"><ChevronRight className="w-4 h-4" /></button>
-                  <span className="inline-flex items-center gap-2 h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-bold text-slate-800"><CalendarDays className="w-4 h-4 text-slate-500" /> {DATES[dateIdx]}</span>
+                  <button aria-label="Hari sebelumnya" disabled className="w-9 h-10 rounded-lg border border-slate-200 bg-white flex items-center justify-center disabled:opacity-40"><ChevronLeft className="w-4 h-4" /></button>
+                  <button aria-label="Hari berikutnya" disabled className="w-9 h-10 rounded-lg border border-slate-200 bg-white flex items-center justify-center disabled:opacity-40"><ChevronRight className="w-4 h-4" /></button>
+                  <span className="inline-flex items-center gap-2 h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-bold text-slate-800"><CalendarDays className="w-4 h-4 text-slate-500" /> {todayLabel}</span>
                 </div>
                 <Select value={tutor} onChange={setTutor} all="Semua Tutor" options={rows.map((r) => r.name)} />
                 <Select value={room} onChange={setRoom} all="Semua Ruang" options={[...new Set(rows.map((r) => r.room))].sort()} />
                 <Select value={status} onChange={setStatus} all="Semua Status" options={STATUSES} />
               </FilterBar>
-              <DataTable columns={columns} rows={dateIdx === 1 ? filtered : []} rowKey={(r) => r.id} empty="Belum ada catatan kehadiran pada tanggal ini." />
+              <DataTable columns={columns} rows={filtered} rowKey={(r) => r.id} empty="Belum ada catatan kehadiran." />
             </>
           ) : (
             <DataTable
@@ -161,9 +155,9 @@ export default function KehadiranTutor() {
           title="Catat Kehadiran"
           fields={fields}
           onClose={() => setAdding(false)}
-          onSubmit={(v) => {
-            setRows((prev) => prev.map((r) => (r.name === v.name ? { ...r, status: v.status as AttStatus, checkIn: v.checkIn || '-', checkOut: v.checkOut || '-', note: v.note || '-' } : r)));
-            toast.success('Kehadiran dicatat');
+          onSubmit={async (v) => {
+            const target = rows.find((r) => r.name === v.name);
+            if (target && await remote.update(target.id, { status: v.status as AttStatus, checkIn: v.checkIn || '-', checkOut: v.checkOut || '-', note: v.note || '-' })) toast.success('Kehadiran dicatat');
           }}
         />
       </div>
