@@ -54,7 +54,7 @@ export function ProdukDigitalSection() {
               aria-label="Lihat produk digital"
             >
               <img
-                src="/assets/landing/produk-books.jpg"
+                src="/assets/landing/produk-books-hd.jpg"
                 alt="Modul Matematika, Worksheet Bahasa Inggris, dan Buku Latihan UTBK"
                 className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-300"
               />

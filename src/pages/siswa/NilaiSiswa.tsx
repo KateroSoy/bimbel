@@ -9,6 +9,7 @@ import { cn } from '../../lib/utils';
 import {
   STUDENT, SUBJECTS, GRADE_TREND, REPORT_SUMMARY, SUBJECT_DESCRIPTIONS, ATTENDANCE, type SubjectId,
 } from '../../data/siswaPortal';
+import { Logo } from '../../components/ui/Logo';
 
 const STATUS_CLASS: Record<string, string> = { 'Sangat Baik': 'text-emerald-600', 'Baik': 'text-emerald-600', 'Perlu Perhatian': 'text-red-600' };
 const PREDIKAT_CLASS: Record<string, string> = { A: 'bg-emerald-50 text-emerald-700', B: 'bg-blue-50 text-blue-700', C: 'bg-orange-50 text-orange-600' };
@@ -183,14 +184,14 @@ function RaporPrint({ semester }: { semester: string }) {
   const cell = 'border border-slate-400 px-2 py-1.5';
 
   return (
-    <div className="print-root text-[11pt] text-black" style={{ fontFamily: '"Plus Jakarta Sans", Arial, sans-serif' }}>
-      <div className="flex items-center gap-4 border-b-[3px] border-double border-black pb-3 mb-4">
-        <img src="/assets/brand/studyhack-emblem.png" alt="" style={{ height: 64 }} />
-        <div className="flex-1">
-          <p className="text-[16pt] font-extrabold leading-tight">STUDYHACK EDUCATION CENTER</p>
-          <p className="text-[9.5pt]">Jl. Pendidikan No. 123, Kota Bandung · 0823-2456-7906 · info@studyhack.co.id</p>
+    <div className="print-root text-[11pt] text-black bg-white" style={{ fontFamily: '"Plus Jakarta Sans", Arial, sans-serif' }}>
+      <div className="flex items-center gap-4 border-b-[3px] border-double border-black pb-4 mb-5">
+        <Logo size="xl" showText={true} />
+        <div className="flex-1 ml-4 border-l-2 border-slate-300 pl-4">
+          <p className="text-[14pt] font-extrabold leading-tight text-[#0F1E4A]">STUDYHACK EDUCATION CENTER</p>
+          <p className="text-[9.5pt] text-slate-700 mt-0.5">Jl. Pendidikan No. 123, Kota Bandung · 0823-2456-7906 · info@studyhack.co.id</p>
         </div>
-        <div className="text-right text-[9pt]"><p className="font-bold">LearnSpace+</p><p>Portal Belajar Siswa</p></div>
+        <div className="text-right text-[9pt]"><p className="font-bold text-[#1D4ED8]">Portal Siswa</p><p>Rapor Resmi</p></div>
       </div>
 
       <p className="text-center text-[14pt] font-extrabold tracking-wide">LAPORAN HASIL BELAJAR</p>

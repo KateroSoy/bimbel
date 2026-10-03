@@ -57,12 +57,12 @@ export default function StudentDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-2.5 max-w-[1400px]">
+      <div className="space-y-2 max-w-[1400px] h-full flex flex-col justify-between">
         {/* Welcome */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
-            <h1 className="text-[22px] font-extrabold text-[#0F1E4A] tracking-tight">Selamat datang kembali, {firstName}! 👋</h1>
-            <p className="text-sm text-slate-700 font-medium">Semangat belajar hari ini, kamu pasti bisa!</p>
+            <h1 className="text-[20px] font-extrabold text-[#0F1E4A] tracking-tight">Selamat datang kembali, {firstName}! 👋</h1>
+            <p className="text-xs text-slate-700 font-medium">Semangat belajar hari ini, kamu pasti bisa!</p>
           </div>
           <div className="flex items-center gap-3 bg-[#FFF3EA] border border-orange-100 rounded-2xl pl-4 pr-2 py-1 lg:min-w-[400px] overflow-hidden">
             <Star className="w-6 h-6 text-orange-500 shrink-0" />
@@ -76,7 +76,7 @@ export default function StudentDashboard() {
 
         {/* Top cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-          <Card className="p-3.5 flex flex-col">
+          <Card className="p-3 flex flex-col">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-7 h-7 rounded-lg bg-orange-500 text-white flex items-center justify-center"><ClipboardList className="w-4 h-4" /></span>
               <span className="text-[13px] font-bold text-orange-600">Tugas Terdekat</span>
@@ -99,7 +99,7 @@ export default function StudentDashboard() {
             )}
           </Card>
 
-          <Card className="p-3.5 flex flex-col">
+          <Card className="p-3 flex flex-col">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-7 h-7 rounded-lg bg-[#1D4ED8] text-white flex items-center justify-center"><CalendarDays className="w-4 h-4" /></span>
               <span className="text-[13px] font-bold text-[#1D4ED8]">Live Tutor Berikutnya</span>
@@ -117,7 +117,7 @@ export default function StudentDashboard() {
             </button>
           </Card>
 
-          <Card className="p-3.5 flex flex-col">
+          <Card className="p-3 flex flex-col">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-7 h-7 rounded-lg bg-violet-600 text-white flex items-center justify-center"><BookOpen className="w-4 h-4" /></span>
               <span className="text-[13px] font-bold text-violet-700">Belajar Sekarang</span>
@@ -135,7 +135,7 @@ export default function StudentDashboard() {
             </Link>
           </Card>
 
-          <Card className="p-3.5 flex flex-col">
+          <Card className="p-3 flex flex-col">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <span className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><CheckCircle2 className="w-5 h-5" /></span>
@@ -157,7 +157,7 @@ export default function StudentDashboard() {
         {/* Middle */}
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-3">
           <div className="space-y-3 min-w-0">
-            <Card className="p-3.5">
+            <Card className="p-3">
               <CardHeader title="Perkembangan Belajarmu" action={<Link to="/siswa/nilai" className="text-xs font-bold text-[#1D4ED8] hover:underline">Lihat Detail</Link>} />
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                 {SUBJECTS.map((s) => (
@@ -179,7 +179,7 @@ export default function StudentDashboard() {
               </div>
             </Card>
 
-            <Card className="px-3.5 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Card className="px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-2">
               <CardHeader title="Akses Cepat" className="mb-0" />
               <div className="flex flex-wrap gap-1.5">
                 {QUICK_LINKS.map(({ label, to, icon: Icon, color }) => (
@@ -191,7 +191,7 @@ export default function StudentDashboard() {
             </Card>
           </div>
 
-          <Card className="p-3.5 flex flex-col">
+          <Card className="p-3 flex flex-col">
             <CardHeader title="Jadwal Live Tutor Hari Ini" action={<Link to="/siswa/jadwal" className="text-xs font-bold text-[#1D4ED8] hover:underline">Lihat Semua</Link>} />
             <div className="space-y-2.5 flex-1">
               {todayClasses.map((c) => {
@@ -216,7 +216,7 @@ export default function StudentDashboard() {
 
         {/* Bottom */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Card className="p-3.5">
+          <Card className="p-3">
             <CardHeader title="Pengumuman Terbaru" action={<Link to="/siswa/pengumuman" className="text-xs font-bold text-[#1D4ED8] hover:underline">Lihat Semua</Link>} />
             <div className="space-y-2.5">
               {ANNOUNCEMENTS.map((a, i) => (
@@ -231,7 +231,7 @@ export default function StudentDashboard() {
             </div>
           </Card>
 
-          <Card className="p-3.5">
+          <Card className="p-3">
             <CardHeader title="Pencapaian Terbaru" action={<Link to="/siswa/nilai" className="text-xs font-bold text-[#1D4ED8] hover:underline">Lihat Semua</Link>} />
             <div className="grid grid-cols-2 gap-2">
               {ACHIEVEMENTS.map((a, i) => (
@@ -246,7 +246,7 @@ export default function StudentDashboard() {
             </div>
           </Card>
 
-          <Card className="p-3.5 bg-gradient-to-br from-white to-[#F2F6FF]">
+          <Card className="p-3 bg-gradient-to-br from-white to-[#F2F6FF]">
             <CardHeader title="Status Pembayaran SPP" />
             <div className="flex items-center gap-2">
               <p className="text-sm font-bold text-[#0F1E4A]">{currentBill.title}</p>

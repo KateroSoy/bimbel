@@ -32,9 +32,19 @@ import {
   UserCircle,
   ChevronDown,
   Smartphone,
+  Bell,
+  FileQuestion,
+  Sparkles,
+  TriangleAlert,
+  DoorOpen,
+  Scale,
+  Receipt,
+  HandCoins,
+  LineChart,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { STUDENT } from '../../data/siswaPortal';
+import { TUTOR } from '../../data/guruPortal';
 import { cn } from '../../lib/utils';
 import { useAppStore } from '../../store/useAppStore';
 
@@ -46,6 +56,7 @@ interface SidebarItem {
   title: string;
   path: string;
   icon: React.ReactNode;
+  badge?: number;
 }
 
 interface SidebarSection {
@@ -96,15 +107,15 @@ const getSidebarItems = (role: string): SidebarSection[] => {
         {
           heading: 'UTAMA',
           items: [
-            { title: 'Dashboard', path: '/guru/dashboard', icon: <LayoutTemplate className="w-5 h-5" /> },
+            { title: 'Dashboard', path: '/guru/dashboard', icon: <Home className="w-5 h-5" /> },
           ]
         },
         {
           heading: 'MENGAJAR',
           items: [
             { title: 'Kelas Saya', path: '/guru/kelas', icon: <UsersRound className="w-5 h-5" /> },
-            { title: 'Jadwal', path: '/guru/jadwal', icon: <Calendar className="w-5 h-5" /> },
-            { title: 'Materi', path: '/guru/course', icon: <BookOpen className="w-5 h-5" /> },
+            { title: 'Jadwal Mengajar', path: '/guru/jadwal', icon: <Calendar className="w-5 h-5" /> },
+            { title: 'Materi & Modul', path: '/guru/course', icon: <BookOpen className="w-5 h-5" /> },
             { title: 'Tugas & Assessment', path: '/guru/tugas', icon: <PenTool className="w-5 h-5" /> },
             { title: 'Presensi', path: '/guru/absensi', icon: <UserCheck className="w-5 h-5" /> },
           ]
@@ -113,8 +124,15 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           heading: 'SISWA',
           items: [
             { title: 'Siswa Saya', path: '/guru/siswa', icon: <Users className="w-5 h-5" /> },
-            { title: 'Nilai & Progress', path: '/guru/nilai', icon: <BarChart className="w-5 h-5" /> },
-            { title: 'Siswa Perlu Perhatian', path: '/guru/progress-siswa', icon: <Search className="w-5 h-5" /> },
+            { title: 'Nilai & Progress', path: '/guru/nilai', icon: <BarChart3 className="w-5 h-5" /> },
+            { title: 'Siswa Perlu Perhatian', path: '/guru/progress-siswa', icon: <TriangleAlert className="w-5 h-5" /> },
+          ]
+        },
+        {
+          heading: 'KONTEN',
+          items: [
+            { title: 'Bank Soal', path: '/guru/bank-soal', icon: <FileQuestion className="w-5 h-5" /> },
+            { title: 'AI Pembuat Bahan Ajar', path: '/guru/ai-bahan-ajar', icon: <Sparkles className="w-5 h-5" /> },
           ]
         },
         {
@@ -127,10 +145,10 @@ const getSidebarItems = (role: string): SidebarSection[] => {
         {
           heading: 'AKUN',
           items: [
-            { title: 'Profil Saya', path: '/guru/profil', icon: <Fingerprint className="w-5 h-5" /> },
+            { title: 'Profil Saya', path: '/guru/profil', icon: <UserCircle className="w-5 h-5" /> },
             { title: 'Pengaturan', path: '/guru/pengaturan', icon: <Settings className="w-5 h-5" /> },
           ]
-        }
+        },
       ];
     case 'admin':
       return [
@@ -138,14 +156,14 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           heading: 'UTAMA',
           items: [
             { title: 'Dashboard', path: '/admin/dashboard', icon: <LayoutTemplate className="w-5 h-5" /> },
-            { title: 'Notifikasi', path: '/admin/notifikasi', icon: <Megaphone className="w-5 h-5" /> },
+            { title: 'Notifikasi', path: '/admin/notifikasi', icon: <Bell className="w-5 h-5" />, badge: 8 },
           ]
         },
         {
           heading: 'SISWA',
           items: [
             { title: 'Data Siswa', path: '/admin/siswa', icon: <Users className="w-5 h-5" /> },
-            { title: 'Pendaftaran Siswa Baru', path: '/admin/pendaftaran', icon: <UserCheck className="w-5 h-5" /> },
+            { title: 'Pendaftaran Siswa Baru', path: '/admin/pendaftaran', icon: <UserCheck className="w-5 h-5" />, badge: 7 },
             { title: 'Orang Tua / Wali', path: '/admin/ortu', icon: <UsersRound className="w-5 h-5" /> },
           ]
         },
@@ -154,8 +172,8 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           items: [
             { title: 'Data Tutor & Staff', path: '/admin/guru', icon: <GraduationCap className="w-5 h-5" /> },
             { title: 'Jadwal Tutor', path: '/admin/jadwal-tutor', icon: <Calendar className="w-5 h-5" /> },
-            { title: 'Kehadiran Tutor', path: '/admin/kehadiran-tutor', icon: <UserCheck className="w-5 h-5" /> },
-            { title: 'Beban Mengajar', path: '/admin/beban', icon: <BarChart className="w-5 h-5" /> },
+            { title: 'Kehadiran Tutor', path: '/admin/kehadiran-tutor', icon: <Fingerprint className="w-5 h-5" /> },
+            { title: 'Beban Mengajar', path: '/admin/beban', icon: <Scale className="w-5 h-5" /> },
           ]
         },
         {
@@ -163,8 +181,8 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           items: [
             { title: 'Program Bimbel', path: '/admin/course', icon: <BookOpen className="w-5 h-5" /> },
             { title: 'Kelas & Rombel', path: '/admin/kelas', icon: <UsersRound className="w-5 h-5" /> },
-            { title: 'Jadwal Kelas', path: '/admin/jadwal-kelas', icon: <Calendar className="w-5 h-5" /> },
-            { title: 'Ruang & Kapasitas', path: '/admin/ruang', icon: <Package className="w-5 h-5" /> },
+            { title: 'Jadwal Kelas', path: '/admin/jadwal-kelas', icon: <CalendarDays className="w-5 h-5" /> },
+            { title: 'Ruang & Kapasitas', path: '/admin/ruang', icon: <DoorOpen className="w-5 h-5" /> },
           ]
         },
         {
@@ -172,9 +190,9 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           items: [
             { title: 'SPP & Tagihan', path: '/admin/keuangan', icon: <Landmark className="w-5 h-5" /> },
             { title: 'Pembayaran', path: '/admin/pembayaran', icon: <CreditCard className="w-5 h-5" /> },
-            { title: 'Piutang', path: '/admin/piutang', icon: <ScrollText className="w-5 h-5" /> },
-            { title: 'Pengeluaran', path: '/admin/pengeluaran', icon: <BarChart className="w-5 h-5" /> },
-            { title: 'Honor Tutor', path: '/admin/honor', icon: <CreditCard className="w-5 h-5" /> },
+            { title: 'Piutang', path: '/admin/piutang', icon: <Receipt className="w-5 h-5" />, badge: 23 },
+            { title: 'Pengeluaran', path: '/admin/pengeluaran', icon: <Wallet className="w-5 h-5" /> },
+            { title: 'Honor Tutor', path: '/admin/honor', icon: <HandCoins className="w-5 h-5" /> },
           ]
         },
         {
@@ -189,7 +207,7 @@ const getSidebarItems = (role: string): SidebarSection[] => {
         {
           heading: 'KOMUNIKASI',
           items: [
-            { title: 'WhatsApp Wali Murid', path: '/admin/whatsapp', icon: <MessageSquare className="w-5 h-5" /> },
+            { title: 'WhatsApp Wali Murid', path: '/admin/whatsapp', icon: <MessageSquare className="w-5 h-5" />, badge: 12 },
             { title: 'Broadcast', path: '/admin/broadcast', icon: <Megaphone className="w-5 h-5" /> },
             { title: 'Pengumuman', path: '/admin/pengumuman', icon: <ScrollText className="w-5 h-5" /> },
             { title: 'Template Pesan', path: '/admin/template', icon: <PenTool className="w-5 h-5" /> },
@@ -201,9 +219,9 @@ const getSidebarItems = (role: string): SidebarSection[] => {
             { title: 'Laporan Siswa', path: '/admin/laporan-siswa', icon: <BarChart className="w-5 h-5" /> },
             { title: 'Laporan Kelas', path: '/admin/laporan-kelas', icon: <BarChart className="w-5 h-5" /> },
             { title: 'Laporan Tutor', path: '/admin/laporan-tutor', icon: <BarChart className="w-5 h-5" /> },
-            { title: 'Laporan Keuangan', path: '/admin/laporan-keuangan', icon: <BarChart className="w-5 h-5" /> },
+            { title: 'Laporan Keuangan', path: '/admin/laporan-keuangan', icon: <LineChart className="w-5 h-5" /> },
             { title: 'Laporan Operasional', path: '/admin/laporan-operasional', icon: <BarChart className="w-5 h-5" /> },
-            { title: 'Laporan Akademik', path: '/admin/laporan', icon: <ScrollText className="w-5 h-5" /> },
+            { title: 'Laporan Akademik (Read Only)', path: '/admin/laporan', icon: <ScrollText className="w-5 h-5" /> },
           ]
         },
         {
@@ -214,17 +232,14 @@ const getSidebarItems = (role: string): SidebarSection[] => {
             { title: 'Data Master', path: '/admin/data-master', icon: <Settings className="w-5 h-5" /> },
             { title: 'Audit Log', path: '/admin/audit', icon: <ScrollText className="w-5 h-5" /> },
           ]
-        }
+        },
       ];
     default:
       return [];
   }
 };
 
-const getExternalUrl = (path: string) => {
-  if (typeof window === 'undefined') return path;
-  return `${window.location.origin}${path.startsWith('/') ? path : '/' + path}`;
-};
+const isItemActive = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAppStore();
@@ -241,7 +256,10 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const profilePath = `/${currentRole}/profil`;
   const settingsPath = `/${currentRole}/pengaturan`;
   const displayName = user?.name || (isSiswa ? STUDENT.name : 'Pengguna');
-  const displaySub = isSiswa ? STUDENT.level : currentRole === 'guru' ? 'Tutor' : 'Administrator';
+  const isGuru = currentRole === 'guru';
+  const displaySub = isSiswa ? STUDENT.level : isGuru ? 'Guru' : 'Administrator';
+  const avatarSrc = isSiswa ? STUDENT.avatar : isGuru ? TUTOR.avatar : undefined;
+  const termLabel = isGuru ? TUTOR.term : 'Tahun Ajaran 2024/2025';
   const handleLogout = () => { logout(); navigate('/login'); };
 
   // Swipe-to-navigate logic
@@ -265,7 +283,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
     const isRightSwipe = distance < -minSwipeDistance;
 
     if (isLeftSwipe || isRightSwipe) {
-      const currentIndex = allItems.findIndex(item => location.pathname.startsWith(item.path));
+      const currentIndex = allItems.findIndex(item => isItemActive(location.pathname, item.path));
       if (currentIndex !== -1) {
         if (isLeftSwipe && currentIndex < allItems.length - 1) {
           navigate(allItems[currentIndex + 1].path);
@@ -278,7 +296,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div 
-      className={cn("min-h-screen bg-[#F7F9FD] flex flex-col md:flex-row pb-16 md:pb-0", isSiswa && "portal-font")}
+      className="min-h-screen bg-[#F7F9FD] flex flex-col md:flex-row pb-16 md:pb-0 portal-font"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -286,11 +304,11 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Sidebar (Desktop) */}
       <aside className={cn(
         "hidden md:flex flex-col h-screen sticky top-0 z-40 bg-white border-r border-slate-200/70 transition-[width] duration-200 shrink-0",
-        isCollapsed ? "w-[76px]" : "w-60"
+        isCollapsed ? "w-[76px]" : "w-[280px]"
       )}>
-        <div className={cn("h-16 flex items-center shrink-0", isCollapsed ? "justify-center px-2" : "px-5")}>
+        <div className={cn("h-16 flex items-center shrink-0 mt-2 mb-2", isCollapsed ? "justify-center px-2" : "px-5")}>
           <Link to={isSiswa ? '/siswa/dashboard' : '/'} className="flex items-center" title="LearnSpace+ by StudyHack">
-            <Logo size="md" showText={!isCollapsed} />
+            <Logo size={isCollapsed ? "md" : "xl"} showText={!isCollapsed} />
           </Link>
         </div>
 
@@ -304,7 +322,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               )}
               <div className="flex flex-col gap-0.5">
                 {section.items.map((item) => {
-                  const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+                  const isActive = isItemActive(location.pathname, item.path);
                   return (
                     <Link
                       key={item.path}
@@ -314,14 +332,18 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                         "flex items-center gap-3 px-3 py-2 rounded-xl transition-colors text-[13.5px]",
                         isCollapsed && "justify-center",
                         isActive
-                          ? "bg-[#EAF1FF] text-[#1D4ED8] font-bold"
+                          ? (isSiswa ? "bg-[#EAF1FF] text-[#1D4ED8] font-bold" : "bg-[#1D4ED8] text-white font-bold")
                           : "text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-semibold"
                       )}
                     >
-                      <span className={cn(isActive ? "text-[#1D4ED8]" : "text-slate-600")}>
+                      <span className={cn("relative", isActive ? (isSiswa ? "text-[#1D4ED8]" : "text-white") : "text-slate-600")}>
                         {item.icon}
+                        {isCollapsed && item.badge !== undefined && <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500" />}
                       </span>
-                      {!isCollapsed && <span className="truncate">{item.title}</span>}
+                      {!isCollapsed && <span className="truncate flex-1">{item.title}</span>}
+                      {!isCollapsed && item.badge !== undefined && (
+                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{item.badge}</span>
+                      )}
                     </Link>
                   )
                 })}
@@ -346,6 +368,16 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               <img src="/assets/portal/app-phone.png" alt="" className="w-14 h-auto shrink-0 -mb-1" />
             </div>
           )}
+          {currentRole === 'admin' && !isCollapsed && (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 mb-2 flex items-center gap-3">
+              <span className="w-10 h-10 rounded-full bg-slate-200 text-slate-700 font-extrabold flex items-center justify-center shrink-0">{displayName[0]}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-extrabold text-[#0F1E4A] truncate">{displayName}</p>
+                <p className="text-[11px] text-slate-500 font-medium">Administrator</p>
+              </div>
+              <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Online</span>
+            </div>
+          )}
           <button
             onClick={handleLogout}
             title="Keluar"
@@ -363,7 +395,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/40 z-50 flex items-center justify-around px-2 py-2 h-16 safe-area-bottom">
         {allItems.slice(0, 4).map((item) => {
-          const isActive = location.pathname.startsWith(item.path);
+          const isActive = isItemActive(location.pathname, item.path);
           return (
             <Link
               key={item.path}
@@ -406,7 +438,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             
             <div className="flex flex-col gap-2 mb-6">
               {allItems.slice(4).map((item) => {
-                const isActive = location.pathname.startsWith(item.path);
+                const isActive = isItemActive(location.pathname, item.path);
                 return (
                   <Link
                     key={item.path}
@@ -465,17 +497,12 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             >
               <Menu className="w-5 h-5" />
             </button>
-            {!isSiswa && (
-              <h1 className="font-bold text-lg text-slate-900 hidden lg:block whitespace-nowrap mr-2">
-                {allItems.find(i => location.pathname.startsWith(i.path))?.title || 'Dashboard'}
-              </h1>
-            )}
             <button
               onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
               className="flex-1 max-w-[520px] flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-slate-50 text-slate-400 transition-colors border border-slate-200"
             >
               <Search className="w-4 h-4 shrink-0" />
-              <span className="text-sm font-medium truncate text-left flex-1">Cari materi, tugas, kelas, atau topik...</span>
+              <span className="text-sm font-medium truncate text-left flex-1">{currentRole === 'admin' ? 'Cari siswa, tutor, kelas, atau transaksi...' : 'Cari materi, tugas, kelas, atau topik...'}</span>
               <kbd className="hidden sm:inline-flex px-1.5 py-0.5 bg-slate-50 text-slate-500 rounded text-[10px] font-bold border border-slate-200">
                 Ctrl K
               </kbd>
@@ -483,14 +510,22 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {!isSiswa && (
+              <button
+                onClick={() => toast.info(termLabel, { description: 'Periode aktif. Periode lain dapat dipilih setelah diatur Admin.' })}
+                className="hidden lg:flex items-center gap-2 h-10 px-3.5 rounded-xl bg-white border border-slate-200 text-[13px] font-bold text-slate-800 hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                <CalendarDays className="w-4 h-4 text-[#1D4ED8]" /> {termLabel} <ChevronDown className="w-4 h-4 text-slate-500" />
+              </button>
+            )}
             <NotificationDropdown />
             <div className="relative">
               <button
                 onClick={() => setIsUserMenuOpen((v) => !v)}
                 className="flex items-center gap-2.5 pl-2 pr-1 py-1 rounded-full hover:bg-white transition-colors"
               >
-                {isSiswa ? (
-                  <img src={STUDENT.avatar} alt="" className="w-10 h-10 rounded-full object-cover bg-blue-50" />
+                {avatarSrc ? (
+                  <img src={avatarSrc} alt="" className="w-10 h-10 rounded-full object-cover bg-blue-50" />
                 ) : (
                   <span className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">{displayName[0]}</span>
                 )}

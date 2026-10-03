@@ -1,294 +1,247 @@
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { motion } from 'motion/react';
-import { useAppStore } from '../../store/useAppStore';
-import { Users, Calendar, Megaphone, TrendingUp, CreditCard, BookOpen, UserCheck, UserPlus, CheckCircle, MapPin, MessageSquare, AlertCircle, FileText } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Link } from 'react-router-dom';
+import {
+  Users, TrendingUp, Wallet, BookOpen, UserCheck, UserPlus, Zap, CalendarDays, Receipt, ClipboardCheck, MessageCircle,
+  Megaphone, Mail, ChevronRight, Check, ShieldCheck, Package, FileText, CalendarPlus, Send, Info, LineChart as LineIcon,
+  PieChart, Building2, GraduationCap, ArrowUp, ArrowDown,
+} from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { PageHead, StatCards, Panel, LinkAction, Badge, Btn, Donut, KeyValues, soon, TONE_HEX, type Stat, type Tone } from '../../components/portal/Kit';
+import { SCHEDULE, TIME_SLOTS, WORKLOADS } from '../../data/adminPortal';
 
-const financialData = [
-  { month: 'Jan', income: 450, expense: 380 },
-  { month: 'Feb', income: 520, expense: 410 },
-  { month: 'Mar', income: 480, expense: 390 },
-  { month: 'Apr', income: 610, expense: 450 },
-  { month: 'Mei', income: 590, expense: 420 },
-  { month: 'Jun', income: 650, expense: 480 },
+const STATS: Stat[] = [
+  { label: 'Siswa Aktif', value: '1.248', sub: '▲ 12% dari bulan lalu', subTone: 'up', icon: Users, tone: 'blue', to: '/admin/siswa' },
+  { label: 'Pendapatan Bulan Ini', value: 'Rp 86,4 jt', sub: '▲ 8,4% dari bulan lalu', subTone: 'up', icon: TrendingUp, tone: 'green', to: '/admin/laporan-keuangan' },
+  { label: 'Belum Terbayar (Piutang)', value: 'Rp 7,2 jt', sub: '23 siswa', subTone: 'down', icon: Wallet, tone: 'orange', to: '/admin/piutang' },
+  { label: 'Kelas Aktif', value: '24', sub: '▲ 3 kelas baru', subTone: 'up', icon: BookOpen, tone: 'purple', to: '/admin/kelas' },
+  { label: 'Tutor Aktif', value: '32', sub: '2 tutor tidak hadir', icon: UserCheck, tone: 'teal', to: '/admin/guru' },
+  { label: 'Siswa Baru (Bulan Ini)', value: '18', sub: '▲ 5 dari bulan lalu', subTone: 'up', icon: UserPlus, tone: 'red', to: '/admin/pendaftaran' },
 ];
 
-const programData = [
-  { name: 'English', value: 320, color: '#3B82F6' },
-  { name: 'Math', value: 280, color: '#8B5CF6' },
-  { name: 'English + Math', value: 410, color: '#F59E0B' },
-  { name: 'IPA', value: 120, color: '#10B981' },
-  { name: 'Mengaji', value: 118, color: '#EC4899' },
+const ACTIONS: { icon: typeof Users; tone: Tone; text: string; sub: string; btn: string; to: string }[] = [
+  { icon: Receipt, tone: 'red', text: '23 siswa belum membayar SPP', sub: 'Total tagihan Rp 7.200.000', btn: 'Lihat Tagihan', to: '/admin/keuangan' },
+  { icon: ClipboardCheck, tone: 'orange', text: '4 tutor belum mengisi absensi hari ini', sub: 'Mohon periksa kehadiran tutor', btn: 'Periksa Absensi', to: '/admin/kehadiran-tutor' },
+  { icon: UserPlus, tone: 'amber', text: '7 siswa baru menunggu proses pendaftaran', sub: 'Selesaikan proses pendaftaran', btn: 'Proses Pendaftaran', to: '/admin/pendaftaran' },
+  { icon: Users, tone: 'blue', text: '2 kelas membutuhkan tutor pengganti', sub: 'Kelas English Primary 2A, Math Junior 1B', btn: 'Atur Tutor', to: '/admin/jadwal-tutor' },
+  { icon: MessageCircle, tone: 'green', text: '12 pesan dari wali murid belum ditanggapi', sub: 'Pesan terbaru dari hari ini', btn: 'Buka WhatsApp', to: '/admin/whatsapp' },
 ];
 
-const COLORS = ['#3B82F6', '#8B5CF6', '#F59E0B', '#10B981', '#EC4899'];
+const FLOW: { count: number; label: string; tone: Tone }[] = [
+  { count: 7, label: 'Data Masuk', tone: 'green' }, { count: 3, label: 'Verifikasi', tone: 'blue' }, { count: 2, label: 'Tes Awal', tone: 'orange' },
+  { count: 4, label: 'Penempatan Program', tone: 'purple' }, { count: 1, label: 'Menunggu Pembayaran', tone: 'teal' }, { count: 5, label: 'Aktif', tone: 'green' },
+];
+
+const GROWTH = [
+  { m: 'Jan', baru: 86, keluar: 62 }, { m: 'Feb', baru: 128, keluar: 68 }, { m: 'Mar', baru: 112, keluar: 84 },
+  { m: 'Apr', baru: 134, keluar: 72 }, { m: 'Mei', baru: 146, keluar: 82 }, { m: 'Jun', baru: 182, keluar: 116 },
+];
+
+const PROGRAM_DIST = [
+  { label: 'English', value: 320, color: '#1D4ED8', note: '320 (25,6%)' }, { label: 'Math', value: 280, color: '#16A34A', note: '280 (22,4%)' },
+  { label: 'English + Math', value: 410, color: '#F59E0B', note: '410 (32,9%)' }, { label: 'IPA', value: 120, color: '#10B981', note: '120 (9,6%)' },
+  { label: 'Mengaji', value: 118, color: '#7C3AED', note: '118 (9,5%)' },
+];
+const CAPACITY = [
+  { label: 'Penuh (100%)', value: 8, color: '#EF4444', note: '8 kelas (26%)' }, { label: 'Hampir Penuh (80-99%)', value: 7, color: '#F97316', note: '7 kelas (23%)' },
+  { label: 'Normal (50-79%)', value: 6, color: '#1D4ED8', note: '6 kelas (19%)' }, { label: 'Kurang Siswa (<50%)', value: 3, color: '#10B981', note: '3 kelas (10%)' },
+];
+
+const QUICK = [
+  { label: 'Tambah Siswa Baru', icon: UserPlus, tone: 'blue' as Tone, to: '/admin/siswa' }, { label: 'Buat Kelas Baru', icon: CalendarPlus, tone: 'green' as Tone, to: '/admin/kelas' },
+  { label: 'Tagih SPP', icon: Receipt, tone: 'orange' as Tone, to: '/admin/keuangan' }, { label: 'Broadcast Wali Murid', icon: Send, tone: 'green' as Tone, to: '/admin/broadcast' },
+  { label: 'Laporan Bulanan', icon: FileText, tone: 'purple' as Tone, to: '/admin/laporan-keuangan' }, { label: 'Inventaris', icon: Package, tone: 'teal' as Tone, to: '/admin/inventaris' },
+];
+
+const loadLabel = (pct: number) => (pct >= 85 ? 'Tinggi' : pct >= 60 ? 'Normal' : 'Rendah');
 
 export default function AdminDashboard() {
-  const { user } = useAppStore();
+  const today = SCHEDULE.filter((s) => s.day === 0);
+  const tutors = WORKLOADS.filter((w) => w.classCount > 0).slice(0, 5);
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
-        
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="font-display font-bold text-3xl text-slate-900 flex items-center gap-2">
-              Selamat datang, Admin! 👋
-            </h2>
-            <p className="text-slate-500 mt-1">Kelola bimbel lebih mudah, semua informasi penting ada di sini.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="px-4 py-2 bg-white rounded-xl border border-slate-200 text-sm font-bold text-slate-700 flex items-center gap-2 shadow-sm">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              Selasa, 17 Juni 2025
-            </div>
-            <Link to="/admin/pengaturan" className="px-4 py-2 bg-white rounded-xl border border-slate-200 text-sm font-bold text-slate-700 flex items-center gap-2 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors">
-              <Calendar className="w-4 h-4 text-slate-400" />
-              Tahun Ajaran 2024/2025
-            </Link>
-          </div>
-        </div>
+      <div className="space-y-4 max-w-[1500px]">
+        <PageHead
+          title="Selamat datang, Admin! 👋"
+          subtitle="Kelola bimbel lebih mudah, semua informasi penting ada di sini."
+          actions={<span className="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-slate-200 bg-white text-[13px] font-bold text-slate-800"><CalendarDays className="w-4 h-4 text-[#1D4ED8]" /> Selasa, 17 Juni 2025</span>}
+        />
+        <StatCards items={STATS} />
 
-        {/* 6 Top Metric Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          {[
-            { title: 'SISWA AKTIF', value: '1.248', icon: Users, bg: 'bg-blue-600', trend: '▲ 12% dari bulan lalu', trendColor: 'text-emerald-600', path: '/admin/siswa' },
-            { title: 'PENDAPATAN BULAN INI', value: 'Rp 86,4 jt', icon: TrendingUp, bg: 'bg-emerald-500', trend: '▲ 8.4% dari bulan lalu', trendColor: 'text-emerald-600', path: '/admin/keuangan' },
-            { title: 'BELUM TERBAYAR (PIUTANG)', value: 'Rp 7,2 jt', icon: CreditCard, bg: 'bg-orange-500', trend: '23 siswa', trendColor: 'text-rose-600', path: '/admin/keuangan' },
-            { title: 'KELAS AKTIF', value: '24', icon: BookOpen, bg: 'bg-purple-600', trend: '▲ 3 kelas baru', trendColor: 'text-emerald-600', path: '/admin/kelas' },
-            { title: 'TUTOR AKTIF', value: '32', icon: UserCheck, bg: 'bg-teal-500', trend: '2 tutor tidak hadir', trendColor: 'text-slate-500', path: '/admin/guru' },
-            { title: 'SISWA BARU (BULAN INI)', value: '18', icon: UserPlus, bg: 'bg-rose-500', trend: '▲ 5 dari bulan lalu', trendColor: 'text-emerald-600', path: '/admin/siswa' }
-          ].map((stat, i) => (
-            <Link 
-              to={stat.path}
-              key={stat.title}
-              className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-all hover:-translate-y-0.5 block"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center text-white shrink-0`}>
-                  <stat.icon className="w-5 h-5" />
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">{stat.title}</p>
-                <h3 className="text-2xl font-display font-bold text-slate-900">{stat.value}</h3>
-              </div>
-              <p className={`text-xs font-bold mt-2 ${stat.trendColor}`}>{stat.trend}</p>
-            </Link>
-          ))}
-        </div>
-
-        {/* Middle Section (4 Columns layout) */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          
-          {/* Perlu Tindakan */}
-          <motion.div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 lg:col-span-1">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm">
-                <AlertCircle className="w-4 h-4 text-orange-500" />
-                PERLU TINDAKAN
-              </h3>
-              <Link to="/admin/laporan" className="text-xs font-bold text-blue-600 hover:underline">Lihat Semua</Link>
-            </div>
-            <div className="space-y-4">
-              {[
-                { icon: CreditCard, color: 'text-rose-500', bg: 'bg-rose-50', text: '23 siswa belum membayar SPP', subtext: 'Total tagihan Rp 7.200.000', btn: 'Lihat Tagihan', path: '/admin/keuangan' },
-                { icon: UserCheck, color: 'text-orange-500', bg: 'bg-orange-50', text: '4 tutor belum mengisi absensi hari ini', subtext: 'Mohon periksa kehadiran tutor', btn: 'Periksa Absensi', path: '/admin/guru' },
-                { icon: UserPlus, color: 'text-amber-500', bg: 'bg-amber-50', text: '7 siswa baru menunggu proses pendaftaran', subtext: 'Selesaikan proses pendaftaran', btn: 'Proses Pendaftaran', path: '/admin/siswa' },
-                { icon: Users, color: 'text-blue-500', bg: 'bg-blue-50', text: '2 kelas membutuhkan tutor pengganti', subtext: 'Kelas English Primary 2A, Math Junior 1B', btn: 'Atur Tutor', path: '/admin/kelas' }
-              ].map((item, i) => (
-                <div key={i} className="flex gap-3 pb-3 border-b border-slate-50 last:border-0 last:pb-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${item.bg} ${item.color}`}>
-                    <item.icon className="w-4 h-4" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <Panel title={<span className="flex items-center gap-2"><Zap className="w-4 h-4 text-orange-500" /> PERLU TINDAKAN</span>} action={<LinkAction to="/admin/notifikasi">Lihat Semua</LinkAction>}>
+            <div className="space-y-2">
+              {ACTIONS.map((a) => (
+                <div key={a.text} className="flex items-center gap-3 rounded-xl border border-slate-100 p-2.5">
+                  <span className="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0" style={{ backgroundColor: TONE_HEX[a.tone] }}><a.icon className="w-4 h-4" /></span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-bold text-[#0F1E4A] leading-snug">{a.text}</p>
+                    <p className="text-[11px] text-slate-500 font-medium truncate">{a.sub}</p>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-slate-900 leading-tight">{item.text}</p>
-                    <p className="text-xs text-slate-500 mb-2">{item.subtext}</p>
-                    <Link to={item.path} className="inline-block text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
-                      {item.btn}
-                    </Link>
-                  </div>
+                  <Link to={a.to}><Badge tone={a.tone} className="py-1.5 px-2.5 hover:opacity-80">{a.btn}</Badge></Link>
                 </div>
               ))}
             </div>
-          </motion.div>
+            <Link to="/admin/notifikasi" className="mt-3 flex items-center justify-center gap-1 text-[13px] font-bold text-[#1D4ED8] hover:underline">Lihat semua notifikasi <ChevronRight className="w-4 h-4" /></Link>
+          </Panel>
 
-          {/* Jadwal Hari Ini */}
-          <motion.div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 lg:col-span-1">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm">
-                <Calendar className="w-4 h-4 text-blue-500" />
-                JADWAL HARI INI
-              </h3>
-              <Link to="/admin/kelas" className="text-xs font-bold text-blue-600 hover:underline">Lihat Semua</Link>
+          <Panel title={<span className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-[#1D4ED8]" /> JADWAL HARI INI</span>} action={<LinkAction to="/admin/jadwal-kelas">Lihat Semua</LinkAction>}>
+            <div className="space-y-2">
+              {today.map((s) => {
+                const [start, end] = TIME_SLOTS[s.slot].split(' - ');
+                const [filled, cap] = s.fill.split('/').map(Number);
+                return (
+                  <div key={s.id} className="flex items-center gap-3 rounded-xl border border-slate-100 p-2.5">
+                    <div className="text-xs font-extrabold text-[#1D4ED8] leading-relaxed w-11 shrink-0">{start}<br />{end}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-extrabold text-[#0F1E4A] truncate">{s.kelas}</p>
+                      <p className="text-[11px] text-slate-500 font-medium truncate">Tutor: {s.tutor} · {s.room}</p>
+                    </div>
+                    <Badge tone={filled >= cap ? 'orange' : 'green'}>{s.fill} siswa</Badge>
+                  </div>
+                );
+              })}
             </div>
-            <div className="space-y-3">
-              {[
-                { time: '14:00 - 15:00', class: 'English Primary 1A', tutor: 'Tutor: Fitri Handayani', room: 'Ruang 1', attendance: '8/10 siswa', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                { time: '15:00 - 16:00', class: 'Math Primary 2A', tutor: 'Tutor: Andi Saputra', room: 'Ruang 2', attendance: '10/10 siswa', color: 'text-orange-600', bg: 'bg-orange-50' },
-                { time: '16:00 - 17:00', class: 'English Primary 3A', tutor: 'Tutor: Siti Aisyah', room: 'Ruang 1', attendance: '6/10 siswa', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                { time: '17:00 - 18:00', class: 'IPA Junior 1A', tutor: 'Tutor: Muhammad Rizki', room: 'Ruang 3', attendance: '9/12 siswa', color: 'text-emerald-600', bg: 'bg-emerald-50' }
-              ].map((item, i) => (
-                <Link to="/admin/kelas" key={i} className="flex gap-3 p-3 rounded-xl border border-slate-100 hover:border-blue-200 transition-colors block">
-                  <div className="text-blue-600 font-bold text-xs whitespace-nowrap pt-1">
-                    {item.time.split(' - ')[0]} <br/> <span className="text-slate-400 font-medium">{item.time.split(' - ')[1]}</span>
+            <Link to="/admin/jadwal-kelas" className="mt-3 flex items-center justify-center gap-1 text-[13px] font-bold text-[#1D4ED8] hover:underline">Lihat jadwal lengkap <ChevronRight className="w-4 h-4" /></Link>
+          </Panel>
+
+          <div className="space-y-4 lg:col-span-2 xl:col-span-1">
+            <Panel title={<span className="flex items-center gap-2"><Zap className="w-4 h-4 text-orange-500" /> ALUR PENDAFTARAN SISWA BARU</span>} action={<LinkAction to="/admin/pendaftaran">Lihat Semua</LinkAction>}>
+              <div className="relative flex justify-between">
+                <div className="absolute left-[8%] right-[8%] top-4 h-0.5 bg-slate-200" />
+                {FLOW.map((f, i) => (
+                  <Link to="/admin/pendaftaran" key={f.label} className="relative flex flex-col items-center gap-1 flex-1 min-w-0 px-0.5">
+                    <span
+                      className="w-8 h-8 rounded-full border-2 bg-white flex items-center justify-center"
+                      style={i === FLOW.length - 1 ? { backgroundColor: TONE_HEX.green, borderColor: TONE_HEX.green, color: '#fff' } : { borderColor: TONE_HEX[f.tone], color: TONE_HEX[f.tone] }}
+                    >
+                      {i === FLOW.length - 1 ? <Check className="w-4 h-4" /> : <span className="w-2 h-2 rounded-full bg-current" />}
+                    </span>
+                    <span className="text-base font-extrabold text-[#0F1E4A]">{f.count}</span>
+                    <span className="text-[10px] font-semibold text-slate-600 text-center leading-tight">{f.label}</span>
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-3 flex justify-between rounded-xl border border-slate-100 px-3 py-2">
+                <div><p className="text-[11px] text-slate-500 font-semibold">Total Pendaftar</p><p className="text-base font-extrabold text-[#0F1E4A]">21</p></div>
+                <div className="text-right"><p className="text-[11px] text-slate-500 font-semibold">Selesai Bulan Ini</p><p className="text-base font-extrabold text-emerald-600">11 siswa</p></div>
+              </div>
+            </Panel>
+
+            <Panel title={<span className="flex items-center gap-2"><Users className="w-4 h-4 text-[#1D4ED8]" /> KOMUNIKASI</span>} action={<LinkAction to="/admin/whatsapp">Lihat Semua</LinkAction>}>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { icon: MessageCircle, tone: 'green' as Tone, label: 'Pesan Wali Murid', value: '12', sub: 'Belum dibalas' },
+                  { icon: Mail, tone: 'orange' as Tone, label: 'Pengingat SPP', value: '23', sub: 'Belum terkirim' },
+                  { icon: Megaphone, tone: 'purple' as Tone, label: 'Broadcast Terakhir', value: '15 Juni', sub: 'Promo Liburan Belajar' },
+                  { icon: MessageCircle, tone: 'blue' as Tone, label: 'Total Pesan', value: '86', sub: 'Minggu ini' },
+                ].map((c) => (
+                  <div key={c.label} className="rounded-xl border border-slate-100 p-2">
+                    <p className="flex items-center gap-1 text-[10px] font-bold text-slate-600"><c.icon className="w-3.5 h-3.5 shrink-0" style={{ color: TONE_HEX[c.tone] }} /><span className="truncate">{c.label}</span></p>
+                    <p className="text-base font-extrabold text-[#0F1E4A]">{c.value}</p>
+                    <p className="text-[10px] text-slate-500 font-medium truncate">{c.sub}</p>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-slate-900">{item.class}</p>
-                    <p className="text-xs text-slate-500">{item.tutor}</p>
-                    <p className="text-xs text-slate-500">{item.room}</p>
-                  </div>
-                  <div className={`px-2 py-1 rounded-md text-[10px] font-bold h-fit ${item.bg} ${item.color}`}>
-                    {item.attendance}
-                  </div>
+                ))}
+              </div>
+              <Link to="/admin/whatsapp" className="mt-3 flex items-center justify-center gap-2 h-9 rounded-lg bg-[#F4F8FF] text-[13px] font-bold text-[#1D4ED8] hover:bg-blue-100 transition-colors">
+                <MessageCircle className="w-4 h-4 text-emerald-600" /> Buka WhatsApp Wali Murid
+              </Link>
+            </Panel>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <Panel title={<span className="flex items-center gap-2"><LineIcon className="w-4 h-4 text-[#1D4ED8]" /> PERTUMBUHAN SISWA</span>}>
+            <div className="flex gap-4 text-[11px] font-bold text-slate-600 mb-1">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-emerald-600" /> Siswa Baru</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-red-500" /> Siswa Keluar</span>
+            </div>
+            <div className="h-36">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={GROWTH} margin={{ top: 6, right: 6, left: -24, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                  <XAxis dataKey="m" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="baru" name="Siswa Baru" stroke="#16A34A" strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="keluar" name="Siswa Keluar" stroke="#EF4444" strokeWidth={2} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {[['Siswa Baru (Jun)', '142', '18%', true], ['Siswa Keluar (Jun)', '16', '11%', false], ['Total Siswa Aktif', '1.248', '12%', true]].map(([l, v, p, up]) => (
+                <div key={l as string} className="rounded-xl border border-slate-100 p-2">
+                  <p className="text-[10px] font-semibold text-slate-500 truncate">{l}</p>
+                  <p className="text-base font-extrabold text-[#0F1E4A]">{v}</p>
+                  <p className={`text-[11px] font-bold flex items-center ${up ? 'text-emerald-600' : 'text-red-600'}`}>{up ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}{p}</p>
+                </div>
+              ))}
+            </div>
+          </Panel>
+
+          {[
+            { title: 'DISTRIBUSI SISWA PER PROGRAM', icon: PieChart, data: PROGRAM_DIST, total: ['Total Siswa', '1.248'] },
+            { title: 'KAPASITAS KELAS', icon: Building2, data: CAPACITY, total: ['Total Kelas', '24'] },
+          ].map((p) => (
+            <Panel key={p.title} title={<span className="flex items-center gap-2"><p.icon className="w-4 h-4 text-[#1D4ED8]" /> {p.title}</span>}>
+              <div className="flex items-center gap-3">
+                <Donut data={p.data} center="" size={116} thickness={24} />
+                <ul className="flex-1 space-y-1.5 min-w-0">
+                  {p.data.map((d) => (
+                    <li key={d.label} className="flex items-start gap-1.5 text-[11px]">
+                      <span className="w-2 h-2 rounded-full mt-1 shrink-0" style={{ backgroundColor: d.color }} />
+                      <span className="min-w-0"><span className="font-bold text-slate-800 block truncate">{d.label}</span><span className="text-slate-500 font-medium">{d.note}</span></span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-3 flex justify-between rounded-xl border border-slate-100 px-3 py-2 text-[13px] font-extrabold text-[#0F1E4A]"><span>{p.total[0]}</span><span>{p.total[1]}</span></div>
+            </Panel>
+          ))}
+
+          <Panel title={<span className="flex items-center gap-2"><GraduationCap className="w-4 h-4 text-[#1D4ED8]" /> BEBAN TUTOR</span>}>
+            <table className="w-full text-xs">
+              <thead><tr className="text-slate-500 font-bold"><th className="text-left py-1.5">Tutor</th><th>Kelas</th><th>Jam</th><th className="text-right">Beban</th></tr></thead>
+              <tbody className="divide-y divide-slate-100">
+                {tutors.map((t) => (
+                  <tr key={t.id}>
+                    <td className="py-2 font-bold text-[#0F1E4A]">{t.name.split(',')[0]}</td>
+                    <td className="text-center font-bold text-slate-700">{t.classCount}</td>
+                    <td className="text-center font-bold text-slate-700">{t.hours}</td>
+                    <td className="text-right"><Badge>{loadLabel(t.pct)}</Badge></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <Link to="/admin/beban" className="mt-3 flex items-center justify-center gap-1 text-[13px] font-bold text-[#1D4ED8] hover:underline">Lihat semua tutor <ChevronRight className="w-4 h-4" /></Link>
+          </Panel>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4">
+          <Panel title="AKSES CEPAT">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {QUICK.map((q) => (
+                <Link key={q.label} to={q.to} className="rounded-xl border border-slate-100 hover:border-blue-300 p-2.5 flex flex-col items-center gap-1.5 text-center transition-colors">
+                  <q.icon className="w-6 h-6" style={{ color: TONE_HEX[q.tone] }} />
+                  <span className="text-[11px] font-bold text-slate-700 leading-tight">{q.label}</span>
                 </Link>
               ))}
             </div>
-            <Link to="/admin/kelas" className="w-full mt-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 rounded-xl transition-colors block text-center">
-              Lihat jadwal lengkap &rarr;
-            </Link>
-          </motion.div>
-
-          {/* Right Column Stack */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            
-            {/* Alur Pendaftaran */}
-            <motion.div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex-1">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm">
-                  <UserPlus className="w-4 h-4 text-emerald-500" />
-                  ALUR PENDAFTARAN SISWA BARU
-                </h3>
-                <Link to="/admin/siswa" className="text-xs font-bold text-blue-600 hover:underline">Lihat Semua</Link>
-              </div>
-              <div className="flex justify-between items-center relative px-4">
-                <div className="absolute left-10 right-10 top-5 h-0.5 bg-slate-200 -z-10"></div>
-                {[
-                  { count: 7, label: 'Data Masuk', icon: UserPlus, color: 'text-emerald-500' },
-                  { count: 3, label: 'Verifikasi', icon: CheckCircle, color: 'text-blue-500' },
-                  { count: 2, label: 'Tes Awal', icon: FileText, color: 'text-orange-500' },
-                  { count: 4, label: 'Penempatan', icon: MapPin, color: 'text-purple-500' },
-                  { count: 1, label: 'Menunggu Pembayaran', icon: CreditCard, color: 'text-blue-400' },
-                  { count: 5, label: 'Aktif', icon: CheckCircle, color: 'text-emerald-500', isFilled: true }
-                ].map((step, i) => (
-                  <Link to="/admin/siswa" key={i} className="flex flex-col items-center gap-2 bg-white hover:scale-105 transition-transform">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step.isFilled ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-slate-200 ' + step.color}`}>
-                      {step.isFilled ? <CheckCircle className="w-5 h-5" /> : <step.icon className="w-5 h-5" />}
-                    </div>
-                    <p className="font-display font-bold text-xl text-slate-900">{step.count}</p>
-                    <p className="text-[10px] font-bold text-slate-500 text-center max-w-[60px] leading-tight">{step.label}</p>
-                  </Link>
-                ))}
-              </div>
-              <div className="mt-6 flex justify-between items-center border-t border-slate-100 pt-4">
-                <div>
-                  <p className="text-xs text-slate-500">Total Pendaftar</p>
-                  <p className="text-xl font-bold text-slate-900">21 Siswa</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-slate-500">Selesai Bulan Ini</p>
-                  <p className="text-xl font-bold text-emerald-600">11 siswa aktif</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Komunikasi */}
-            <motion.div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex-1">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm">
-                  <MessageSquare className="w-4 h-4 text-purple-500" />
-                  KOMUNIKASI WHATSAPP & PENGUMUMAN
-                </h3>
-                <Link to="/admin/whatsapp" className="text-xs font-bold text-blue-600 hover:underline">Buka Chat</Link>
-              </div>
-              <div className="grid grid-cols-4 gap-4">
-                {[
-                  { label: 'Pesan Wali Murid', value: '12', sub: 'Belum dibalas', icon: MessageSquare, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                  { label: 'Pengingat SPP', value: '23', sub: 'Belum terkirim', icon: AlertCircle, color: 'text-orange-600', bg: 'bg-orange-50' },
-                  { label: 'Broadcast Terakhir', value: '15 Juni', sub: 'Promo Liburan', icon: Megaphone, color: 'text-purple-600', bg: 'bg-purple-50' },
-                  { label: 'Total Pesan', value: '86', sub: 'Minggu ini', icon: MessageSquare, color: 'text-blue-600', bg: 'bg-blue-50' }
-                ].map((item, i) => (
-                  <Link to="/admin/whatsapp" key={i} className="flex flex-col p-2 rounded-xl hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${item.bg} ${item.color}`}>
-                        <item.icon className="w-4 h-4" />
-                      </div>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase leading-tight">{item.label}</p>
-                    </div>
-                    <p className="text-2xl font-display font-bold text-slate-900">{item.value}</p>
-                    <p className="text-xs text-slate-500">{item.sub}</p>
-                  </Link>
-                ))}
-              </div>
-              <Link 
-                to="/admin/whatsapp"
-                className="w-full mt-4 py-2 text-sm font-bold text-emerald-600 border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2 block text-center"
-              >
-                <MessageSquare className="w-4 h-4" /> Buka WhatsApp Wali Murid
-              </Link>
-            </motion.div>
-
-          </div>
-        </div>
-        
-        {/* Bottom Metrics Section */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Link to="/admin/course" className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col items-center justify-center hover:border-blue-200 transition-colors block">
-             <PieChart width={160} height={160}>
-               <Pie data={programData} cx={80} cy={80} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
-                 {programData.map((entry, index) => (
-                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                 ))}
-               </Pie>
-             </PieChart>
-             <h4 className="font-bold text-slate-900 mt-2 text-center text-sm">Distribusi Program</h4>
-             <p className="text-xs text-blue-600 font-semibold mt-1">Kelola Program &rarr;</p>
-          </Link>
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 md:col-span-2">
-            <div className="flex justify-between items-center mb-4">
-              <h4 className="font-bold text-slate-900 text-sm">Pertumbuhan Siswa & Pendapatan</h4>
-              <Link to="/admin/laporan" className="text-xs font-bold text-blue-600 hover:underline">Lihat Laporan</Link>
+          </Panel>
+          <Panel title={<span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-[#1D4ED8]" /> HAK AKSES</span>}>
+            <div className="flex items-center justify-between gap-2">
+              <div><p className="text-[13px] font-extrabold text-[#0F1E4A]">Admin Sekolah</p><p className="text-xs text-slate-500 font-medium">12 permission aktif</p></div>
+              <Btn variant="soft" size="sm" to="/admin/role">Kelola Role</Btn>
             </div>
-            <div className="h-40">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={financialData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 12}} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 12}} />
-                  <RechartsTooltip />
-                  <Area type="monotone" dataKey="income" stroke="#10B981" strokeWidth={3} fillOpacity={0.2} fill="#10B981" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col justify-center gap-2">
-             <div className="flex justify-between items-center mb-2">
-               <h4 className="font-bold text-slate-900 text-sm">Beban Tutor</h4>
-               <Link to="/admin/guru" className="text-xs font-bold text-blue-600 hover:underline">Kelola</Link>
-             </div>
-             <div className="space-y-2">
-               <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                 <span className="text-xs font-bold text-slate-600">Fitri Handayani</span>
-                 <span className="text-xs font-bold px-2 py-1 bg-rose-50 text-rose-600 rounded-md">Tinggi (5 kls)</span>
-               </div>
-               <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                 <span className="text-xs font-bold text-slate-600">Andi Saputra</span>
-                 <span className="text-xs font-bold px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md">Normal (3 kls)</span>
-               </div>
-               <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                 <span className="text-xs font-bold text-slate-600">Siti Aisyah</span>
-                 <span className="text-xs font-bold px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md">Normal (3 kls)</span>
-               </div>
-               <div className="flex justify-between items-center">
-                 <span className="text-xs font-bold text-slate-600">Muh. Rizki</span>
-                 <span className="text-xs font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded-md">Rendah (2 kls)</span>
-               </div>
-             </div>
-          </div>
+          </Panel>
+          <Panel title="INFORMASI SISTEM">
+            <KeyValues rows={[['Versi Sistem', 'v2.4.0'], ['Backup Terakhir', '16 Juni 2025 02:30'], ['Status Server', <span className="text-emerald-600">● Online</span>]]} />
+          </Panel>
         </div>
 
+        <button onClick={() => soon('Panduan Admin')} className="w-full flex items-center gap-2 rounded-xl border border-blue-100 bg-[#F4F8FF] px-4 py-2.5 text-xs text-slate-700 font-medium text-left">
+          <Info className="w-4 h-4 text-[#1D4ED8] shrink-0" /> <span><b>Tips:</b> Gunakan menu di sidebar untuk mengelola bimbel Anda dengan lebih detail dan efisien.</span>
+        </button>
       </div>
     </DashboardLayout>
   );

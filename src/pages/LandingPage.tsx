@@ -18,7 +18,7 @@ import { AppBannerSection } from '../components/landing/AppBannerSection';
 
 // Slides for the hero carousel; add more images here and the arrows appear automatically
 const HERO_SLIDES = [
-  { src: '/assets/landing/hero-collage.jpg', alt: 'Siswa SD, SMP, dan SMA belajar di StudyHack' },
+  { src: '/assets/landing/hero-collage-hd.jpg', alt: 'Siswa SD, SMP, dan SMA belajar di StudyHack' },
 ];
 
 function scrollToSection(id: string, updateHash = true) {

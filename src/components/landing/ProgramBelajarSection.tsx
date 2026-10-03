@@ -14,7 +14,7 @@ export function ProgramBelajarSection() {
       title: 'Play Club', 
       desc: 'Membangun kemampuan sosial, motorik, dan sensorik anak melalui aktivitas belajar yang menyenangkan.',
       features: ['Fokus Sosial & Motorik', '12x per bulan', '60 menit/sesi'],
-      image: '/assets/landing/program-sd.jpg',
+      image: '/assets/landing/program-playclub.jpg',
       category: ['Pre-School']
     },
     { 
@@ -22,7 +22,7 @@ export function ProgramBelajarSection() {
       title: 'Calistung', 
       desc: 'Membangun kemampuan dasar membaca, menulis, dan berhitung sebagai bekal belajar anak.',
       features: ['Membaca, Menulis, Berhitung', '12x per bulan', '60 menit/sesi'],
-      image: '/assets/landing/program-sd.jpg',
+      image: '/assets/landing/program-calistung.jpg',
       category: ['Pre-School', 'SD']
     },
     { 
@@ -30,7 +30,7 @@ export function ProgramBelajarSection() {
       title: 'English Class', 
       desc: 'Mengembangkan kemampuan Bahasa Inggris melalui vocabulary, grammar, reading, writing, listening, dan speaking.',
       features: ['English Skills & Comms', '8x per bulan', '90 menit/sesi'],
-      image: '/assets/landing/program-smp.jpg',
+      image: '/assets/landing/program-english.jpg',
       category: ['SD', 'SMP', 'SMA']
     },
     { 
