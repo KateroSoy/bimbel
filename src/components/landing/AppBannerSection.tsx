@@ -1,11 +1,11 @@
+import { Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { openAppDownload } from '../../lib/contact';
 
 export function AppBannerSection() {
-  const handleDownload = (store: string) => {
-    toast.success(`Menyiapkan unduhan dari ${store}...`, {
-      description: "Aplikasi StudyHack Mobile PWA juga dapat langsung diinstal melalui browser."
-    });
-  };
+  const handleDownload = () => openAppDownload(() => toast.info('Link unduhan aplikasi sedang disiapkan', {
+    description: 'Silakan hubungi admin StudyHack untuk mendapatkan aplikasi.',
+  }));
 
   return (
     <section className="pb-14 bg-white">
@@ -31,32 +31,10 @@ export function AppBannerSection() {
 
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
               <button
-                onClick={() => handleDownload("Google Play")}
-                className="bg-black hover:bg-slate-900 text-white rounded-lg px-4 py-2 flex items-center gap-2.5 transition-colors border border-slate-700 cursor-pointer"
+                onClick={handleDownload}
+                className="bg-white hover:bg-red-50 text-[#E52833] rounded-full h-12 px-7 flex items-center gap-2.5 font-extrabold text-sm transition-colors shadow-md cursor-pointer"
               >
-                <svg className="w-6 h-6" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M3.6 1.8 13.8 12 3.6 22.2c-.2-.2-.3-.4-.3-.7V2.5c0-.3.1-.5.3-.7Z" fill="#00D7FE" />
-                  <path d="m17.1 8.7-3.3 3.3-10.2-10.2c.2-.1.5-.1.7 0l12.8 6.9Z" fill="#00F076" />
-                  <path d="m17.1 15.3-12.8 6.9c-.2.1-.5.1-.7 0L13.8 12l3.3 3.3Z" fill="#FF3A44" />
-                  <path d="m21 12.9-3.9 2.4L13.8 12l3.3-3.3 3.9 2.4c.7.4.7 1.4 0 1.8Z" fill="#FFD500" />
-                </svg>
-                <div className="text-left">
-                  <div className="text-[9px] uppercase leading-none">Get it on</div>
-                  <div className="text-base font-bold leading-tight">Google Play</div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleDownload("App Store")}
-                className="bg-black hover:bg-slate-900 text-white rounded-lg px-4 py-2 flex items-center gap-2.5 transition-colors border border-slate-700 cursor-pointer"
-              >
-                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.5 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.5-1-2.5-3.9ZM13.9 5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4Z" />
-                </svg>
-                <div className="text-left">
-                  <div className="text-[9px] leading-none">Download on the</div>
-                  <div className="text-base font-bold leading-tight">App Store</div>
-                </div>
+                <Download className="w-5 h-5" /> Download Aplikasi
               </button>
             </div>
           </div>

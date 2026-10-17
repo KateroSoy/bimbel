@@ -10,7 +10,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { useDataStore } from '../../store/useDataStore';
 import {
   STUDENT, SUBJECTS, LIVE_CLASSES, COURSES, BILLS, ANNOUNCEMENTS, ACHIEVEMENTS, ATTENDANCE,
-  subjectById, canJoinLive, courseStats, rupiah, TODAY_NAME, type LiveClass, type PortalCourse, type Bill,
+  subjectById, canJoinLive, classMode, courseStats, rupiah, TODAY_NAME, type LiveClass, type PortalCourse, type Bill,
 } from '../../data/siswaPortal';
 
 // Tampilan saat akun belum punya jadwal / course / pembayaran
@@ -19,7 +19,7 @@ const NO_COURSE: PortalCourse = { id: '', subjectId: '', title: 'Belum ada cours
 const NO_BILL: Bill = { id: '', invoice: '', month: '', year: '', title: 'Belum ada pembayaran', description: '', amount: 0, dueDate: '', status: 'Belum Dibayar' };
 
 const QUICK_LINKS = [
-  { label: 'Jadwal Live Tutor', to: '/siswa/jadwal', icon: CalendarDays, color: '#7C3AED' },
+  { label: 'Jadwal Kelas', to: '/siswa/jadwal', icon: CalendarDays, color: '#7C3AED' },
   { label: 'Tugas Terdekat', to: '/siswa/tugas', icon: ClipboardList, color: '#F97316' },
   { label: 'Hasil Belajar', to: '/siswa/nilai', icon: BarChart3, color: '#16A34A' },
   { label: 'Kehadiran', to: '/siswa/absensi', icon: CircleCheck, color: '#DC2626' },
@@ -42,6 +42,7 @@ export default function StudentDashboard() {
   const nextLive = todayClasses.find((c) => c.status !== 'Selesai') ?? LIVE_CLASSES.find((c) => c.status !== 'Selesai') ?? LIVE_CLASSES[0] ?? NO_LIVE;
   const nextLiveSubject = subjectById(nextLive.subjectId);
   const joinable = canJoinLive(nextLive);
+  const nextOnline = classMode(nextLive) === 'Online';
 
   const currentCourse = COURSES.find((c) => { const st = courseStats(c); return st.done > 0 && st.percent < 100; }) ?? COURSES[0] ?? NO_COURSE;
   const currentStats = courseStats(currentCourse);
@@ -53,6 +54,10 @@ export default function StudentDashboard() {
   const currentBill = BILLS.find((b) => b.status === 'Lunas') ?? BILLS[0] ?? NO_BILL;
 
   const joinClass = () => {
+    if (!nextOnline) {
+      toast.info('Kelas tatap muka', { description: `Hadir langsung di ${nextLive.room}.` });
+      return;
+    }
     if (!joinable) {
       toast.info('Kelas belum dibuka', { description: 'Tombol aktif otomatis saat tutor membuka kelas.' });
       return;
@@ -66,7 +71,7 @@ export default function StudentDashboard() {
         {/* Welcome */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
-            <h1 className="text-[20px] font-extrabold text-[#0F1E4A] tracking-tight">Selamat datang kembali, {firstName}! 👋</h1>
+            <h1 className="text-[20px] font-extrabold text-[#0F1E4A] tracking-tight">Selamat datang kembali, {firstName}!</h1>
             <p className="text-xs text-slate-700 font-medium">Semangat belajar hari ini, kamu pasti bisa!</p>
           </div>
           <div className="flex items-center gap-3 bg-[#FFF3EA] border border-orange-100 rounded-2xl pl-4 pr-2 py-1 lg:min-w-[400px] overflow-hidden">
@@ -107,18 +112,18 @@ export default function StudentDashboard() {
           <Card className="p-3 flex flex-col">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-7 h-7 rounded-lg bg-[#1D4ED8] text-white flex items-center justify-center"><CalendarDays className="w-4 h-4" /></span>
-              <span className="text-[13px] font-bold text-[#1D4ED8]">Live Tutor Berikutnya</span>
+              <span className="text-[13px] font-bold text-[#1D4ED8]">Kelas Berikutnya</span>
             </div>
             <h3 className="font-extrabold text-[#0F1E4A] text-[15px]">{nextLiveSubject.className}</h3>
             <p className="text-xs text-slate-600 font-medium mt-1">{nextLive.dayName}, {nextLive.dateShort} · {nextLive.start} – {nextLive.end}</p>
-            <p className="text-xs text-slate-600 font-medium mt-1 flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {nextLive.room}</p>
+            <p className="text-xs text-slate-600 font-medium mt-1 flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {nextLive.room} · <b className={nextOnline ? 'text-sky-700' : 'text-amber-700'}>{nextOnline ? 'Online' : 'Tatap Muka'}</b></p>
             <button
               onClick={joinClass}
               className={`mt-auto pt-0 h-8 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors ${joinable ? 'bg-[#1D4ED8] hover:bg-blue-800 text-white' : 'bg-slate-100 text-slate-400'}`}
               style={{ marginTop: 'auto' }}
             >
-              {joinable ? <Video className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-              {joinable ? 'Masuk Kelas' : 'Menunggu Tutor'}
+              {joinable ? <Video className="w-4 h-4" /> : nextOnline ? <Lock className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
+              {joinable ? 'Masuk Kelas' : nextOnline ? 'Menunggu Tutor' : 'Kelas Tatap Muka'}
             </button>
           </Card>
 
@@ -197,7 +202,7 @@ export default function StudentDashboard() {
           </div>
 
           <Card className="p-3 flex flex-col">
-            <CardHeader title="Jadwal Live Tutor Hari Ini" action={<Link to="/siswa/jadwal" className="text-xs font-bold text-[#1D4ED8] hover:underline">Lihat Semua</Link>} />
+            <CardHeader title="Jadwal Kelas Hari Ini" action={<Link to="/siswa/jadwal" className="text-xs font-bold text-[#1D4ED8] hover:underline">Lihat Semua</Link>} />
             <div className="space-y-2.5 flex-1">
               {todayClasses.map((c) => {
                 const s = subjectById(c.subjectId);
@@ -205,7 +210,7 @@ export default function StudentDashboard() {
                   <div key={c.id} className="flex items-start gap-2.5">
                     <CalendarDays className="w-4 h-4 text-slate-500 mt-0.5 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-slate-700">{c.start} – {c.end}</p>
+                      <p className="text-xs font-bold text-slate-700">{c.start} – {c.end} · <span className={classMode(c) === 'Online' ? 'text-sky-700' : 'text-amber-700'}>{classMode(c)}</span></p>
                       <p className="text-sm font-extrabold text-[#0F1E4A] truncate">{s.className}</p>
                     </div>
                     <Pill tone={statusTone(c.status)} className="mt-2">{c.status === 'Berlangsung' ? 'Berlangsung' : c.status}</Pill>

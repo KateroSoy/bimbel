@@ -1,795 +1,300 @@
-import { useState, useMemo } from 'react';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { motion, AnimatePresence } from 'motion/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  MessageSquare,
-  Send,
-  Users,
-  Copy,
-  Check,
-  Search,
-  Filter,
-  CreditCard,
-  UserCheck,
-  Sparkles,
-  Calendar,
-  BarChart,
-  Phone,
-  ExternalLink,
-  ShieldCheck,
-  CheckCircle2,
-  Clock,
-  RotateCcw,
-  Smartphone,
-  Eye,
-  AlertCircle,
-  FileText
+  Search, Send, Users, CheckCheck, Copy, ExternalLink, CreditCard, UserCheck, Sparkles, BarChart, Calendar, PenLine, ArrowLeft, Info, MessageSquare,
 } from 'lucide-react';
-import { useDataStore, WhatsAppMessageLog, Student } from '../../store/useDataStore';
 import { toast } from 'sonner';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { useDataStore, type WhatsAppMessageLog, type Student } from '../../store/useDataStore';
+import { formatAccounts, parseAccounts } from '../../lib/payment';
+import { cn } from '../../lib/utils';
+
+type Category = WhatsAppMessageLog['category'];
+type Chat =
+  | { kind: 'person'; key: string; title: string; sub: string; phone: string; student: Student }
+  | { kind: 'group'; key: string; title: string; sub: string; kelas: string; members: Student[] };
+
+const TEMPLATES: { category: Category; label: string; icon: typeof CreditCard }[] = [
+  { category: 'Pengingat SPP', label: 'Pengingat SPP', icon: CreditCard },
+  { category: 'Laporan Absensi', label: 'Laporan Absensi', icon: UserCheck },
+  { category: 'Pengumuman Tryout', label: 'Pengumuman', icon: Sparkles },
+  { category: 'Evaluasi Belajar', label: 'Evaluasi Belajar', icon: BarChart },
+  { category: 'Jadwal Bimbel', label: 'Jadwal Bimbel', icon: Calendar },
+  { category: 'Umum', label: 'Pesan Bebas', icon: PenLine },
+];
+
+const toIntl = (phone: string) => {
+  const digits = (phone || '').replace(/\D/g, '');
+  return digits.startsWith('0') ? `62${digits.slice(1)}` : digits;
+};
+const waLink = (phone: string, text: string) => `https://wa.me/${toIntl(phone)}?text=${encodeURIComponent(text)}`;
+const nowLabel = () => `${new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })} WIB`;
+const timeOf = (sentAt: string) => sentAt.match(/\d{1,2}[.:]\d{2}/)?.[0]?.replace(':', '.') ?? '';
+const initials = (name: string) => name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 
 export default function KirimWaOrtu() {
   const { students, tuitionPayments, attendanceLogs, whatsAppLogs, sendWhatsAppMessage, schoolSettings } = useDataStore();
+  const [filter, setFilter] = useState<'Semua' | 'Personal' | 'Grup Kelas'>('Semua');
+  const [q, setQ] = useState('');
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [draft, setDraft] = useState('');
+  const [category, setCategory] = useState<Category>('Umum');
+  const [queue, setQueue] = useState<{ name: string; phone: string; text: string }[] | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  const [activeTab, setActiveTab] = useState<'single' | 'broadcast' | 'logs'>('single');
+  const chats = useMemo<Chat[]>(() => {
+    const people: Chat[] = students.map((s) => ({
+      kind: 'person', key: `p-${s.id}`, title: s.parentName || `Wali ${s.name}`, sub: `Wali dari ${s.name} · ${s.grade}`,
+      phone: s.parentPhone || s.phone, student: s,
+    }));
+    const classes = [...new Set(students.map((s) => s.grade).filter(Boolean))].sort();
+    const groups: Chat[] = classes.map((kelas) => {
+      const members = students.filter((s) => s.grade === kelas);
+      return { kind: 'group', key: `g-${kelas}`, title: `Grup Wali · ${kelas}`, sub: `${members.length} wali murid`, kelas, members };
+    });
+    return [...groups, ...people];
+  }, [students]);
 
-  // Single Message Form State
-  const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || '1001');
-  const [selectedCategory, setSelectedCategory] = useState<
-    'Pengingat SPP' | 'Laporan Absensi' | 'Pengumuman Tryout' | 'Jadwal Bimbel' | 'Evaluasi Belajar' | 'Umum'
-  >('Pengingat SPP');
-  const [customMessage, setCustomMessage] = useState<string>('');
-  const [copied, setCopied] = useState(false);
-  const [searchLogQuery, setSearchLogQuery] = useState('');
-  const [logCategoryFilter, setLogCategoryFilter] = useState('all');
+  // Oldest first; ids are sequential (WA-0001, WA-0002, …)
+  const ordered = useMemo(() => [...whatsAppLogs].sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true })), [whatsAppLogs]);
+  const logsFor = (chat: Chat) => chat.kind === 'person'
+    ? (chat.phone ? ordered.filter((l) => l.recipientPhone && toIntl(l.recipientPhone) === toIntl(chat.phone)) : [])
+    : ordered.filter((l) => l.recipientName === `Grup ${chat.kelas}`);
 
-  // Broadcast Form State
-  const [broadcastBatch, setBroadcastBatch] = useState<string>('Batch UTBK 1');
-  const [broadcastCategory, setBroadcastCategory] = useState<'Pengumuman Tryout' | 'Jadwal Bimbel' | 'Umum'>('Pengumuman Tryout');
-  const [broadcastTitle, setBroadcastTitle] = useState('Pemberitahuan Pelaksanaan Tryout Akbar SNBT 2025');
-  const [broadcastBody, setBroadcastBody] = useState(
-    'Diberitahukan kepada seluruh Orang Tua/Wali Murid LearnSpace+ bahwa Tryout Akbar Nasional SNBT 2025 akan diselenggarakan serentak pada hari Sabtu mendatang pukul 08.00 WIB melalui portal CBT eSchool. Mohon pastikan ananda mempersiapkan diri dengan maksimal.'
-  );
-  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  // Latest message per chat drives the preview and the list order
+  const listed = chats
+    .filter((c) => filter === 'Semua' || (filter === 'Grup Kelas' ? c.kind === 'group' : c.kind === 'person'))
+    .filter((c) => !q || `${c.title} ${c.sub}`.toLowerCase().includes(q.toLowerCase()));
+  const active = chats.find((c) => c.key === activeKey) ?? null;
+  const history = active ? logsFor(active) : [];
 
-  // Selected student object
-  const selectedStudent = useMemo(() => {
-    return students.find((s) => s.id === selectedStudentId) || students[0];
-  }, [students, selectedStudentId]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ block: 'end' }); }, [activeKey, history.length]);
 
-  // Unpaid SPP for selected student
-  const studentUnpaidSPP = useMemo(() => {
-    return tuitionPayments.find((p) => p.studentId === selectedStudent?.id && p.status !== 'Lunas');
-  }, [tuitionPayments, selectedStudent]);
-
-  // Recent attendance for selected student
-  const studentRecentAttendance = useMemo(() => {
-    return attendanceLogs.find((a) => a.studentId === selectedStudent?.id) || attendanceLogs[0];
-  }, [attendanceLogs, selectedStudent]);
-
-  // Auto-compose message text based on Category & Templates
-  const defaultTemplateMessage = useMemo(() => {
-    if (!selectedStudent) return '';
-    const parent = selectedStudent.parentName || `Orang Tua Ananda ${selectedStudent.name}`;
-    const sName = selectedStudent.name;
-    const grade = selectedStudent.grade;
-    const sNameFormal = `${sName} (${grade})`;
-
-    switch (selectedCategory) {
+  const template = (cat: Category, s: Student | null, kelas?: string) => {
+    const name = schoolSettings.schoolName || 'StudyHack Education Center';
+    const salutation = s ? `Yth. *${s.parentName || `Orang Tua Ananda ${s.name}`}*,\nWali dari *${s.name} (${s.grade})*\n\n` : `Yth. Bapak/Ibu Wali Murid *${kelas}*,\n\n`;
+    const accounts = [...parseAccounts(schoolSettings.bankAccounts), ...parseAccounts(schoolSettings.ewallets)];
+    switch (cat) {
       case 'Pengingat SPP': {
-        const amountStr = studentUnpaidSPP ? `Rp ${studentUnpaidSPP.amount.toLocaleString('id-ID')}` : 'Rp 650.000';
-        const periodStr = studentUnpaidSPP ? studentUnpaidSPP.period : 'Desember 2024';
-        const dueStr = studentUnpaidSPP ? studentUnpaidSPP.dueDate : '10 Desember 2024';
-        return `*PEMBERITAHUAN SPP BIMBEL - ${schoolSettings.schoolName.toUpperCase()}*\n\n` +
-          `Yth. *${parent}*,\n` +
-          `Wali dari siswa: *${sNameFormal}*\n\n` +
-          `Kami menginformasikan tagihan bimbingan belajar ananda untuk periode *${periodStr}* sebesar *${amountStr}* (Jatuh Tempo: *${dueStr}*).\n\n` +
-          `💳 Pembayaran dapat dilakukan via:\n` +
-          `• *QRIS All Payment* di Portal Siswa\n` +
-          `• *Virtual Account BCA*: 88012${selectedStudent.id}\n` +
-          `• *Transfer Mandiri*: 137-00-198822-1 a.n LearnSpace+ Edukasi\n\n` +
-          `Setelah transfer, kuitansi digital otomatis terbit di portal murid. Terima kasih atas kerja samanya.\n\n` +
-          `_Admin Keuangan ${schoolSettings.schoolName}_\n` +
-          `_Hotline: ${schoolSettings.phone}_`;
+        const bill = s ? tuitionPayments.find((p) => p.studentId === s.id && p.status !== 'Lunas') : undefined;
+        return `*PEMBERITAHUAN SPP BIMBEL - ${name.toUpperCase()}*\n\n${salutation}` +
+          (bill ? `Tagihan bimbingan belajar periode *${bill.period}* sebesar *Rp ${bill.amount.toLocaleString('id-ID')}* jatuh tempo *${bill.dueDate}*.\n\n`
+            : 'Kami mengingatkan pembayaran SPP bimbingan belajar bulan ini.\n\n') +
+          `💳 Pembayaran dapat dilakukan melalui menu *Pembayaran* di portal siswa${accounts.length ? ` atau ke:\n${formatAccounts(accounts)}` : '.'}\n\n` +
+          `Terima kasih atas kerja samanya.\n_Admin Keuangan ${name}_`;
       }
-
       case 'Laporan Absensi': {
-        const status = studentRecentAttendance?.status || 'Hadir';
-        const date = studentRecentAttendance?.date || new Date().toISOString().split('T')[0];
-        const subject = studentRecentAttendance?.subject || 'TPS Penalaran Matematika';
-        const topic = studentRecentAttendance?.topic || 'Trik Kilat Aljabar & Fungsi';
-        return `*LAPORAN PRESENSI KELAS BIMBEL*\n\n` +
-          `Yth. *${parent}*,\n` +
-          `Wali dari siswa: *${sNameFormal}*\n\n` +
-          `Kami menginformasikan bahwa ananda pada hari ini telah tercatat:\n` +
-          `📌 *Status Kehadiran*: *${status.toUpperCase()}*\n` +
-          `📅 *Tanggal*: ${date}\n` +
-          `📚 *Mata Pelajaran*: ${subject}\n` +
-          `💡 *Topik Bahasan*: ${topic}\n` +
-          `👨‍🏫 *Tentor*: ${studentRecentAttendance?.tutor || 'Tentor Master'}\n\n` +
-          `Riwayat presensi lengkap dan modul belajar dapat dipantau di akun portal murid.\n\n` +
-          `_Akademik & Kesiswaan ${schoolSettings.schoolName}_`;
+        const log = s ? attendanceLogs.find((a) => a.studentId === s.id) : undefined;
+        return `*LAPORAN PRESENSI KELAS*\n\n${salutation}Kehadiran ananda hari ini:\n` +
+          `📌 *Status*: *${(log?.status || 'Hadir').toUpperCase()}*\n📅 *Tanggal*: ${log?.date || new Date().toLocaleDateString('id-ID')}\n` +
+          `📚 *Mata Pelajaran*: ${log?.subject || '-'}\n💡 *Topik*: ${log?.topic || '-'}\n\nRiwayat lengkap dapat dipantau di portal siswa.\n\n_Akademik ${name}_`;
       }
-
       case 'Pengumuman Tryout':
-        return `*PENGUMUMAN SIMULASI TRYOUT AKBAR NASIONAL*\n\n` +
-          `Yth. *${parent}*,\n` +
-          `Wali dari siswa: *${sNameFormal}*\n\n` +
-          `Diberitahukan bahwa ananda dijadwalkan mengikuti *Simulasi Tryout Akbar SNBT 2025* dengan standar sistem penilaian IRT resmi:\n\n` +
-          `🗓 *Hari/Tanggal*: Sabtu, 14 Desember 2024\n` +
-          `⏰ *Waktu*: 08.30 - 12.00 WIB\n` +
-          `💻 *Platform*: CBT eSchool LearnSpace+\n\n` +
-          `Mohon bantuannya untuk mengingatkan ananda agar hadir tepat waktu dan menjaga kondisi kesehatan.\n\n` +
-          `_Divisi Evaluasi Belajar ${schoolSettings.schoolName}_`;
-
+        return `*PENGUMUMAN*\n\n${salutation}(Tulis isi pengumuman di sini: kegiatan, tanggal, waktu, dan tempat.)\n\nMohon bantuan Bapak/Ibu untuk mengingatkan ananda.\n\n_${name}_`;
       case 'Evaluasi Belajar':
-        return `*LAPORAN PERKEMBANGAN & EVALUASI HASIL BELAJAR*\n\n` +
-          `Yth. *${parent}*,\n` +
-          `Wali dari siswa: *${sNameFormal}*\n\n` +
-          `Hasil evaluasi progres belajar ananda bulan ini menunjukkan capaian yang sangat positif:\n` +
-          `📈 *Rata-rata Skor Tryout*: *${selectedStudent.gpa >= 3.8 ? '715 (Peluang Lolos: 94%)' : '650 (Peluang Lolos: 85%)'}*\n` +
-          `🎯 *Tingkat Presensi*: *${selectedStudent.attendance || '98%'}*\n` +
-          `⭐ *Catatan Konselor*: Konsisten dalam pengerjaan tugas & drill soal harian.\n\n` +
-          `Rincian evaluasi dan grafik perkembangan tersedia di menu Evaluasi portal siswa.\n\n` +
-          `_Konselor Akademik ${schoolSettings.schoolName}_`;
-
+        return `*LAPORAN PERKEMBANGAN BELAJAR*\n\n${salutation}` +
+          (s ? `🎯 *Kehadiran*: ${s.attendance || '-'}\n⭐ *Catatan Tutor*: (tulis catatan perkembangan)\n\n` : '(Tulis ringkasan perkembangan kelas)\n\n') +
+          `Rincian nilai tersedia di menu Hasil Belajar portal siswa.\n\n_Akademik ${name}_`;
       case 'Jadwal Bimbel':
-        return `*INFORMASI JADWAL BIMBEL & KLINIK KONSULTASI*\n\n` +
-          `Yth. *${parent}*,\n` +
-          `Wali dari siswa: *${sNameFormal}*\n\n` +
-          `Berikut pengingat jadwal bimbingan belajar ananda untuk pekan ini:\n` +
-          `• Senin & Rabu: 16.00 - 18.00 WIB (Studio Belajar 1)\n` +
-          `• Jumat: Klinik Konsultasi PR & Bedah Soal (15.30 WIB)\n\n` +
-          `Pastikan ananda membawa modul cetak dan buku catatan bimbel.\n\n` +
-          `_Layanan Siswa ${schoolSettings.schoolName}_`;
-
+        return `*INFORMASI JADWAL KELAS*\n\n${salutation}Berikut jadwal ananda pekan ini:\n• (hari, jam, Tatap Muka / Online)\n\nJadwal lengkap ada di menu Jadwal Kelas portal siswa.\n\n_Layanan Siswa ${name}_`;
       default:
-        return `Yth. *${parent}*,\nWali dari *${sNameFormal}*.\n\n(Tulis pesan kustom Anda di sini...)\n\n_Salam hangat, ${schoolSettings.schoolName}_`;
+        return '';
     }
-  }, [selectedCategory, selectedStudent, studentUnpaidSPP, studentRecentAttendance, schoolSettings]);
-
-  // Effective message (custom or template)
-  const activeMessage = customMessage.trim() !== '' ? customMessage : defaultTemplateMessage;
-
-  // Generate WhatsApp Direct URL
-  const whatsappUrl = useMemo(() => {
-    if (!selectedStudent) return '#';
-    let phone = selectedStudent.parentPhone || selectedStudent.phone || '081234567890';
-    // Format to international 62xxx
-    let cleanPhone = phone.replace(/[^0-9]/g, '');
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '62' + cleanPhone.slice(1);
-    }
-    const encodedText = encodeURIComponent(activeMessage);
-    return `https://wa.me/${cleanPhone}?text=${encodedText}`;
-  }, [selectedStudent, activeMessage]);
-
-  const handleCopyMessage = () => {
-    navigator.clipboard.writeText(activeMessage);
-    setCopied(true);
-    toast.success('Pesan WhatsApp berhasil disalin ke clipboard!');
-    setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSendAndLog = () => {
-    if (!selectedStudent) return;
-
-    const nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-
-    sendWhatsAppMessage({
-      recipientName: selectedStudent.parentName || `Wali Murid ${selectedStudent.name}`,
-      recipientPhone: selectedStudent.parentPhone || selectedStudent.phone,
-      studentName: selectedStudent.name,
-      studentGrade: selectedStudent.grade,
-      category: selectedCategory,
-      message: activeMessage,
-      sentAt: `${nowStr} WIB`,
-      status: 'Terkirim',
-    });
-
-    toast.success('Pesan WhatsApp Berhasil Dikirim & Dicatat!', {
-      description: `Notifikasi dikirim ke ${selectedStudent.parentName || 'Wali Murid'} (${selectedStudent.parentPhone || selectedStudent.phone})`,
-    });
-
-    // Open WhatsApp in new tab
-    window.open(whatsappUrl, '_blank');
+  const openChat = (chat: Chat) => {
+    setActiveKey(chat.key);
+    setCategory('Umum');
+    setDraft('');
   };
 
-  // Broadcast logic
-  const batchTargetStudents = useMemo(() => {
-    if (broadcastBatch === 'Semua Siswa Bimbel') return students;
-    return students.filter((s) => s.grade === broadcastBatch);
-  }, [students, broadcastBatch]);
+  const applyTemplate = (cat: Category) => {
+    if (!active) return;
+    setCategory(cat);
+    setDraft(template(cat, active.kind === 'person' ? active.student : null, active.kind === 'group' ? active.kelas : undefined));
+  };
 
-  const handleExecuteBroadcast = () => {
-    if (batchTargetStudents.length === 0) {
-      toast.error('Tidak ada siswa pada batch yang dipilih.');
-      return;
-    }
-
-    setIsBroadcasting(true);
-
-    setTimeout(() => {
-      const nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-
-      batchTargetStudents.forEach((st) => {
-        const parent = st.parentName || `Wali dari ${st.name}`;
-        const personalizedMsg = `*${broadcastTitle.toUpperCase()} - ${schoolSettings.schoolName.toUpperCase()}*\n\n` +
-          `Yth. *${parent}* (Wali dari *${st.name} - ${st.grade}*),\n\n` +
-          `${broadcastBody}\n\n` +
-          `_Pusat Informasi & Administrasi ${schoolSettings.schoolName}_\n` +
-          `_Hotline WA: ${schoolSettings.phone}_`;
-
+  const send = () => {
+    if (!active || !draft.trim()) return;
+    const text = draft.trim();
+    if (active.kind === 'person') {
+      sendWhatsAppMessage({
+        recipientName: active.title, recipientPhone: active.phone, studentName: active.student.name, studentGrade: active.student.grade,
+        category, message: text, sentAt: nowLabel(), status: 'Terkirim',
+      });
+      window.open(waLink(active.phone, text), '_blank', 'noopener');
+      toast.success('Pesan dicatat dan WhatsApp dibuka', { description: `${active.title} · ${active.phone}` });
+    } else {
+      // One log for the group thread, then one per wali so each personal chat shows it too
+      sendWhatsAppMessage({
+        recipientName: `Grup ${active.kelas}`, recipientPhone: '', studentName: `${active.members.length} siswa`, studentGrade: active.kelas,
+        category, message: text, sentAt: nowLabel(), status: 'Terkirim',
+      });
+      const recipients = active.members.filter((m) => m.parentPhone || m.phone).map((m) => {
+        const personal = text.replace(`Yth. Bapak/Ibu Wali Murid *${active.kelas}*,`, `Yth. *${m.parentName || `Wali ${m.name}`}*, wali dari *${m.name}*,`);
         sendWhatsAppMessage({
-          recipientName: parent,
-          recipientPhone: st.parentPhone || st.phone,
-          studentName: st.name,
-          studentGrade: st.grade,
-          category: broadcastCategory,
-          message: personalizedMsg,
-          sentAt: `${nowStr} WIB`,
-          status: 'Terkirim',
+          recipientName: m.parentName || `Wali ${m.name}`, recipientPhone: m.parentPhone || m.phone, studentName: m.name, studentGrade: m.grade,
+          category, message: personal, sentAt: nowLabel(), status: 'Pending',
         });
+        return { name: m.parentName || `Wali ${m.name}`, phone: m.parentPhone || m.phone, text: personal };
       });
-
-      setIsBroadcasting(false);
-      toast.success(`Broadcast WhatsApp Berhasil Terkirim ke ${batchTargetStudents.length} Wali Murid!`, {
-        description: `Pesan "${broadcastTitle}" telah dipublikasikan dan dicatat ke log sistem.`,
-      });
-      setActiveTab('logs');
-    }, 1200);
+      setQueue(recipients);
+      toast.success(`Pesan batch untuk ${recipients.length} wali murid ${active.kelas} disiapkan`);
+    }
+    setDraft('');
   };
 
-  // Filtered Logs
-  const filteredLogs = whatsAppLogs.filter((log) => {
-    const matchCat = logCategoryFilter === 'all' || log.category === logCategoryFilter;
-    const matchSearch =
-      log.recipientName.toLowerCase().includes(searchLogQuery.toLowerCase()) ||
-      log.studentName.toLowerCase().includes(searchLogQuery.toLowerCase()) ||
-      log.message.toLowerCase().includes(searchLogQuery.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  const copy = (text: string) => { void navigator.clipboard.writeText(text); toast.success('Pesan disalin — tempel ke grup WhatsApp kelas'); };
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-8">
-        
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div className="max-w-[1500px] space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-3 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-1.5">
-                <MessageSquare className="w-3.5 h-3.5" /> Portal WhatsApp Gateway Admin
-              </span>
-              <span className="text-xs text-slate-500 font-medium">Pengiriman Langsung ke WhatsApp Wali Murid</span>
-            </div>
-            <h2 className="text-3xl font-display font-bold text-slate-900 mb-1">
-              WhatsApp Notifikasi & Broadcast Wali Murid
-            </h2>
-            <p className="text-slate-500 text-sm">
-              Kirim informasi tagihan SPP, presensi, jadwal, dan pengumuman tryout langsung ke nomor WhatsApp orang tua/wali murid dengan template otomatis.
-            </p>
+            <h1 className="text-2xl md:text-[26px] font-extrabold text-[#0F1E4A] tracking-tight">WhatsApp Wali Murid</h1>
+            <p className="text-sm text-slate-600 font-medium">Inbox WhatsApp bimbel: kirim pesan ke wali per siswa atau sekaligus satu grup kelas.</p>
           </div>
-
-          {/* Tab Switcher */}
-          <div className="flex bg-slate-100 p-1.5 rounded-2xl shrink-0">
-            <button
-              onClick={() => setActiveTab('single')}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
-                activeTab === 'single'
-                  ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Send className="w-4 h-4" />
-              Kirim Personal / Satuan
-            </button>
-            <button
-              onClick={() => setActiveTab('broadcast')}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
-                activeTab === 'broadcast'
-                  ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              Broadcast Massal Batch
-            </button>
-            <button
-              onClick={() => setActiveTab('logs')}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
-                activeTab === 'logs'
-                  ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              Riwayat Pesan ({whatsAppLogs.length})
-            </button>
-          </div>
+          <p className="text-xs font-semibold text-slate-500 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> Pesan dibuka di WhatsApp untuk dikirim & dicatat di riwayat.</p>
         </div>
 
-        {/* Quick Metrics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-xs font-semibold">Total Log Terkirim</span>
-              <MessageSquare className="w-4 h-4 text-emerald-600" />
+        <div className="h-[calc(100vh-170px)] min-h-[520px] rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm flex">
+          {/* Chat list */}
+          <aside className={cn('w-full md:w-[360px] shrink-0 border-r border-slate-200 flex flex-col', active && 'hidden md:flex')}>
+            <div className="h-16 px-4 flex items-center gap-3 bg-[#F0F2F5] border-b border-slate-200">
+              <span className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-extrabold text-sm">SH</span>
+              <div className="min-w-0">
+                <p className="text-sm font-extrabold text-slate-900 truncate">{schoolSettings.schoolName || 'StudyHack Education Center'}</p>
+                <p className="text-[11px] text-slate-500 font-semibold">{whatsAppLogs.length} pesan tercatat</p>
+              </div>
             </div>
-            <p className="text-2xl font-bold font-display text-slate-900">{whatsAppLogs.length}</p>
-            <span className="text-[11px] text-emerald-600 font-medium">Tercatat di sistem</span>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-xs font-semibold">Kontak Wali Aktif</span>
-              <Phone className="w-4 h-4 text-blue-600" />
+            <div className="p-2.5 space-y-2 border-b border-slate-100">
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari wali, siswa, atau kelas" className="w-full h-9 pl-9 pr-3 rounded-lg bg-[#F0F2F5] text-[13px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30" />
+              </div>
+              <div className="flex gap-1.5">
+                {(['Semua', 'Personal', 'Grup Kelas'] as const).map((f) => (
+                  <button key={f} onClick={() => setFilter(f)} className={cn('px-3 py-1 rounded-full text-xs font-bold', filter === f ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F0F2F5] text-slate-600 hover:bg-slate-200')}>{f}</button>
+                ))}
+              </div>
             </div>
-            <p className="text-2xl font-bold font-display text-slate-900">{students.length}</p>
-            <span className="text-[11px] text-blue-600 font-medium">Nomor terverifikasi</span>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-xs font-semibold">Template Siap Pakai</span>
-              <FileText className="w-4 h-4 text-indigo-600" />
-            </div>
-            <p className="text-2xl font-bold font-display text-slate-900">5 Kategori</p>
-            <span className="text-[11px] text-indigo-600 font-medium">Otomatisasi variabel</span>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-xs font-semibold">Integrasi WA</span>
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            </div>
-            <p className="text-2xl font-bold font-display text-slate-900">WA Direct API</p>
-            <span className="text-[11px] text-emerald-600 font-medium">Tanpa biaya per pesan</span>
-          </div>
-        </div>
-
-        {/* TAB 1: SINGLE MESSAGE */}
-        {activeTab === 'single' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left: Message Configuration */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="glass p-6 sm:p-7 rounded-3xl border border-white/40 shadow-sm bg-white space-y-5">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                  <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                    <Send className="w-4 h-4 text-emerald-600" /> Form Pengiriman WhatsApp Personal
-                  </h3>
-                  <span className="text-xs text-slate-400 font-mono">ID: WA-{selectedStudent?.id}</span>
-                </div>
-
-                {/* 1. Pilih Siswa */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    1. Pilih Siswa & Wali Murid Penerima *
-                  </label>
-                  <select
-                    value={selectedStudentId}
-                    onChange={(e) => {
-                      setSelectedStudentId(e.target.value);
-                      setCustomMessage('');
-                    }}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 text-sm outline-none"
-                  >
-                    {students.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name} ({s.grade}) — Wali: {s.parentName || 'Orang Tua'} ({s.parentPhone || s.phone})
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* Student & Parent Info Card */}
-                  {selectedStudent && (
-                    <div className="mt-2.5 p-3.5 bg-emerald-50/60 rounded-2xl border border-emerald-200/60 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
-                          {selectedStudent.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-900">
-                            {selectedStudent.parentName || 'Wali Siswa'} (Wali dari {selectedStudent.name})
-                          </p>
-                          <p className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5">
-                            <Phone className="w-3 h-3 text-emerald-600" />
-                            {selectedStudent.parentPhone || selectedStudent.phone} • {selectedStudent.grade}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 bg-white text-emerald-800 rounded-lg text-[10px] font-bold border border-emerald-200">
-                        {selectedStudent.status}
+            <ul className="flex-1 overflow-y-auto">
+              {listed.map((c) => {
+                const last = logsFor(c).at(-1);
+                return (
+                  <li key={c.key}>
+                    <button onClick={() => openChat(c)} className={cn('w-full flex items-center gap-3 px-3.5 py-3 text-left border-b border-slate-100 hover:bg-[#F5F6F6]', activeKey === c.key && 'bg-[#F0F2F5]')}>
+                      <span className={cn('w-11 h-11 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0', c.kind === 'group' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600')}>
+                        {c.kind === 'group' ? <Users className="w-5 h-5" /> : initials(c.title)}
                       </span>
-                    </div>
+                      <span className="flex-1 min-w-0">
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="text-[14px] font-bold text-slate-900 truncate">{c.title}</span>
+                          {last && <span className="text-[11px] text-slate-500 shrink-0">{timeOf(last.sentAt)}</span>}
+                        </span>
+                        <span className="flex items-center gap-1 text-[12.5px] text-slate-500 truncate">
+                          {last && <CheckCheck className="w-3.5 h-3.5 text-sky-500 shrink-0" />}
+                          <span className="truncate">{last ? last.message.replace(/[*_]/g, '').split('\n')[0] : c.sub}</span>
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+              {listed.length === 0 && <li className="p-6 text-center text-sm text-slate-500">Tidak ada kontak yang cocok.</li>}
+            </ul>
+          </aside>
+
+          {/* Conversation */}
+          <section className={cn('flex-1 min-w-0 flex flex-col bg-[#EFEAE2]', !active && 'hidden md:flex')}>
+            {!active ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-[#F8F9FA]">
+                <MessageSquare className="w-14 h-14 text-emerald-600 mb-3" />
+                <h2 className="text-xl font-extrabold text-slate-800 mb-1">WhatsApp Wali Murid</h2>
+                <p className="text-sm text-slate-500 max-w-sm">Pilih wali murid untuk pesan personal, atau <strong>Grup Wali</strong> untuk mengirim ke satu kelas sekaligus.</p>
+              </div>
+            ) : (
+              <>
+                <header className="h-16 px-4 flex items-center gap-3 bg-[#F0F2F5] border-b border-slate-200">
+                  <button className="md:hidden w-8 h-8 flex items-center justify-center" onClick={() => setActiveKey(null)} aria-label="Kembali"><ArrowLeft className="w-5 h-5" /></button>
+                  <span className={cn('w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0', active.kind === 'group' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600')}>
+                    {active.kind === 'group' ? <Users className="w-5 h-5" /> : initials(active.title)}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-extrabold text-slate-900 truncate">{active.title}</p>
+                    <p className="text-[12px] text-slate-500 truncate">{active.kind === 'group' ? active.members.map((m) => m.parentName || m.name).join(', ') : `${active.phone} · ${active.sub}`}</p>
+                  </div>
+                  {active.kind === 'person' && (
+                    <a href={waLink(active.phone, '')} target="_blank" rel="noreferrer" className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-white border border-slate-200 text-xs font-bold text-emerald-700"><ExternalLink className="w-3.5 h-3.5" /> Buka di WhatsApp</a>
                   )}
-                </div>
+                </header>
 
-                {/* 2. Pilih Kategori & Template */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    2. Pilih Template Pesan Siap Pakai *
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {[
-                      { label: 'Pengingat SPP', value: 'Pengingat SPP', icon: CreditCard },
-                      { label: 'Laporan Absensi', value: 'Laporan Absensi', icon: UserCheck },
-                      { label: 'Pengumuman Tryout', value: 'Pengumuman Tryout', icon: Sparkles },
-                      { label: 'Evaluasi Belajar', value: 'Evaluasi Belajar', icon: BarChart },
-                      { label: 'Jadwal Bimbel', value: 'Jadwal Bimbel', icon: Calendar },
-                      { label: 'Pesan Bebas', value: 'Umum', icon: FileText },
-                    ].map((tpl) => {
-                      const isSelected = selectedCategory === tpl.value;
-                      const Icon = tpl.icon;
-                      return (
-                        <button
-                          key={tpl.value}
-                          type="button"
-                          onClick={() => {
-                            setSelectedCategory(tpl.value as any);
-                            setCustomMessage('');
-                          }}
-                          className={`p-3 rounded-xl text-xs font-bold transition-all text-left flex items-center gap-2 border ${
-                            isSelected
-                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                          }`}
-                        >
-                          <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-emerald-600'}`} />
-                          <span className="truncate">{tpl.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 3. Message Body Editor */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      3. Rincian & Modifikasi Isi Pesan
-                    </label>
-                    {customMessage.trim() !== '' && (
-                      <button
-                        type="button"
-                        onClick={() => setCustomMessage('')}
-                        className="text-[11px] text-rose-600 hover:underline flex items-center gap-1 font-semibold"
-                      >
-                        <RotateCcw className="w-3 h-3" /> Reset ke Template Default
-                      </button>
-                    )}
-                  </div>
-                  <textarea
-                    rows={8}
-                    value={activeMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-mono text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed"
-                  />
-                  <span className="text-[10px] text-slate-400 mt-1 block">
-                    Gunakan tanda bintang (*) untuk teks tebal dan tanda garis bawah (_) untuk teks miring di WhatsApp.
-                  </span>
-                </div>
-
-                {/* Bottom Send Buttons */}
-                <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                  <button
-                    type="button"
-                    onClick={handleCopyMessage}
-                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-all flex items-center gap-2"
-                  >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    {copied ? 'Tersalin!' : 'Salin Format Pesan'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSendAndLog}
-                    className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-emerald-600/30 active:scale-95 flex items-center gap-2"
-                  >
-                    <Send className="w-4 h-4" />
-                    Kirim & Buka di WhatsApp Web
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Smartphone Live Preview */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="glass p-5 rounded-3xl border border-white/40 shadow-sm bg-white">
-                <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Smartphone className="w-4 h-4 text-emerald-600" /> Pratinjau Tampilan WhatsApp
-                  </span>
-                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                    Live Preview
-                  </span>
-                </div>
-
-                {/* Mock WhatsApp Screen */}
-                <div className="bg-[#EFEAE2] rounded-2xl overflow-hidden border border-slate-300 shadow-inner flex flex-col min-h-[460px]">
-                  
-                  {/* WA Header */}
-                  <div className="bg-[#075E54] text-white p-3 flex items-center gap-2.5 shadow-sm">
-                    <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
-                      {selectedStudent?.name.charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-xs truncate">
-                        {selectedStudent?.parentName || 'Wali Murid'} ({selectedStudent?.name})
-                      </p>
-                      <p className="text-[10px] text-emerald-100 truncate">
-                        {selectedStudent?.parentPhone || '081234567890'} • Online
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* WA Chat Body */}
-                  <div className="p-3.5 flex-1 flex flex-col justify-end space-y-2">
-                    
-                    {/* Timestamp Pill */}
-                    <div className="self-center bg-white/80 backdrop-blur-sm text-[10px] text-slate-500 font-semibold px-2.5 py-0.5 rounded-full shadow-xs">
-                      HARI INI
-                    </div>
-
-                    {/* Chat Bubble Sent by Admin */}
-                    <div className="self-end bg-[#DCF8C6] rounded-2xl rounded-tr-xs p-3.5 max-w-[90%] shadow-sm text-slate-800 text-[11px] leading-relaxed whitespace-pre-line border border-emerald-100">
-                      {activeMessage}
-                      <div className="flex items-center justify-end gap-1 text-[9px] text-slate-400 mt-1">
-                        <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        <CheckCircle2 className="w-3 h-3 text-blue-500" />
+                <div className="flex-1 overflow-y-auto px-4 md:px-10 py-4 space-y-2 [background-image:radial-gradient(#d9d2c5_1px,transparent_1px)] [background-size:18px_18px]">
+                  {history.length === 0 && (
+                    <p className="mx-auto w-fit text-[12px] font-semibold text-slate-600 bg-[#FFF3C4] rounded-lg px-3 py-1.5 shadow-sm">Belum ada pesan. Pilih template di bawah atau tulis pesan.</p>
+                  )}
+                  {history.map((log) => (
+                    <div key={log.id} className="flex justify-end">
+                      <div className="max-w-[78%] bg-[#D9FDD3] rounded-lg rounded-tr-none px-3 py-2 shadow-sm">
+                        <p className="text-[10px] font-extrabold text-emerald-700 mb-0.5">{log.category}{active.kind === 'group' ? ` · ${log.studentName}` : ''}</p>
+                        <p className="text-[13.5px] text-slate-800 whitespace-pre-wrap break-words">{log.message.replace(/\*/g, '')}</p>
+                        <p className="text-[10.5px] text-slate-500 text-right mt-1 flex items-center justify-end gap-1">
+                          {log.sentAt}
+                          <CheckCheck className={cn('w-3.5 h-3.5', log.status === 'Terkirim' ? 'text-sky-500' : 'text-slate-400')} />
+                        </p>
                       </div>
-                    </div>
-
-                  </div>
-
-                  {/* WA Footer Mock */}
-                  <div className="bg-[#F0F2F5] p-2 flex items-center gap-2 border-t border-slate-200">
-                    <div className="flex-1 bg-white rounded-full px-3 py-1.5 text-[11px] text-slate-400">
-                      Ketik pesan...
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-[#128C7E] text-white flex items-center justify-center">
-                      <Send className="w-3.5 h-3.5" />
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Direct Action Link */}
-                <div className="mt-4">
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Buka Direct Link WhatsApp (wa.me)
-                  </a>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* TAB 2: BROADCAST MASSAL PER BATCH */}
-        {activeTab === 'broadcast' && (
-          <div className="space-y-6">
-            <div className="glass p-6 sm:p-7 rounded-3xl border border-white/40 shadow-sm bg-white space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-50 text-emerald-700 rounded-2xl">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-slate-900">Broadcast Pengumuman ke Seluruh Wali Murid Batch</h3>
-                    <p className="text-xs text-slate-500">Kirim pesan serentak ke seluruh nomor WhatsApp orang tua murid pada kelas tertentu.</p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">
-                  {batchTargetStudents.length} Penerima Terpilih
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Pilih Batch Rombel Bimbel Target *
-                  </label>
-                  <select
-                    value={broadcastBatch}
-                    onChange={(e) => setBroadcastBatch(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 text-sm outline-none"
-                  >
-                    <option value="Batch UTBK 1">Batch UTBK 1</option>
-                    <option value="Batch Kedinasan 2">Batch Kedinasan 2</option>
-                    <option value="Batch TOEFL Intensif">Batch TOEFL Intensif</option>
-                    <option value="Batch UTBK Soshum">Batch UTBK Soshum</option>
-                    <option value="Semua Siswa Bimbel">Semua Siswa Bimbel (Seluruh Batch)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Kategori Pesan
-                  </label>
-                  <select
-                    value={broadcastCategory}
-                    onChange={(e) => setBroadcastCategory(e.target.value as any)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 text-sm outline-none"
-                  >
-                    <option value="Pengumuman Tryout">Pengumuman Tryout Akbar</option>
-                    <option value="Jadwal Bimbel">Jadwal & Agenda Belajar</option>
-                    <option value="Umum">Pengumuman Umum Bimbel</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Judul Pengumuman Broadcast *
-                  </label>
-                  <input
-                    type="text"
-                    value={broadcastTitle}
-                    onChange={(e) => setBroadcastTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 text-sm outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Isi Pesan Broadcast *
-                </label>
-                <textarea
-                  rows={5}
-                  value={broadcastBody}
-                  onChange={(e) => setBroadcastBody(e.target.value)}
-                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-sans text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed"
-                />
-              </div>
-
-              {/* Recipient Preview List */}
-              <div>
-                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 block">
-                  Daftar Wali Murid yang Akan Menerima ({batchTargetStudents.length} Kontak)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-48 overflow-y-auto pr-1">
-                  {batchTargetStudents.map((st) => (
-                    <div key={st.id} className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex items-center justify-between">
-                      <div>
-                        <p className="font-bold text-slate-900">{st.parentName || `Wali ${st.name}`}</p>
-                        <p className="text-[10px] text-slate-500">{st.name} • {st.parentPhone || st.phone}</p>
-                      </div>
-                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold">
-                        Siap
-                      </span>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Action */}
-              <div className="pt-3 border-t border-slate-100 flex justify-end">
-                <button
-                  type="button"
-                  disabled={isBroadcasting || batchTargetStudents.length === 0}
-                  onClick={handleExecuteBroadcast}
-                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/30 active:scale-95 flex items-center gap-2 disabled:opacity-50"
-                >
-                  {isBroadcasting ? (
-                    <span>Mengirimkan Broadcast ke Seluruh Nomor...</span>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      Kirim Broadcast ke {batchTargetStudents.length} Wali Murid
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: LOGS & HISTORY */}
-        {activeTab === 'logs' && (
-          <div className="space-y-4">
-            <div className="glass rounded-3xl border border-white/40 shadow-sm bg-white overflow-hidden">
-              
-              {/* Toolbar */}
-              <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <div className="relative flex-1 sm:w-64">
-                    <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Cari wali, siswa, atau pesan..."
-                      value={searchLogQuery}
-                      onChange={(e) => setSearchLogQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-                    />
-                  </div>
-
-                  <select
-                    value={logCategoryFilter}
-                    onChange={(e) => setLogCategoryFilter(e.target.value)}
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"
-                  >
-                    <option value="all">Semua Kategori</option>
-                    <option value="Pengingat SPP">Pengingat SPP</option>
-                    <option value="Laporan Absensi">Laporan Absensi</option>
-                    <option value="Pengumuman Tryout">Pengumuman Tryout</option>
-                    <option value="Evaluasi Belajar">Evaluasi Belajar</option>
-                    <option value="Jadwal Bimbel">Jadwal Bimbel</option>
-                  </select>
+                  <div ref={bottomRef} />
                 </div>
 
-                <span className="text-xs font-bold text-slate-500">
-                  {filteredLogs.length} Pesan Terkirim
-                </span>
-              </div>
-
-              {/* Logs Table */}
-              <div className="divide-y divide-slate-100">
-                {filteredLogs.map((log) => (
-                  <div
-                    key={log.id}
-                    className="p-5 hover:bg-slate-50/60 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-4"
-                  >
-                    <div className="space-y-1.5 max-w-2xl">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold text-slate-900 text-sm">{log.recipientName}</span>
-                        <span className="text-xs text-slate-500">({log.recipientPhone})</span>
-                        <span className="text-xs text-emerald-800 bg-emerald-100 font-bold px-2.5 py-0.5 rounded-full">
-                          {log.category}
-                        </span>
-                        <span className="text-[11px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
-                          {log.sentAt}
-                        </span>
-                      </div>
-
-                      <p className="text-xs text-slate-700 line-clamp-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 font-mono">
-                        {log.message}
-                      </p>
-
-                      <p className="text-[11px] text-slate-400">
-                        Siswa Terkait: <strong className="text-slate-600">{log.studentName}</strong> ({log.studentGrade})
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between lg:justify-end gap-4 shrink-0">
-                      <span className="px-3 py-1 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-lg border border-emerald-200 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Terkirim
-                      </span>
-
-                      <button
-                        onClick={() => {
-                          const cleanPhone = log.recipientPhone.replace(/[^0-9]/g, '');
-                          const p = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
-                          window.open(`https://wa.me/${p}?text=${encodeURIComponent(log.message)}`, '_blank');
-                        }}
-                        className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
-                        Kirim Ulang
+                <div className="bg-[#F0F2F5] border-t border-slate-200 px-3 pt-2.5 pb-3 space-y-2">
+                  <div className="flex gap-1.5 overflow-x-auto [scrollbar-width:none]">
+                    {TEMPLATES.map((t) => (
+                      <button key={t.category} onClick={() => applyTemplate(t.category)} className={cn('shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border', category === t.category && draft ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-400')}>
+                        <t.icon className="w-3.5 h-3.5" /> {t.label}
                       </button>
-                    </div>
+                    ))}
                   </div>
-                ))}
-
-                {filteredLogs.length === 0 && (
-                  <div className="p-12 text-center text-slate-400 text-sm">
-                    Tidak ada riwayat pesan WhatsApp yang sesuai dengan pencarian.
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      placeholder={active.kind === 'group' ? `Tulis pesan untuk semua wali ${active.kelas}…` : 'Ketik pesan'}
+                      rows={Math.min(8, Math.max(1, draft.split('\n').length))}
+                      className="flex-1 resize-none rounded-xl bg-white px-4 py-2.5 text-[14px] outline-none border border-transparent focus:border-emerald-400"
+                    />
+                    {draft && <button onClick={() => copy(draft)} aria-label="Salin pesan" className="w-11 h-11 rounded-full bg-white text-slate-600 flex items-center justify-center border border-slate-200"><Copy className="w-4 h-4" /></button>}
+                    <button onClick={send} disabled={!draft.trim()} aria-label="Kirim" className="w-11 h-11 rounded-full bg-emerald-600 disabled:bg-slate-300 text-white flex items-center justify-center"><Send className="w-5 h-5" /></button>
                   </div>
-                )}
-              </div>
+                  {active.kind === 'group' && <p className="text-[11px] text-slate-500 font-semibold">Mode batch: pesan dipersonalisasi untuk tiap wali di {active.kelas}. Bisa juga disalin lalu ditempel ke grup WhatsApp kelas.</p>}
+                </div>
+              </>
+            )}
+          </section>
+        </div>
+      </div>
 
+      {queue && (
+        <div className="fixed inset-0 z-[80] bg-slate-900/40 flex items-center justify-center p-4" onClick={() => setQueue(null)}>
+          <div role="dialog" aria-modal="true" aria-label="Kirim batch" className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-slate-100">
+              <h3 className="text-base font-extrabold text-[#0F1E4A]">Kirim ke {queue.length} wali murid</h3>
+              <p className="text-xs text-slate-500 font-medium">Klik tiap tombol untuk membuka WhatsApp dengan pesan yang sudah terisi.</p>
+            </div>
+            <ul className="px-5 py-3 overflow-y-auto divide-y divide-slate-100">
+              {queue.map((r) => (
+                <li key={r.phone + r.name} className="py-2.5 flex items-center gap-3">
+                  <span className="flex-1 min-w-0"><span className="block text-sm font-bold text-slate-800 truncate">{r.name}</span><span className="block text-xs text-slate-500">{r.phone}</span></span>
+                  <a href={waLink(r.phone, r.text)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-600 text-white text-xs font-bold"><Send className="w-3.5 h-3.5" /> Kirim</a>
+                </li>
+              ))}
+            </ul>
+            <div className="px-5 py-3 border-t border-slate-100 flex justify-end">
+              <button onClick={() => setQueue(null)} className="h-10 px-4 rounded-lg border border-slate-200 text-sm font-bold text-slate-700">Selesai</button>
             </div>
           </div>
-        )}
-
-      </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

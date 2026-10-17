@@ -90,7 +90,7 @@ export default function DetailKelasGuru() {
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 text-slate-600 font-mono text-sm">{s.id}</td>
+                    <td className="p-4 text-slate-600 tabular-nums text-sm">{s.id}</td>
                     <td className="p-4 text-slate-600 font-semibold">{s.attendance || '98%'}</td>
                     <td className="p-4 text-blue-600 font-bold">{s.gpa}</td>
                     <td className="p-4 text-right">

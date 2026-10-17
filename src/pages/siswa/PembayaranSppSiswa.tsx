@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
-  Wallet, CalendarDays, FileCheck2, GraduationCap, CheckCircle2, Clock, Landmark, CreditCard, QrCode, Building2,
-  ChevronRight, ChevronDown, ShieldCheck, Headphones, MessageCircle, MoreVertical, X, Printer, Heart, Info,
+  Wallet, CalendarDays, FileCheck2, GraduationCap, CheckCircle2, Clock, Landmark, CreditCard, QrCode,
+  ChevronRight, ChevronDown, ShieldCheck, Headphones, MessageCircle, MoreVertical, X, Printer, Heart, Info, Smartphone, Copy,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
@@ -9,8 +9,33 @@ import { Card, PageTitle, Pill, statusTone } from '../../components/siswa/Portal
 import { cn } from '../../lib/utils';
 import { ADMIN_WA, ADMIN_WA_LABEL, BILLS, PAYMENT_METHODS, STUDENT, rupiah, hydrateStudentPortal, type Bill } from '../../data/siswaPortal';
 import { api, ApiError } from '../../lib/api';
+import { useFetch } from '../../store/useRemote';
+import { parseAccounts, type PaymentAccount } from '../../lib/payment';
 
-const METHOD_ICON = { bank: Landmark, va: Building2, qris: QrCode, card: CreditCard } as const;
+const METHOD_ICON = { bank: Landmark, ewallet: Smartphone, qris: QrCode, card: CreditCard } as const;
+
+function AccountList({ accounts, empty }: { accounts: PaymentAccount[]; empty: string }) {
+  if (!accounts.length) return <p className="text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-100 rounded-lg px-3 py-2">{empty}</p>;
+  return (
+    <ul className="space-y-1.5">
+      {accounts.map((a) => (
+        <li key={a.name + a.number} className="flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2">
+          <span className="flex-1 min-w-0">
+            <span className="block text-[11px] font-bold text-slate-500">{a.name}{a.holder ? ` · a.n. ${a.holder}` : ''}</span>
+            <span className="block text-sm font-extrabold text-[#0F1E4A] tracking-wide">{a.number}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => { void navigator.clipboard.writeText(a.number.replace(/\s|-/g, '')); toast.success(`Nomor ${a.name} disalin`); }}
+            className="h-8 px-2.5 rounded-lg border border-blue-200 text-[#1D4ED8] text-xs font-bold inline-flex items-center gap-1 hover:bg-blue-50"
+          >
+            <Copy className="w-3.5 h-3.5" /> Salin
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
 type Tab = 'ringkasan' | 'semua' | 'riwayat' | 'metode';
 
 export default function PembayaranSppSiswa() {
@@ -20,6 +45,10 @@ export default function PembayaranSppSiswa() {
   const [payFor, setPayFor] = useState<Bill | null>(null);
   const [method, setMethod] = useState<string>('qris');
   const [detail, setDetail] = useState<Bill | null>(null);
+  const settings = useFetch<{ data: { bankAccounts?: string; ewallets?: string } }>('/settings');
+  const banks = parseAccounts(settings?.data.bankAccounts);
+  const wallets = parseAccounts(settings?.data.ewallets);
+  const missing = 'Nomor belum diatur admin. Silakan hubungi admin melalui WhatsApp.';
 
   const paid = bills.filter((b) => b.status === 'Lunas');
   const unpaid = bills.filter((b) => b.status !== 'Lunas');
@@ -29,7 +58,8 @@ export default function PembayaranSppSiswa() {
 
   const confirmPay = async () => {
     if (!payFor) return;
-    const m = PAYMENT_METHODS.find((x) => x.id === method)!;
+    const m = PAYMENT_METHODS.find((x) => x.id === method && !x.disabled);
+    if (!m) return;
     try {
       const { bill } = await api.post<{ bill: Bill }>(`/student/bills/${encodeURIComponent(payFor.id)}/pay`, { method: m.name });
       const next = bills.map((b) => (b.id === bill.id ? bill : b));
@@ -154,9 +184,13 @@ export default function PembayaranSppSiswa() {
                     {PAYMENT_METHODS.map((m) => {
                       const Icon = METHOD_ICON[m.id];
                       return (
-                        <div key={m.id} className="rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-                          <span className="w-10 h-10 rounded-lg bg-[#EAF1FF] text-[#1D4ED8] flex items-center justify-center"><Icon className="w-5 h-5" /></span>
-                          <div><p className="font-bold text-[#0F1E4A] text-sm">{m.name}</p><p className="text-xs text-slate-600">{m.desc}</p></div>
+                        <div key={m.id} className={cn('rounded-xl border border-slate-200 p-4', m.disabled && 'opacity-60')}>
+                          <div className="flex items-center gap-3">
+                            <span className="w-10 h-10 rounded-lg bg-[#EAF1FF] text-[#1D4ED8] flex items-center justify-center"><Icon className="w-5 h-5" /></span>
+                            <div><p className="font-bold text-[#0F1E4A] text-sm">{m.name}</p><p className="text-xs text-slate-600">{m.desc}</p></div>
+                          </div>
+                          {m.id === 'bank' && <div className="mt-3"><AccountList accounts={banks} empty={missing} /></div>}
+                          {m.id === 'ewallet' && <div className="mt-3"><AccountList accounts={wallets} empty={missing} /></div>}
                         </div>
                       );
                     })}
@@ -186,7 +220,7 @@ export default function PembayaranSppSiswa() {
                 {PAYMENT_METHODS.map((m) => {
                   const Icon = METHOD_ICON[m.id];
                   return (
-                    <button key={m.id} onClick={() => { setMethod(m.id); current?.status === 'Belum Dibayar' ? setPayFor(current) : setTab('metode'); }} className="w-full flex items-center gap-3 py-2.5 text-left">
+                    <button key={m.id} disabled={m.disabled} onClick={() => { setMethod(m.id); current?.status === 'Belum Dibayar' ? setPayFor(current) : setTab('metode'); }} className="w-full flex items-center gap-3 py-2.5 text-left disabled:opacity-50 disabled:cursor-not-allowed">
                       <span className="w-9 h-9 rounded-lg bg-[#EAF1FF] text-[#1D4ED8] flex items-center justify-center"><Icon className="w-5 h-5" /></span>
                       <span className="flex-1"><span className="block text-sm font-bold text-[#0F1E4A]">{m.name}</span><span className="block text-xs text-slate-600">{m.desc}</span></span>
                       <ChevronRight className="w-4 h-4 text-slate-500" />
@@ -227,15 +261,20 @@ export default function PembayaranSppSiswa() {
               {PAYMENT_METHODS.map((m) => {
                 const Icon = METHOD_ICON[m.id];
                 return (
-                  <label key={m.id} className={cn('flex items-center gap-3 rounded-xl border p-3 cursor-pointer', method === m.id ? 'border-[#1D4ED8] bg-[#EAF1FF]' : 'border-slate-200')}>
-                    <input type="radio" name="method" checked={method === m.id} onChange={() => setMethod(m.id)} className="accent-[#1D4ED8]" />
-                    <Icon className="w-5 h-5 text-[#1D4ED8]" />
-                    <span><span className="block text-sm font-bold text-[#0F1E4A]">{m.name}</span><span className="block text-xs text-slate-600">{m.desc}</span></span>
-                  </label>
+                  <div key={m.id}>
+                    <label className={cn('flex items-center gap-3 rounded-xl border p-3', m.disabled ? 'border-slate-200 opacity-50 cursor-not-allowed' : 'cursor-pointer', !m.disabled && method === m.id ? 'border-[#1D4ED8] bg-[#EAF1FF]' : 'border-slate-200')}>
+                      <input type="radio" name="method" disabled={m.disabled} checked={method === m.id} onChange={() => setMethod(m.id)} className="accent-[#1D4ED8]" />
+                      <Icon className="w-5 h-5 text-[#1D4ED8]" />
+                      <span className="flex-1"><span className="block text-sm font-bold text-[#0F1E4A]">{m.name}</span><span className="block text-xs text-slate-600">{m.desc}</span></span>
+                      {m.disabled && <span className="text-[10px] font-bold text-slate-500 bg-slate-100 rounded px-1.5 py-0.5">Nonaktif</span>}
+                    </label>
+                    {method === m.id && m.id === 'bank' && <div className="mt-2 ml-2 rounded-xl bg-slate-50 p-2.5"><p className="text-xs font-bold text-slate-600 mb-1.5">Transfer ke salah satu rekening berikut:</p><AccountList accounts={banks} empty={missing} /></div>}
+                    {method === m.id && m.id === 'ewallet' && <div className="mt-2 ml-2 rounded-xl bg-slate-50 p-2.5"><p className="text-xs font-bold text-slate-600 mb-1.5">Kirim ke salah satu akun e-wallet berikut:</p><AccountList accounts={wallets} empty={missing} /></div>}
+                  </div>
                 );
               })}
             </div>
-            <button onClick={confirmPay} className="w-full h-11 rounded-xl bg-[#1D4ED8] hover:bg-blue-800 text-white text-sm font-bold">Lanjutkan Pembayaran</button>
+            <button onClick={confirmPay} className="w-full h-11 rounded-xl bg-[#1D4ED8] hover:bg-blue-800 text-white text-sm font-bold">{method === 'bank' || method === 'ewallet' ? 'Saya Sudah Transfer' : 'Lanjutkan Pembayaran'}</button>
           </div>
         </div>
       )}

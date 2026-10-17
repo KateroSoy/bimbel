@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, PageTitle, Pill, statusTone } from '../../components/siswa/PortalUI';
 import { ATTENDANCE, SUBJECTS, STUDENT, subjectById, type SubjectId } from '../../data/siswaPortal';
+import { downloadReport } from '../../lib/pdfReport';
 
 const PAGE = 5;
 
@@ -29,20 +30,42 @@ export default function AbsensiSiswa() {
     { label: 'Alpha', value: pct(alpha), sub: `${alpha} sesi`, icon: MinusCircle, fg: '#475569', bg: '#F1F5F9' },
   ];
 
-  const downloadCsv = () => {
-    const header = ['Tanggal', 'Kelas', 'Mata Pelajaran', 'Topik', 'Guru', 'Jam', 'Status', 'Catatan'];
-    const lines = rows.map((a) => {
-      const s = subjectById(a.subjectId);
-      return [`${a.date} ${a.month} 2025`, s.className, s.name, a.topic, s.tutor, a.time, a.status, a.note ?? '-'];
-    });
-    const csv = [header, ...lines].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Rekap_Kehadiran_${STUDENT.name.replace(/\s+/g, '_')}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    toast.success('Rekap kehadiran diunduh');
+  const [busy, setBusy] = useState(false);
+  const downloadPdf = async () => {
+    setBusy(true);
+    try {
+      await downloadReport({
+        filename: `rekap-kehadiran-${STUDENT.name.toLowerCase().replace(/\s+/g, '-')}`,
+        title: 'REKAP KEHADIRAN SISWA',
+        subtitle: `Periode ${range}${subject === 'all' ? '' : ` · ${subjectById(subject).className}`}`,
+        identity: [
+          ['Nama Siswa', STUDENT.name], ['Level', STUDENT.level || '-'],
+          ['ID Siswa', STUDENT.id], ['Program', STUDENT.program || '-'],
+        ],
+        sections: [
+          {
+            title: 'A. Ringkasan',
+            head: ['Total Sesi', 'Hadir', 'Terlambat', 'Izin / Sakit', 'Alpha', 'Persentase Hadir'],
+            align: ['center', 'center', 'center', 'center', 'center', 'center'],
+            body: [[rows.length, hadir, telat, izin, alpha, pct(hadir + telat)]],
+          },
+          {
+            title: 'B. Riwayat Kehadiran',
+            head: ['No', 'Tanggal', 'Kelas', 'Mata Pelajaran / Topik', 'Tutor', 'Status', 'Catatan'],
+            widths: [9, 22, 30, 'auto', 26, 18, 24], align: ['center', 'left', 'left', 'left', 'left', 'center', 'left'],
+            body: rows.map((a, i) => {
+              const sub = subjectById(a.subjectId);
+              return [i + 1, `${a.day}, ${a.date} ${a.month}`, `${sub.className}\n${a.time}`, `${sub.name}\n${a.topic}`, sub.tutor, a.status, a.note ?? '-'];
+            }),
+          },
+        ],
+      });
+      toast.success('Rekap kehadiran (PDF) diunduh');
+    } catch {
+      toast.error('Gagal membuat PDF. Coba lagi.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -69,8 +92,8 @@ export default function AbsensiSiswa() {
             <ChevronDown className="w-4 h-4 absolute right-3 pointer-events-none text-slate-500" />
           </label>
           <div className="flex-1" />
-          <button onClick={downloadCsv} className="flex items-center gap-2 h-11 px-5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-[#0F1E4A] hover:bg-slate-50">
-            <Download className="w-4 h-4" /> Unduh Rekap
+          <button onClick={() => void downloadPdf()} disabled={busy} className="flex items-center gap-2 h-11 px-5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-[#0F1E4A] hover:bg-slate-50 disabled:opacity-60">
+            <Download className="w-4 h-4" /> {busy ? 'Menyiapkan PDF…' : 'Unduh Rekap (PDF)'}
           </button>
         </Card>
 

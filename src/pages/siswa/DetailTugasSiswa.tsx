@@ -71,7 +71,7 @@ export default function DetailTugasSiswa() {
     <DashboardLayout>
       <div className="max-w-4xl space-y-3">
         <Link to="/siswa/tugas" className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-[#1D4ED8]">
-          <ChevronLeft className="w-4 h-4" /> Kembali ke Tugas & Asesmen
+          <ChevronLeft className="w-4 h-4" /> Kembali ke Latihan dan Tugas
         </Link>
 
         <Card className="p-5 space-y-4">

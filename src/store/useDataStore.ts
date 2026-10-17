@@ -184,6 +184,12 @@ export interface SchoolSettings {
   email: string;
   principalName: string;
   website: string;
+  /** One per line: "Bank | Nomor rekening | Atas nama" */
+  bankAccounts?: string;
+  /** One per line: "DANA | Nomor | Atas nama" */
+  ewallets?: string;
+  /** Google Drive link to the app installer */
+  appDownloadUrl?: string;
 }
 
 // Student Attendance Record
@@ -356,7 +362,7 @@ interface DataState {
 type Role = 'admin' | 'guru' | 'siswa';
 type Row = Record<string, any>;
 
-const emptySettings: SchoolSettings = { schoolName: '', address: '', academicYear: '', phone: '', email: '', principalName: '', website: '' };
+const emptySettings: SchoolSettings = { schoolName: '', address: '', academicYear: '', phone: '', email: '', principalName: '', website: '', bankAccounts: '', ewallets: '', appDownloadUrl: '' };
 const fail = (e: unknown) => { toast.error(e instanceof ApiError ? e.first : 'Terjadi kesalahan.'); };
 const list = async (resource: string): Promise<Row[]> => (await api.get<{ data: Row[] }>(`/r/${resource}`)).data;
 

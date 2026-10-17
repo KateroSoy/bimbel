@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const KarirPage = lazy(() => import('./pages/KarirPage'));
+const ProgramDetailPage = lazy(() => import('./pages/ProgramDetailPage'));
 
 // Siswa
 const StudentDashboard = lazy(() => import('./pages/siswa/StudentDashboard'));
@@ -28,7 +29,6 @@ const Toefl = lazy(() => import('./pages/siswa/Toefl'));
 // Guru / Tutor
 const TeacherDashboard = lazy(() => import('./pages/guru/TeacherDashboard'));
 const KelasSaya = lazy(() => import('./pages/guru/KelasSaya'));
-const JadwalMengajar = lazy(() => import('./pages/guru/JadwalMengajar'));
 const MateriModul = lazy(() => import('./pages/guru/MateriModul'));
 const TugasAssessment = lazy(() => import('./pages/guru/TugasAssessment'));
 const PresensiKelas = lazy(() => import('./pages/guru/PresensiKelas'));
@@ -42,7 +42,6 @@ const PesanGuru = lazy(() => import('./pages/guru/PesanGuru'));
 const ProfilGuru = lazy(() => import('./pages/guru/ProfilGuru'));
 const PengaturanGuru = lazy(() => import('./pages/guru/PengaturanGuru'));
 const CourseManager = lazy(() => import('./pages/shared/CourseManager'));
-const NilaiSiswaGuru = lazy(() => import('./pages/guru/NilaiSiswaGuru'));
 const DetailKelasGuru = lazy(() => import('./pages/guru/DetailKelasGuru'));
 const DetailTugasGuru = lazy(() => import('./pages/guru/DetailTugasGuru'));
 
@@ -68,9 +67,10 @@ const HonorTutor = lazy(() => import('./pages/admin/HonorTutor'));
 const LaporanKeuangan = lazy(() => import('./pages/admin/LaporanKeuangan'));
 const KirimWaOrtu = lazy(() => import('./pages/admin/KirimWaOrtu'));
 const InventarisBimbel = lazy(() => import('./pages/admin/InventarisBimbel'));
-const ManajemenSiswa = lazy(() => import('./pages/admin/ManajemenSiswa'));
 const Laporan = lazy(() => import('./pages/admin/Laporan'));
 const PengaturanSekolah = lazy(() => import('./pages/admin/PengaturanSekolah'));
+const TesKemampuanDasar = lazy(() => import('./pages/admin/TesKemampuanDasar'));
+const AlumniPage = lazy(() => import('./pages/admin/AlumniPage'));
 
 // Shared
 const PlaygroundPage = lazy(() => import('./pages/PlaygroundPage'));
@@ -91,6 +91,7 @@ function AnimatedRoutes() {
         <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
         <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
         <Route path="/karir" element={<PageTransition><KarirPage /></PageTransition>} />
+        <Route path="/program/:slug" element={<PageTransition><ProgramDetailPage /></PageTransition>} />
         
         {/* Siswa Routes */}
         <Route path="/siswa/dashboard" element={<Guard role="siswa"><PageTransition><StudentDashboard /></PageTransition></Guard>} />
@@ -117,16 +118,16 @@ function AnimatedRoutes() {
         <Route path="/guru/dashboard" element={<Guard role="guru"><PageTransition><TeacherDashboard /></PageTransition></Guard>} />
         <Route path="/guru/kelas" element={<Guard role="guru"><PageTransition><KelasSaya /></PageTransition></Guard>} />
         <Route path="/guru/kelas/:id" element={<Guard role="guru"><PageTransition><DetailKelasGuru /></PageTransition></Guard>} />
-        <Route path="/guru/jadwal" element={<Guard role="guru"><PageTransition><JadwalMengajar /></PageTransition></Guard>} />
+        <Route path="/guru/jadwal" element={<Navigate to="/guru/kelas" replace />} />
         <Route path="/guru/course" element={<Guard role="guru"><PageTransition><MateriModul /></PageTransition></Guard>} />
-        <Route path="/guru/course/kelola" element={<Guard role="guru"><PageTransition><CourseManager /></PageTransition></Guard>} />
+        <Route path="/guru/course/kelola" element={<Navigate to="/guru/course" replace />} />
         <Route path="/guru/tugas" element={<Guard role="guru"><PageTransition><TugasAssessment /></PageTransition></Guard>} />
         <Route path="/guru/tugas/:id" element={<Guard role="guru"><PageTransition><DetailTugasGuru /></PageTransition></Guard>} />
         <Route path="/guru/quiz" element={<Guard role="guru"><PageTransition><TugasAssessment /></PageTransition></Guard>} />
         <Route path="/guru/absensi" element={<Guard role="guru"><PageTransition><PresensiKelas /></PageTransition></Guard>} />
         <Route path="/guru/siswa" element={<Guard role="guru"><PageTransition><SiswaSaya /></PageTransition></Guard>} />
         <Route path="/guru/nilai" element={<Guard role="guru"><PageTransition><NilaiProgress /></PageTransition></Guard>} />
-        <Route path="/guru/nilai/input" element={<Guard role="guru"><PageTransition><NilaiSiswaGuru /></PageTransition></Guard>} />
+        <Route path="/guru/nilai/input" element={<Navigate to="/guru/tugas?tab=rekap" replace />} />
         <Route path="/guru/progress-siswa" element={<Guard role="guru"><PageTransition><SiswaPerluPerhatian /></PageTransition></Guard>} />
         <Route path="/guru/bank-soal" element={<Guard role="guru"><PageTransition><BankSoalGuru /></PageTransition></Guard>} />
         <Route path="/guru/ai-bahan-ajar" element={<Guard role="guru"><PageTransition><AiBahanAjar /></PageTransition></Guard>} />
@@ -142,7 +143,7 @@ function AnimatedRoutes() {
         <Route path="/admin/siswa" element={<Guard role="admin"><PageTransition><DataSiswa /></PageTransition></Guard>} />
         <Route path="/admin/pendaftaran" element={<Guard role="admin"><PageTransition><PendaftaranSiswa /></PageTransition></Guard>} />
         <Route path="/admin/ortu" element={<Guard role="admin"><PageTransition><OrangTuaWali /></PageTransition></Guard>} />
-        <Route path="/admin/alumni" element={<Guard role="admin"><PageTransition><ManajemenSiswa /></PageTransition></Guard>} />
+        <Route path="/admin/alumni" element={<Guard role="admin"><PageTransition><AlumniPage /></PageTransition></Guard>} />
         <Route path="/admin/guru" element={<Guard role="admin"><PageTransition><DataTutorStaff /></PageTransition></Guard>} />
         <Route path="/admin/jadwal-tutor" element={<Guard role="admin"><PageTransition><JadwalTutor /></PageTransition></Guard>} />
         <Route path="/admin/kehadiran-tutor" element={<Guard role="admin"><PageTransition><KehadiranTutor /></PageTransition></Guard>} />
@@ -160,10 +161,11 @@ function AnimatedRoutes() {
         <Route path="/admin/laporan-keuangan" element={<Guard role="admin"><PageTransition><LaporanKeuangan /></PageTransition></Guard>} />
         <Route path="/admin/whatsapp" element={<Guard role="admin"><PageTransition><KirimWaOrtu /></PageTransition></Guard>} />
         <Route path="/admin/broadcast" element={<Guard role="admin"><PageTransition><KirimWaOrtu /></PageTransition></Guard>} />
-        <Route path="/admin/template" element={<Guard role="admin"><PageTransition><KirimWaOrtu /></PageTransition></Guard>} />
+        <Route path="/admin/template" element={<Navigate to="/admin/whatsapp" replace />} />
         <Route path="/admin/inventaris" element={<Guard role="admin"><PageTransition><InventarisBimbel /></PageTransition></Guard>} />
         <Route path="/admin/buku" element={<Guard role="admin"><PageTransition><InventarisBimbel /></PageTransition></Guard>} />
-        <Route path="/admin/cbt" element={<Guard role="admin"><PageTransition><InventarisBimbel /></PageTransition></Guard>} />
+        <Route path="/admin/tes-dasar" element={<Guard role="admin"><PageTransition><TesKemampuanDasar /></PageTransition></Guard>} />
+        <Route path="/admin/cbt" element={<Navigate to="/admin/tes-dasar" replace />} />
         <Route path="/admin/laporan" element={<Guard role="admin"><PageTransition><Laporan /></PageTransition></Guard>} />
         <Route path="/admin/laporan-siswa" element={<Guard role="admin"><PageTransition><Laporan /></PageTransition></Guard>} />
         <Route path="/admin/laporan-kelas" element={<Guard role="admin"><PageTransition><Laporan /></PageTransition></Guard>} />

@@ -1,5 +1,5 @@
 import { BookOpen, FileText, BookMarked, Printer, Download, BadgePercent, RefreshCw, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { LINKS } from '../../lib/contact';
 
 const LEFT_FEATURES = [
   { icon: BookOpen, color: 'text-[#205C96]', title: 'Modul Pembelajaran', desc: 'Materi lengkap dan terstruktur' },
@@ -15,12 +15,6 @@ const RIGHT_FEATURES = [
 ];
 
 export function ProdukDigitalSection() {
-  const handleProductClick = (title: string) => {
-    toast.success(`Membuka katalog: ${title}`, {
-      description: "Pembayaran produk digital diproses terpisah dari pembayaran bimbel."
-    });
-  };
-
   return (
     <section id="produk-digital" className="py-10 bg-white scroll-mt-32">
       <div className="max-w-[1240px] mx-auto px-6">
@@ -48,17 +42,19 @@ export function ProdukDigitalSection() {
             </div>
 
             {/* Center: book covers */}
-            <button
-              onClick={() => handleProductClick('Modul, Worksheet & Buku Latihan')}
-              className="block cursor-pointer group"
-              aria-label="Lihat produk digital"
+            <a
+              href={LINKS.lynk}
+              target="_blank"
+              rel="noreferrer"
+              className="block group"
+              aria-label="Lihat produk digital di Lynk"
             >
               <img
                 src="/assets/landing/produk-books-hd.jpg"
                 alt="Modul Matematika, Worksheet Bahasa Inggris, dan Buku Latihan UTBK"
                 className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-300"
               />
-            </button>
+            </a>
 
             {/* Right: benefits card */}
             <div className="bg-white rounded-2xl border border-[#DCE3EE] shadow-sm p-5 space-y-5">
@@ -75,12 +71,14 @@ export function ProdukDigitalSection() {
           </div>
 
           <div className="text-center mt-6">
-            <button
-              onClick={() => handleProductClick("Semua Produk Digital")}
-              className="inline-flex items-center gap-3 h-11 px-8 rounded-full bg-[#062564] text-white text-sm font-extrabold hover:bg-blue-900 transition-colors shadow-lg shadow-blue-900/20 cursor-pointer"
+            <a
+              href={LINKS.lynk}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-3 h-11 px-8 rounded-full bg-[#062564] text-white text-sm font-extrabold hover:bg-blue-900 transition-colors shadow-lg shadow-blue-900/20"
             >
               Lihat Semua Produk <ArrowRight className="w-4 h-4" />
-            </button>
+            </a>
           </div>
         </div>
       </div>

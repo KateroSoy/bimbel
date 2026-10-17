@@ -2,17 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { MessageCircleMore, Plus, Search, Star, Send, Paperclip, CheckCheck, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { PageHead, Avatar, RowMenu, FormDialog, soon } from '../../components/portal/Kit';
+import { PageHead, Avatar, RowMenu, Modal, Btn, soon } from '../../components/portal/Kit';
+import { useFetch } from '../../store/useRemote';
 import { type Conversation } from '../../data/guruPortal';
 import { useResource } from '../../store/useRemote';
 import { cn } from '../../lib/utils';
 
 const TABS = ['Semua', 'Belum Dibaca', 'Dibintangi'] as const;
 const now = () => new Date().toTimeString().slice(0, 5).replace(':', '.');
+const ALLOWED = ['Siswa', 'Admin', 'Tutor'];
+type Contact = { name: string; role: string; sub: string };
 
 export default function PesanGuru() {
   const remote = useResource<Conversation>('conversations');
-  const chats = remote.rows;
+  // Only students of the tutor's classes, the admin team and fellow tutors
+  const chats = remote.rows.filter((c) => ALLOWED.includes(c.role));
+  const contacts = useFetch<{ data: Contact[] }>('/guru/contacts')?.data ?? [];
+  const [to, setTo] = useState('');
+  const [firstText, setFirstText] = useState('');
   const [activeId, setActiveId] = useState('');
   const [tab, setTab] = useState<(typeof TABS)[number]>('Semua');
   const [q, setQ] = useState('');
@@ -39,7 +46,7 @@ export default function PesanGuru() {
   return (
     <DashboardLayout>
       <div className="space-y-4 max-w-[1300px]">
-        <PageHead title={<span className="flex items-center gap-2">Pesan <MessageCircleMore className="w-5 h-5 text-[#1D4ED8]" /></span>} subtitle="Komunikasi mudah antara guru, siswa, dan orang tua." />
+        <PageHead title={<span className="flex items-center gap-2">Pesan <MessageCircleMore className="w-5 h-5 text-[#1D4ED8]" /></span>} subtitle="Pesan dengan siswa di kelas yang Anda ajar, admin, dan sesama tutor." />
 
         <div className="grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] gap-4 lg:h-[calc(100vh-190px)] lg:min-h-[520px]">
           <section className={cn('bg-white rounded-2xl border border-slate-200/80 flex-col min-h-0', mobileOpen ? 'hidden lg:flex' : 'flex')}>
@@ -122,17 +129,42 @@ export default function PesanGuru() {
           </section>
         </div>
 
-        <FormDialog
-          open={composing}
-          title="Pesan Baru"
-          submitLabel="Kirim"
-          fields={[{ key: 'name', label: 'Kepada', required: true, placeholder: 'Nama siswa / orang tua' }, { key: 'role', label: 'Sebagai', type: 'select', options: ['Orang Tua Siswa', 'Siswa', 'Admin'] }, { key: 'text', label: 'Pesan', type: 'textarea', required: true }]}
-          onClose={() => setComposing(false)}
-          onSubmit={async (v) => {
-            const chat = await remote.create({ name: v.name, role: v.role, time: now(), preview: v.text.slice(0, 180), unread: 0, starred: false, messages: [{ from: 'me', text: v.text, time: now() }] });
-            if (chat) { setActiveId(chat.id); setMobileOpen(true); }
-          }}
-        />
+        <Modal open={composing} title="Pesan Baru" onClose={() => setComposing(false)} footer={<>
+          <Btn variant="ghost" onClick={() => setComposing(false)}>Batal</Btn>
+          <Btn variant="primary" icon={Send} onClick={async () => {
+            const contact = contacts.find((c) => `${c.role}|${c.name}` === to);
+            if (!contact || !firstText.trim()) { toast.error('Pilih penerima dan tulis pesan'); return; }
+            const existing = chats.find((c) => c.name === contact.name && c.role === contact.role);
+            if (existing) {
+              await patch(existing.id, { messages: [...(existing.messages ?? []), { from: 'me', text: firstText.trim(), time: now() }], preview: firstText.trim().slice(0, 180), time: now() });
+              setActiveId(existing.id);
+            } else {
+              const chat = await remote.create({ name: contact.name, role: contact.role, time: now(), preview: firstText.trim().slice(0, 180), unread: 0, starred: false, messages: [{ from: 'me', text: firstText.trim(), time: now() }] });
+              if (chat) setActiveId(chat.id);
+            }
+            setMobileOpen(true); setComposing(false); setTo(''); setFirstText('');
+          }}>Kirim</Btn>
+        </>}>
+          <div className="space-y-3">
+            <label className="block"><span className="block text-xs font-bold text-slate-700 mb-1">Kepada</span>
+              <select value={to} onChange={(e) => setTo(e.target.value)} className="w-full h-10 px-3 rounded-lg border border-slate-200 text-[13px] font-medium outline-none focus:border-[#1D4ED8] bg-white">
+                <option value="">Pilih penerima…</option>
+                {(['Admin', 'Tutor', 'Siswa'] as const).map((role) => {
+                  const group = contacts.filter((c) => c.role === role);
+                  return group.length ? (
+                    <optgroup key={role} label={role === 'Siswa' ? 'Siswa di kelas saya' : role === 'Tutor' ? 'Tutor' : 'Admin'}>
+                      {group.map((c) => <option key={`${c.role}|${c.name}`} value={`${c.role}|${c.name}`}>{c.name}{c.sub ? ` · ${c.sub}` : ''}</option>)}
+                    </optgroup>
+                  ) : null;
+                })}
+              </select>
+            </label>
+            <label className="block"><span className="block text-xs font-bold text-slate-700 mb-1">Pesan</span>
+              <textarea value={firstText} onChange={(e) => setFirstText(e.target.value)} rows={4} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] font-medium outline-none focus:border-[#1D4ED8]" />
+            </label>
+            <p className="text-[11px] text-slate-500 font-medium">Penerima terbatas pada siswa di kelas yang Anda ajar, admin, dan sesama tutor.</p>
+          </div>
+        </Modal>
       </div>
     </DashboardLayout>
   );

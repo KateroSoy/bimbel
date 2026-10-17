@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Save, Building2, MapPin, Calendar, Phone, Mail, UserCheck, Globe, RotateCcw } from 'lucide-react';
+import { Save, Building2, MapPin, Calendar, Phone, Mail, UserCheck, Globe, RotateCcw, Landmark, Wallet, Smartphone } from 'lucide-react';
 import { useDataStore } from '../../store/useDataStore';
 import { toast } from 'sonner';
 
@@ -138,6 +138,49 @@ export default function PengaturanSekolah() {
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition-colors font-medium text-sm" 
+              />
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <h3 className="text-base font-bold text-slate-900">Pembayaran & Aplikasi</h3>
+              <p className="text-xs text-slate-500 font-medium">Ditampilkan ke siswa di menu Pembayaran. Tulis satu akun per baris dengan format: <code className="bg-slate-100 px-1 rounded">Bank | Nomor | Atas nama</code></p>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-1.5">
+                <Landmark className="w-3.5 h-3.5 text-blue-600" /> Rekening Bank (Transfer)
+              </label>
+              <textarea
+                rows={4}
+                value={formData.bankAccounts ?? ''}
+                onChange={(e) => setFormData({ ...formData, bankAccounts: e.target.value })}
+                placeholder="BCA | nomor rekening | atas nama"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition-colors font-medium text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-1.5">
+                <Wallet className="w-3.5 h-3.5 text-blue-600" /> E-Wallet (DANA, ShopeePay, dll)
+              </label>
+              <textarea
+                rows={4}
+                value={formData.ewallets ?? ''}
+                onChange={(e) => setFormData({ ...formData, ewallets: e.target.value })}
+                placeholder="DANA | nomor | atas nama"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition-colors font-medium text-sm"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-1.5">
+                <Smartphone className="w-3.5 h-3.5 text-blue-600" /> Link Download Aplikasi (Google Drive)
+              </label>
+              <input
+                type="url"
+                value={formData.appDownloadUrl ?? ''}
+                onChange={(e) => setFormData({ ...formData, appDownloadUrl: e.target.value })}
+                placeholder="https://drive.google.com/…"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition-colors font-medium text-sm"
               />
             </div>
           </div>

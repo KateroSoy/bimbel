@@ -71,6 +71,13 @@ Read: admin · Write: admin · Required: name
 | `status` | VARCHAR(191) NULL | `status` |
 | `stage` | VARCHAR(191) NULL | `stage` |
 | `stage_note` | VARCHAR(191) NULL | `stageNote` |
+| `parent_name` | VARCHAR(191) NULL | `parentName` |
+| `phone` | VARCHAR(191) NULL | `phone` |
+| `email` | VARCHAR(191) NULL | `email` |
+| `school` | VARCHAR(191) NULL | `school` |
+| `level` | VARCHAR(191) NULL | `level` |
+| `method` | VARCHAR(191) NULL | `method` |
+| `note` | TEXT NULL | `note` |
 
 ### `guardians` — `/api/r/guardians`
 
@@ -304,6 +311,44 @@ Read: admin · Write: admin · Required: title
 | `tone` | VARCHAR(191) NULL | `tone` |
 | `unread` | TINYINT(1) DEFAULT 0 | `unread` |
 
+### `placement_tests` — `/api/r/placement-tests`
+
+Read: admin · Write: admin · Required: name, subject
+
+| Column | Type | JSON key |
+|---|---|---|
+| `name` | VARCHAR(191) NULL | `name` |
+| `age` | INT DEFAULT 0 | `age` |
+| `grade` | VARCHAR(191) NULL | `grade` |
+| `school` | VARCHAR(191) NULL | `school` |
+| `parent` | VARCHAR(191) NULL | `parent` |
+| `phone` | VARCHAR(191) NULL | `phone` |
+| `subject` | VARCHAR(191) NULL | `subject` |
+| `correct` | INT DEFAULT 0 | `correct` |
+| `total` | INT DEFAULT 0 | `total` |
+| `score` | INT DEFAULT 0 | `score` |
+| `level` | VARCHAR(191) NULL | `level` |
+| `answers` | JSON NULL | `answers` |
+| `date` | VARCHAR(191) NULL | `date` |
+| `status` | VARCHAR(191) NULL | `status` |
+| `note` | TEXT NULL | `note` |
+
+### `alumni` — `/api/r/alumni`
+
+Read: admin · Write: admin · Required: name
+
+| Column | Type | JSON key |
+|---|---|---|
+| `name` | VARCHAR(191) NULL | `name` |
+| `program` | VARCHAR(191) NULL | `program` |
+| `year` | VARCHAR(191) NULL | `year` |
+| `school` | VARCHAR(191) NULL | `school` |
+| `continued_to` | VARCHAR(191) NULL | `continuedTo` |
+| `achievement` | VARCHAR(191) NULL | `achievement` |
+| `phone` | VARCHAR(191) NULL | `phone` |
+| `status` | VARCHAR(191) NULL | `status` |
+| `note` | TEXT NULL | `note` |
+
 ### `inventory_items` — `/api/r/inventory-items`
 
 Read: admin · Write: admin · Required: name
@@ -490,6 +535,7 @@ Read: admin, guru, siswa · Write: admin, guru · Required: topic
 | `status` | VARCHAR(191) NULL | `status` |
 | `meet_url` | VARCHAR(191) NULL | `meetUrl` |
 | `opened_by_tutor` | TINYINT(1) DEFAULT 0 | `openedByTutor` |
+| `mode` | VARCHAR(191) NULL | `mode` |
 
 ### `student_subjects` — `/api/r/student-subjects`
 
@@ -545,6 +591,9 @@ Read: admin, guru · Write: admin, guru · Owner scope: tutor (`owner_id`) · Re
 | `students` | INT DEFAULT 0 | `students` |
 | `status` | VARCHAR(191) NULL | `status` |
 | `tone` | VARCHAR(191) NULL | `tone` |
+| `mode` | VARCHAR(191) NULL | `mode` |
+| `meet_url` | VARCHAR(191) NULL | `meetUrl` |
+| `room` | VARCHAR(191) NULL | `room` |
 
 ### `teach_sessions` — `/api/r/teach-sessions`
 
@@ -643,6 +692,7 @@ Read: admin, guru · Write: admin, guru · Owner scope: tutor (`owner_id`) · Re
 | `level` | VARCHAR(191) NULL | `level` |
 | `mine` | TINYINT(1) DEFAULT 0 | `mine` |
 | `fav` | TINYINT(1) DEFAULT 0 | `fav` |
+| `folder` | VARCHAR(191) NULL | `folder` |
 
 ### `ai_results` — `/api/r/ai-results`
 

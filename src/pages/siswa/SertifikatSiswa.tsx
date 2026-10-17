@@ -47,7 +47,7 @@ export default function SertifikatSiswa() {
                 </div>
               </div>
 
-              <div className="py-3 px-4 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center text-xs text-slate-600 font-mono mb-4">
+              <div className="py-3 px-4 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center text-xs text-slate-600 tabular-nums mb-4">
                 <span>No. Kredensial:</span>
                 <span className="font-bold text-slate-900">{s.credentialId}</span>
               </div>

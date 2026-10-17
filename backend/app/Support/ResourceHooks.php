@@ -16,6 +16,10 @@ class ResourceHooks
         if ($name === 'submissions') {
             return $user->role === 'siswa' ? ['assignmentId', 'answers', 'fileName'] : ['score', 'feedback', 'status'];
         }
+        // Tutors prepare the content of courses the admin created; they do not rename or reassign them.
+        if ($name === 'courses' && $user->role === 'guru') {
+            return ['description', 'status', 'videoUrl', 'images', 'documents'];
+        }
 
         return null;
     }
@@ -27,6 +31,8 @@ class ResourceHooks
             'submissions' => ['score' => ['min:0', 'max:100'], 'status' => ['in:Dinilai,Perlu Dinilai']],
             'schedules' => ['day' => ['between:0,6'], 'slot' => ['between:0,23']],
             'staff', 'guardians', 'students' => ['email' => ['email']],
+            // Tutors talk with students of their classes, the admin team and fellow tutors only
+            'conversations' => ['role' => ['in:Siswa,Admin,Tutor']],
             default => [],
         };
     }
@@ -34,6 +40,10 @@ class ResourceHooks
     /** Adjust or reject column values before they are written. */
     public static function saving(string $name, array $data, User $user, ?Record $existing): array
     {
+        if ($name === 'courses' && $user->role === 'guru' && ! $existing) {
+            throw new HttpException(403, 'Kursus baru hanya dapat ditambahkan oleh Admin.');
+        }
+
         return match ($name) {
             'schedules' => self::schedule($data, $existing),
             'bills' => self::bill($data, $existing),

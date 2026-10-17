@@ -640,13 +640,16 @@
   }
  ],
  "initialSchoolSettings": {
-  "schoolName": "Bimbel Bintang Prestasi (LearnSpace+ Indonesia)",
-  "address": "Jl. Pemuda Pendidikan No. 88, Jakarta Selatan, DKI Jakarta 12430",
-  "academicYear": "2024/2025 - Program Persiapan UTBK & Kedinasan",
-  "phone": "(021) 7890-1234 / 0812-9988-7766",
-  "email": "halo@LearnSpace+.id",
-  "principalName": "Dr. H. Muhammad Ridwan, M.Pd. (Direktur Bimbel)",
-  "website": "https://LearnSpace+.id"
+  "schoolName": "StudyHack Education Center",
+  "address": "Jl. Denai No. 152, Tegal Sari Mandala III, Medan Denai, Kota Medan",
+  "academicYear": "2026/2027",
+  "phone": "0812-8591-7614",
+  "email": "help.studyhack@gmail.com",
+  "principalName": "Muhammad Heikal Hasan, S.T., M.Eng., M.P.A.",
+  "website": "",
+  "bankAccounts": "",
+  "ewallets": "",
+  "appDownloadUrl": ""
  },
  "initialStudents": [
   {

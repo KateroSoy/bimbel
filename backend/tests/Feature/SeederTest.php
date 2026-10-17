@@ -29,7 +29,7 @@ class SeederTest extends TestCase
         $this->assertDatabaseHas('students', ['ref' => DatabaseSeeder::STUDENT_REF, 'user_id' => User::where('role', 'siswa')->value('id')]);
         $this->assertSame(5, DB::table('course_enrollments')->count());
         $this->assertGreaterThan(0, DB::table('lesson_progress')->count());
-        $this->assertSame(7, DB::table('settings')->count());
+        $this->assertSame(10, DB::table('settings')->count());
         $this->assertSame(0, DB::table('assignments')->whereNull('mode')->count());
 
         // running it again must not duplicate anything

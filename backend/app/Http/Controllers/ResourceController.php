@@ -90,7 +90,7 @@ class ResourceController extends Controller
     public function destroy(Request $request, string $resource, string $id): JsonResponse
     {
         $user = $this->authorizeFor($request, $resource, 'write');
-        if ($resource === 'submissions' && $user->role === 'siswa') {
+        if (($resource === 'submissions' && $user->role === 'siswa') || ($resource === 'courses' && $user->role === 'guru')) {
             abort(403);
         }
         $row = $this->scoped($resource, $user)->where('ref', $id)->firstOrFail();

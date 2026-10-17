@@ -6,16 +6,16 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { api, ApiError } from '../../lib/api';
 import { useAppStore } from '../../store/useAppStore';
 
-type Course = { id: string; title: string; category?: string; subjectId?: string; description?: string; status?: string };
+type Course = { id: string; title: string; category?: string; subjectId?: string; description?: string; status?: string; instructor?: string };
 type Lesson = { id: string; title: string; kind: string; duration?: string; videoUrl?: string; about?: string };
 type Module = { id: string; title: string; locked: boolean; lessons: Lesson[] };
 type Enrollment = { studentId: string; name: string };
 type Student = { id: string; name: string };
-type CourseForm = { id?: string; title: string; category: string; subjectId: string; description: string; status: string };
+type CourseForm = { id?: string; title: string; category: string; subjectId: string; description: string; status: string; instructor: string };
 type ModuleForm = { id?: string; title: string; locked: boolean };
 type LessonForm = { id?: string; moduleId: string; title: string; kind: string; duration: string; videoUrl: string; about: string };
 
-const emptyCourse = (): CourseForm => ({ title: '', category: '', subjectId: '', description: '', status: 'Draft' });
+const emptyCourse = (): CourseForm => ({ title: '', category: '', subjectId: '', description: '', status: 'Draft', instructor: '' });
 const emptyModule = (): ModuleForm => ({ title: '', locked: false });
 const emptyLesson = (moduleId: string): LessonForm => ({ moduleId, title: '', kind: 'video', duration: '', videoUrl: '', about: '' });
 const input = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none';
@@ -29,6 +29,7 @@ export default function CourseManager() {
   const [modules, setModules] = useState<Module[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [tutors, setTutors] = useState<string[]>([]);
   const [studentId, setStudentId] = useState('');
   const [courseForm, setCourseForm] = useState<CourseForm | null>(null);
   const [moduleForm, setModuleForm] = useState<ModuleForm | null>(null);
@@ -68,13 +69,15 @@ export default function CourseManager() {
     let active = true;
     const load = async () => {
       try {
-        const [courseResult, studentResult] = await Promise.all([
+        const [courseResult, studentResult, staffResult] = await Promise.all([
           api.get<{ data: Course[] }>('/r/courses'),
           isAdmin ? api.get<{ data: Student[] }>('/r/students') : Promise.resolve({ data: [] as Student[] }),
+          isAdmin ? api.get<{ data: { name: string; role: string }[] }>('/r/staff') : Promise.resolve({ data: [] as { name: string; role: string }[] }),
         ]);
         if (!active) return;
         setCourses(courseResult.data);
         setStudents(studentResult.data);
+        setTutors(staffResult.data.filter((s) => s.role === 'Tutor').map((s) => s.name));
         setSelected(courseResult.data[0]?.id ?? '');
       } catch (cause) { if (active) setError(message(cause)); }
     };
@@ -130,7 +133,7 @@ export default function CourseManager() {
   return <DashboardLayout>
     <div className="mx-auto max-w-6xl space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div><h1 className="text-3xl font-display font-bold text-slate-900">Course Digital</h1><p className="mt-1 text-sm text-slate-600">Kelola course, modul, materi, dan peserta dari database.</p></div>
+        <div><h1 className="text-3xl font-display font-bold text-slate-900">Kursus Digital</h1><p className="mt-1 text-sm text-slate-600">Tambah kursus, tentukan tutor pengampu, dan daftarkan siswa. Tutor mengisi materinya di menu Materi & Modul.</p></div>
         <button type="button" data-testid="add-course" className={button} onClick={() => setCourseForm(emptyCourse())}><Plus className="mr-1 inline h-4 w-4" />Tambah Course</button>
       </div>
       {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error} <button type="button" className="ml-2 font-bold underline" onClick={() => { setError(''); void loadCourses().then(() => selected && loadDetail(selected)).catch((cause) => setError(message(cause))); }}>Coba lagi</button></div>}
@@ -146,8 +149,8 @@ export default function CourseManager() {
           {activeCourse && <>
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div><h2 className="text-xl font-bold text-slate-900">{activeCourse.title}</h2><p className="mt-1 text-sm text-slate-600">{activeCourse.category || 'Tanpa kategori'} · {activeCourse.status || 'Draft'} · {enrollments.length} peserta</p><p className="mt-2 text-sm text-slate-600">{activeCourse.description}</p></div>
-                <div className="flex gap-2"><button type="button" className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700" onClick={() => setCourseForm({ id: activeCourse.id, title: activeCourse.title, category: activeCourse.category ?? '', subjectId: activeCourse.subjectId ?? '', description: activeCourse.description ?? '', status: activeCourse.status ?? 'Draft' })}>Ubah</button><button type="button" className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-700" onClick={() => { if (confirm(`Hapus course ${activeCourse.title} beserta seluruh modul dan progresnya?`)) void run(() => api.del(`/r/courses/${encodeURIComponent(activeCourse.id)}`), 'Course dihapus.', false); }}>Hapus</button></div>
+                <div><h2 className="text-xl font-bold text-slate-900">{activeCourse.title}</h2><p className="mt-1 text-sm text-slate-600">{activeCourse.category || 'Tanpa kategori'} · {activeCourse.status || 'Draft'} · {enrollments.length} peserta · Tutor: {activeCourse.instructor || 'belum ditentukan'}</p><p className="mt-2 text-sm text-slate-600">{activeCourse.description}</p></div>
+                <div className="flex gap-2"><button type="button" className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700" onClick={() => setCourseForm({ id: activeCourse.id, title: activeCourse.title, category: activeCourse.category ?? '', subjectId: activeCourse.subjectId ?? '', description: activeCourse.description ?? '', status: activeCourse.status ?? 'Draft', instructor: activeCourse.instructor ?? '' })}>Ubah</button><button type="button" className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-700" onClick={() => { if (confirm(`Hapus course ${activeCourse.title} beserta seluruh modul dan progresnya?`)) void run(() => api.del(`/r/courses/${encodeURIComponent(activeCourse.id)}`), 'Course dihapus.', false); }}>Hapus</button></div>
               </div>
             </section>
 
@@ -171,7 +174,7 @@ export default function CourseManager() {
         </div>
       </div>
 
-      {courseForm && <section id="course-editor" className="rounded-2xl border border-blue-200 bg-white p-5 shadow-sm"><h2 className="mb-3 text-lg font-bold text-slate-900">{courseForm.id ? 'Ubah Course' : 'Course Baru'}</h2><form data-testid="course-form" className="grid gap-3 md:grid-cols-2" onSubmit={saveCourse}><label className="text-sm font-semibold">Judul<input className={input} value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} required maxLength={191} /></label><label className="text-sm font-semibold">Kategori<input className={input} value={courseForm.category} onChange={(event) => setCourseForm({ ...courseForm, category: event.target.value })} maxLength={191} /></label><label className="text-sm font-semibold">ID Mata Pelajaran<input className={input} value={courseForm.subjectId} onChange={(event) => setCourseForm({ ...courseForm, subjectId: event.target.value })} maxLength={191} /></label><label className="text-sm font-semibold">Status<select className={input} value={courseForm.status} onChange={(event) => setCourseForm({ ...courseForm, status: event.target.value })}><option>Draft</option><option>Published</option></select></label><label className="text-sm font-semibold md:col-span-2">Deskripsi<textarea className={input} rows={3} value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} /></label><div className="flex gap-2 md:col-span-2"><button type="submit" disabled={busy} className={button}>Simpan</button><button type="button" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold" onClick={() => setCourseForm(null)}>Batal</button></div></form></section>}
+      {courseForm && <section id="course-editor" className="rounded-2xl border border-blue-200 bg-white p-5 shadow-sm"><h2 className="mb-3 text-lg font-bold text-slate-900">{courseForm.id ? 'Ubah Course' : 'Course Baru'}</h2><form data-testid="course-form" className="grid gap-3 md:grid-cols-2" onSubmit={saveCourse}><label className="text-sm font-semibold">Judul<input className={input} value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} required maxLength={191} /></label><label className="text-sm font-semibold">Kategori<input className={input} value={courseForm.category} onChange={(event) => setCourseForm({ ...courseForm, category: event.target.value })} maxLength={191} /></label><label className="text-sm font-semibold">ID Mata Pelajaran<input className={input} value={courseForm.subjectId} onChange={(event) => setCourseForm({ ...courseForm, subjectId: event.target.value })} maxLength={191} /></label>{isAdmin && <label className="text-sm font-semibold">Tutor Pengampu<input className={input} list="tutor-names" value={courseForm.instructor} onChange={(event) => setCourseForm({ ...courseForm, instructor: event.target.value })} maxLength={191} placeholder="Pilih atau ketik nama tutor" /><datalist id="tutor-names">{tutors.map((name) => <option key={name} value={name} />)}</datalist></label>}<label className="text-sm font-semibold">Status<select className={input} value={courseForm.status} onChange={(event) => setCourseForm({ ...courseForm, status: event.target.value })}><option>Draft</option><option>Published</option></select></label><label className="text-sm font-semibold md:col-span-2">Deskripsi<textarea className={input} rows={3} value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} /></label><div className="flex gap-2 md:col-span-2"><button type="submit" disabled={busy} className={button}>Simpan</button><button type="button" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold" onClick={() => setCourseForm(null)}>Batal</button></div></form></section>}
       {moduleForm && <section id="module-editor" className="rounded-2xl border border-blue-200 bg-white p-5 shadow-sm"><h2 className="mb-3 text-lg font-bold">{moduleForm.id ? 'Ubah Modul' : 'Modul Baru'}</h2><form data-testid="module-form" className="space-y-3" onSubmit={saveModule}><label className="block text-sm font-semibold">Judul<input className={input} value={moduleForm.title} onChange={(event) => setModuleForm({ ...moduleForm, title: event.target.value })} required maxLength={191} /></label><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={moduleForm.locked} onChange={(event) => setModuleForm({ ...moduleForm, locked: event.target.checked })} />Kunci untuk siswa</label><div className="flex gap-2"><button type="submit" disabled={busy} className={button}>Simpan</button><button type="button" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold" onClick={() => setModuleForm(null)}>Batal</button></div></form></section>}
       {lessonForm && <section id="lesson-editor" className="rounded-2xl border border-blue-200 bg-white p-5 shadow-sm"><h2 className="mb-3 text-lg font-bold">{lessonForm.id ? 'Ubah Materi' : 'Materi Baru'}</h2><form data-testid="lesson-form" className="grid gap-3 md:grid-cols-2" onSubmit={saveLesson}><label className="text-sm font-semibold">Judul<input className={input} value={lessonForm.title} onChange={(event) => setLessonForm({ ...lessonForm, title: event.target.value })} required maxLength={191} /></label><label className="text-sm font-semibold">Jenis<select className={input} value={lessonForm.kind} onChange={(event) => setLessonForm({ ...lessonForm, kind: event.target.value })}>{['video', 'catatan', 'contoh', 'latihan'].map((kind) => <option key={kind} value={kind}>{kind}</option>)}</select></label><label className="text-sm font-semibold">Durasi<input className={input} value={lessonForm.duration} onChange={(event) => setLessonForm({ ...lessonForm, duration: event.target.value })} maxLength={40} /></label><label className="text-sm font-semibold">URL Video<input type="url" className={input} value={lessonForm.videoUrl} onChange={(event) => setLessonForm({ ...lessonForm, videoUrl: event.target.value })} /></label><label className="text-sm font-semibold md:col-span-2">Isi / ringkasan<textarea className={input} rows={4} value={lessonForm.about} onChange={(event) => setLessonForm({ ...lessonForm, about: event.target.value })} /></label><div className="flex gap-2 md:col-span-2"><button type="submit" disabled={busy} className={button}>Simpan</button><button type="button" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold" onClick={() => setLessonForm(null)}>Batal</button></div></form></section>}
     </div>

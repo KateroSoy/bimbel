@@ -47,6 +47,7 @@ import { STUDENT } from '../../data/siswaPortal';
 import { cn } from '../../lib/utils';
 import { api } from '../../lib/api';
 import { useAppStore } from '../../store/useAppStore';
+import { openAppDownload } from '../../lib/contact';
 
 import { Logo } from '../ui/Logo';
 import { CommandPalette } from './CommandPalette';
@@ -76,9 +77,9 @@ const getSidebarItems = (role: string): SidebarSection[] => {
         {
           heading: 'BELAJAR',
           items: [
-            { title: 'Jadwal Live Tutor', path: '/siswa/jadwal', icon: <CalendarDays className="w-5 h-5" /> },
-            { title: 'Course & Materi', path: '/siswa/course', icon: <BookOpen className="w-5 h-5" /> },
-            { title: 'Tugas & Assessment', path: '/siswa/tugas', icon: <ClipboardList className="w-5 h-5" /> },
+            { title: 'Jadwal Kelas', path: '/siswa/jadwal', icon: <CalendarDays className="w-5 h-5" /> },
+            { title: 'Kursus & Materi', path: '/siswa/course', icon: <BookOpen className="w-5 h-5" /> },
+            { title: 'Latihan dan Tugas', path: '/siswa/tugas', icon: <ClipboardList className="w-5 h-5" /> },
           ]
         },
         {
@@ -113,8 +114,7 @@ const getSidebarItems = (role: string): SidebarSection[] => {
         {
           heading: 'MENGAJAR',
           items: [
-            { title: 'Kelas Saya', path: '/guru/kelas', icon: <UsersRound className="w-5 h-5" /> },
-            { title: 'Jadwal Mengajar', path: '/guru/jadwal', icon: <Calendar className="w-5 h-5" /> },
+            { title: 'Jadwal Mengajar', path: '/guru/kelas', icon: <Calendar className="w-5 h-5" /> },
             { title: 'Materi & Modul', path: '/guru/course', icon: <BookOpen className="w-5 h-5" /> },
             { title: 'Tugas & Assessment', path: '/guru/tugas', icon: <PenTool className="w-5 h-5" /> },
             { title: 'Presensi', path: '/guru/absensi', icon: <UserCheck className="w-5 h-5" /> },
@@ -180,7 +180,7 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           heading: 'PROGRAM & KELAS',
           items: [
             { title: 'Program Bimbel', path: '/admin/course', icon: <BookOpen className="w-5 h-5" /> },
-            { title: 'Course Digital', path: '/admin/course-digital', icon: <BookOpen className="w-5 h-5" /> },
+            { title: 'Kursus Digital', path: '/admin/course-digital', icon: <BookOpen className="w-5 h-5" /> },
             { title: 'Kelas & Rombel', path: '/admin/kelas', icon: <UsersRound className="w-5 h-5" /> },
             { title: 'Jadwal Kelas', path: '/admin/jadwal-kelas', icon: <CalendarDays className="w-5 h-5" /> },
             { title: 'Ruang & Kapasitas', path: '/admin/ruang', icon: <DoorOpen className="w-5 h-5" /> },
@@ -201,7 +201,7 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           items: [
             { title: 'Inventaris', path: '/admin/inventaris', icon: <Package className="w-5 h-5" /> },
             { title: 'Buku & Produk', path: '/admin/buku', icon: <Library className="w-5 h-5" /> },
-            { title: 'CBT / Ujian (Admin)', path: '/admin/cbt', icon: <ScrollText className="w-5 h-5" /> },
+            { title: 'Tes Kemampuan Dasar', path: '/admin/tes-dasar', icon: <ScrollText className="w-5 h-5" /> },
             { title: 'Alumni', path: '/admin/alumni', icon: <Users className="w-5 h-5" /> },
           ]
         },
@@ -211,7 +211,6 @@ const getSidebarItems = (role: string): SidebarSection[] => {
             { title: 'WhatsApp Wali Murid', path: '/admin/whatsapp', icon: <MessageSquare className="w-5 h-5" /> },
             { title: 'Broadcast', path: '/admin/broadcast', icon: <Megaphone className="w-5 h-5" /> },
             { title: 'Pengumuman', path: '/admin/pengumuman', icon: <ScrollText className="w-5 h-5" /> },
-            { title: 'Template Pesan', path: '/admin/template', icon: <PenTool className="w-5 h-5" /> },
           ]
         },
         {
@@ -379,18 +378,18 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
         <div className="p-3 shrink-0">
           {isSiswa && !isCollapsed && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-3 mb-3 flex items-end gap-2 overflow-hidden">
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 mb-3 flex items-center gap-2 overflow-hidden">
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-extrabold text-[#1D4ED8] mb-1">Belajar di mana saja!</p>
                 <p className="text-[11px] text-slate-600 font-medium leading-snug mb-2.5">Akses semua materi lewat aplikasi LearnSpace+</p>
                 <button
-                  onClick={() => toast.info('Aplikasi LearnSpace+', { description: 'Segera tersedia di Google Play & App Store.' })}
+                  onClick={() => openAppDownload(() => toast.info('Aplikasi LearnSpace+', { description: 'Link unduhan aplikasi sedang disiapkan admin.' }))}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1D4ED8] hover:bg-blue-800 text-white text-[11px] font-bold transition-colors"
                 >
                   <Smartphone className="w-3.5 h-3.5" /> Download App
                 </button>
               </div>
-              <img src="/assets/portal/app-phone.png" alt="" className="w-14 h-auto shrink-0 -mb-1" />
+              <img src="/assets/portal/app-phone.png" alt="" className="h-[72px] w-auto max-w-[56px] object-contain shrink-0" />
             </div>
           )}
           {currentRole === 'admin' && !isCollapsed && (

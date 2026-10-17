@@ -34,8 +34,8 @@ const EMPTY_STUDENT = {
 export let STUDENT = EMPTY_STUDENT;
 
 /** Nomor WhatsApp admin bimbel (kontak bantuan). */
-export const ADMIN_WA = '6282324567906';
-export const ADMIN_WA_LABEL = '0823-2456-7906';
+export const ADMIN_WA = '6281285917614';
+export const ADMIN_WA_LABEL = '0812-8591-7614';
 
 export let SUBJECTS: Subject[] = [];
 const UNKNOWN_SUBJECT: Subject = { id: '', name: '-', short: '-', color: '#64748B', soft: '#F1F5F9', tutor: '-', tutorAvatar: '', days: '', time: '', progress: 0, score: 0, trend: 0, predikat: 'C', status: 'Baik', className: '-' };
@@ -61,7 +61,13 @@ export interface LiveClass {
   /** Link Google Meet dari tutor; hanya bisa dimasuki saat tutor sudah membuka kelas */
   meetUrl?: string;
   openedByTutor: boolean;
+  /** Tatap Muka (di ruang bimbel) atau Online (Google Meet) */
+  mode?: ClassMode;
 }
+
+export type ClassMode = 'Tatap Muka' | 'Online';
+export const classMode = (c: { mode?: string | null; room?: string }): ClassMode =>
+  c.mode === 'Online' || c.mode === 'Tatap Muka' ? c.mode : /online|meet/i.test(c.room ?? '') ? 'Online' : 'Tatap Muka';
 
 const DAY_ORDER = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 /** Nama hari ini, mis. "Kamis". */
@@ -70,7 +76,7 @@ export let WEEK_LABEL = '';
 export let WEEK_DAYS: { name: string; date: string }[] = DAY_ORDER.map((name) => ({ name, date: '' }));
 export let LIVE_CLASSES: LiveClass[] = [];
 
-export const canJoinLive = (c: LiveClass) => c.status === 'Berlangsung' && c.openedByTutor && !!c.meetUrl;
+export const canJoinLive = (c: LiveClass) => classMode(c) === 'Online' && c.status === 'Berlangsung' && c.openedByTutor && !!c.meetUrl;
 
 /* ------------------------------------------------------------------ */
 /* Course & Materi (belajar mandiri: modul + video), sesuai program     */
@@ -87,8 +93,9 @@ export interface CourseLesson {
   /** URL embed video (mis. YouTube). Kosong = tampilkan poster */
   videoUrl?: string;
   about: string;
-  notes?: string[];
-  files?: { name: string; size: string }[];
+  /** catatan: string[] · contoh: { question, answer }[] · latihan: { question, options, answer }[] */
+  notes?: unknown[];
+  files?: { name: string; size?: string; url?: string }[];
 }
 
 export interface CourseChapter {
@@ -196,12 +203,12 @@ export interface Bill {
 
 export let BILLS: Bill[] = [];
 
-export const PAYMENT_METHODS = [
-  { id: 'bank', name: 'Transfer Bank', desc: 'BCA, Mandiri, BNI, BRI' },
-  { id: 'va', name: 'Virtual Account', desc: 'Bayar melalui Virtual Account' },
+export const PAYMENT_METHODS: readonly { id: 'bank' | 'ewallet' | 'qris' | 'card'; name: string; desc: string; disabled?: boolean }[] = [
+  { id: 'bank', name: 'Transfer Bank', desc: 'Transfer ke rekening resmi StudyHack' },
+  { id: 'ewallet', name: 'E-Wallet', desc: 'DANA, ShopeePay, OVO, GoPay' },
   { id: 'qris', name: 'QRIS', desc: 'Scan QRIS untuk pembayaran cepat' },
-  { id: 'card', name: 'Kartu Debit/Kredit', desc: 'Visa, Mastercard, JCB' },
-] as const;
+  { id: 'card', name: 'Kartu Debit/Kredit', desc: 'Belum tersedia', disabled: true },
+];
 
 export const rupiah = (n: number) => `Rp${n.toLocaleString('id-ID')}`;
 

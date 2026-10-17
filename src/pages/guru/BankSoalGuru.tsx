@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { FileText, UserRound, Plus, Calculator, Languages, FlaskConical, ClipboardList, Globe, Star, type LucideIcon } from 'lucide-react';
+import { FileText, UserRound, Plus, Calculator, Languages, FlaskConical, ClipboardList, Globe, Star, Folder, FolderOpen, type LucideIcon } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { PageHead, Tabs, SearchInput, Select, DataTable, Badge, Btn, RowMenu, useCrud, type Col, type Field } from '../../components/portal/Kit';
-import { type QuestionRow } from '../../data/guruPortal';
+import { folderOf, type QuestionRow } from '../../data/guruPortal';
+import { cn } from '../../lib/utils';
 
 const SUBJECTS = ['Matematika', 'Bahasa Inggris', 'IPA', 'Fisika', 'Bahasa Indonesia'];
 const SUBJECT_ICON: Record<string, { icon: LucideIcon; cls: string }> = {
@@ -15,6 +16,7 @@ const FIELDS: Field[] = [
   { key: 'type', label: 'Jenis Soal', type: 'select', options: ['Pilihan Ganda', 'Uraian'] },
   { key: 'subject', label: 'Mata Pelajaran', type: 'select', options: SUBJECTS },
   { key: 'topic', label: 'Topik', required: true },
+  { key: 'folder', label: 'Folder', placeholder: 'Kosongkan untuk memakai nama topik' },
   { key: 'grade', label: 'Kelas', required: true, placeholder: 'SD 5 / SMP 7 / SMA 10' },
   { key: 'level', label: 'Kesulitan', type: 'select', options: ['Mudah', 'Sedang', 'Sulit'] },
 ];
@@ -25,18 +27,25 @@ export default function BankSoalGuru() {
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState('');
   const [level, setLevel] = useState('');
+  const [folder, setFolder] = useState('');
   const [used, setUsed] = useState<Set<string>>(new Set());
 
   const crud = useCrud<QuestionRow>('questions', {
     label: 'Soal',
     fields: FIELDS,
-    create: (v) => ({ id: '', text: v.text, type: v.type as QuestionRow['type'], subject: v.subject, topic: v.topic, grade: v.grade, level: v.level as QuestionRow['level'], mine: true, fav: false }),
-    detail: (r) => [['Pertanyaan', <span className="font-medium text-slate-700">{r.text}</span>], ['Jenis', r.type], ['Mata Pelajaran', r.subject], ['Topik', r.topic], ['Kelas', r.grade], ['Kesulitan', r.level]],
+    create: (v) => ({ id: '', text: v.text, type: v.type as QuestionRow['type'], subject: v.subject, topic: v.topic, folder: v.folder || null, grade: v.grade, level: v.level as QuestionRow['level'], mine: true, fav: false }),
+    detail: (r) => [['Pertanyaan', <span className="font-medium text-slate-700">{r.text}</span>], ['Jenis', r.type], ['Mata Pelajaran', r.subject], ['Folder', folderOf(r)], ['Topik', r.topic], ['Kelas', r.grade], ['Kesulitan', r.level]],
   });
 
   const rows = crud.rows.filter((r) =>
     (tab === 'Semua' || (tab === 'Soal Saya' ? r.mine : r.fav)) && (!q || `${r.text} ${r.topic}`.toLowerCase().includes(q.toLowerCase())) &&
-    (!subject || r.subject === subject) && (!grade || r.grade === grade) && (!level || r.level === level));
+    (!subject || r.subject === subject) && (!grade || r.grade === grade) && (!level || r.level === level) && (!folder || folderOf(r) === folder));
+  // Folders grouped per subject, for the folder panel
+  const folders = Object.entries(crud.rows.reduce<Record<string, Record<string, number>>>((acc, r) => {
+    const f = folderOf(r);
+    acc[r.subject] = { ...(acc[r.subject] ?? {}), [f]: (acc[r.subject]?.[f] ?? 0) + 1 };
+    return acc;
+  }, {})).sort(([a], [b]) => a.localeCompare(b));
   const toggleUse = (r: QuestionRow) => setUsed((prev) => {
     const next = new Set(prev);
     if (next.has(r.id)) next.delete(r.id); else next.add(r.id);
@@ -59,7 +68,7 @@ export default function BankSoalGuru() {
         );
       },
     },
-    { header: 'MATA PELAJARAN / TOPIK', cell: (r) => <><span className="font-extrabold text-[#0F1E4A]">{r.subject}</span><span className="block text-xs text-slate-500">{r.topic}</span></> },
+    { header: 'MATA PELAJARAN / FOLDER', cell: (r) => <><span className="font-extrabold text-[#0F1E4A]">{r.subject}</span><button onClick={() => setFolder(folderOf(r))} className="flex items-center gap-1 text-xs text-slate-500 hover:text-[#1D4ED8]"><Folder className="w-3 h-3" /> {folderOf(r)}</button></> },
     { header: 'KELAS', cell: (r) => r.grade },
     { header: 'KESULITAN', cell: (r) => <span className="inline-flex items-center gap-2"><span className={`w-2.5 h-2.5 rounded-full ${LEVEL_DOT[r.level]}`} />{r.level}</span> },
     {
@@ -80,7 +89,7 @@ export default function BankSoalGuru() {
   return (
     <DashboardLayout>
       <div className="space-y-4 max-w-[1300px]">
-        <PageHead title="Bank Soal" subtitle="Kelola dan gunakan ribuan soal untuk pembelajaran, latihan, dan asesmen." />
+        <PageHead title="Bank Soal" subtitle="Kelola soal per folder topik untuk pembelajaran, latihan, dan asesmen." />
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <p className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-slate-700 font-medium">
             <span className="flex items-center gap-2"><FileText className="w-5 h-5 text-slate-600" /><b className="text-[#0F1E4A]">{crud.rows.length}</b> soal tersedia</span>
@@ -92,6 +101,24 @@ export default function BankSoalGuru() {
           </div>
         </div>
         <Tabs tabs={['Semua', 'Soal Saya', 'Favorit']} value={tab} onChange={setTab} />
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)] gap-4 items-start">
+        <aside className="bg-white rounded-2xl border border-slate-200/80 p-3 space-y-3 lg:sticky lg:top-20">
+          <button onClick={() => setFolder('')} className={cn('w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-[13px] font-bold', !folder ? 'bg-[#EAF1FF] text-[#1D4ED8]' : 'text-slate-700 hover:bg-slate-50')}>
+            <FolderOpen className="w-4 h-4" /> Semua Folder <span className="ml-auto text-xs">{crud.rows.length}</span>
+          </button>
+          {folders.map(([subj, items]) => (
+            <div key={subj}>
+              <p className="px-2.5 text-[11px] font-extrabold uppercase tracking-wide text-slate-500 mb-1">{subj}</p>
+              {Object.entries(items).sort(([a], [b]) => a.localeCompare(b)).map(([f, n]) => (
+                <button key={subj + f} onClick={() => { setFolder(f); setSubject(subj); }} className={cn('w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[13px] font-semibold text-left', folder === f ? 'bg-[#EAF1FF] text-[#1D4ED8]' : 'text-slate-700 hover:bg-slate-50')}>
+                  <Folder className="w-4 h-4 shrink-0 text-amber-500" /> <span className="truncate">{f}</span> <span className="ml-auto text-xs text-slate-500">{n}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </aside>
+        <div className="space-y-3 min-w-0">
+        {folder && <p className="flex items-center gap-2 text-sm font-bold text-[#0F1E4A]"><FolderOpen className="w-4 h-4 text-amber-500" /> Folder: {folder} <button onClick={() => setFolder('')} className="text-xs font-bold text-[#1D4ED8] hover:underline">tampilkan semua</button></p>}
         <div className="flex flex-wrap gap-2">
           <SearchInput value={q} onChange={setQ} placeholder="Cari soal, topik, atau kata kunci..." />
           <Select value={subject} onChange={setSubject} all="Semua Mata Pelajaran" options={SUBJECTS} />
@@ -99,6 +126,8 @@ export default function BankSoalGuru() {
           <Select value={level} onChange={setLevel} all="Semua Kesulitan" options={['Mudah', 'Sedang', 'Sulit']} />
         </div>
         <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} unit="soal" initialPerPage={10} selectable empty={tab === 'Favorit' ? 'Belum ada soal favorit. Klik ikon bintang untuk menambahkan.' : 'Tidak ada soal yang cocok.'} />
+        </div>
+        </div>
         {crud.dialogs}
       </div>
     </DashboardLayout>

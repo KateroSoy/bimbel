@@ -58,16 +58,16 @@ export default function SiswaPengaturan() {
 
           <Card className="flex overflow-x-auto px-2">
             {TABS.map(({ id, label, icon: Icon }) => (
-              <button key={id} onClick={() => setTab(id)} className={cn('flex items-center gap-2 px-4 py-3.5 text-sm font-bold border-b-2 whitespace-nowrap', tab === id ? 'border-[#1D4ED8] text-[#1D4ED8]' : 'border-transparent text-slate-700')}>
+              <button key={id} onClick={() => setTab(id)} className={cn('flex items-center gap-2 px-4 py-2.5 text-sm font-bold border-b-2 whitespace-nowrap', tab === id ? 'border-[#1D4ED8] text-[#1D4ED8]' : 'border-transparent text-slate-700')}>
                 <Icon className="w-4 h-4" /> {label}
               </button>
             ))}
-            <span className="flex items-center gap-2 px-4 py-3.5 text-sm font-bold text-slate-400"><MoreHorizontal className="w-4 h-4" /> Lainnya</span>
+            <span className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-slate-400"><MoreHorizontal className="w-4 h-4" /> Lainnya</span>
           </Card>
 
           {tab === 'akun' && (
             <>
-              <Card className="p-4">
+              <Card className="p-3.5">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-extrabold text-[#0F1E4A]">Informasi Akun</h2>
                   {editing ? (
@@ -85,10 +85,10 @@ export default function SiswaPengaturan() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-6 items-start">
                   <div className="relative shrink-0">
-                    <img src={STUDENT.avatar} alt="" className="w-28 h-28 rounded-full object-cover bg-blue-50" />
+                    <img src={STUDENT.avatar} alt="" className="w-20 h-20 rounded-full object-cover bg-blue-50" />
                     <button onClick={() => toast.info('Ganti foto profil melalui admin bimbel.')} aria-label="Ganti foto" className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-white border border-slate-200 shadow flex items-center justify-center"><Camera className="w-4 h-4" /></button>
                   </div>
-                  <dl className="grid grid-cols-[120px_1fr] gap-y-3 text-sm flex-1">
+                  <dl className="grid grid-cols-[120px_1fr] gap-y-1.5 text-sm flex-1">
                     <dt className="font-semibold text-[#0F1E4A]">Nama Lengkap</dt><dd className="text-slate-700">{STUDENT.name}</dd>
                     <dt className="font-semibold text-[#0F1E4A]">Email</dt>
                     <dd className="flex items-center gap-2">
@@ -106,14 +106,14 @@ export default function SiswaPengaturan() {
                 </div>
               </Card>
 
-              <Card className="p-4">
+              <Card className="p-3.5">
                 <h2 className="font-extrabold text-[#0F1E4A] mb-2">Pengaturan Akun</h2>
                 <div className="divide-y divide-slate-100">
                   {settings.map(({ icon: Icon, t, d, btn, act, danger }) => (
-                    <div key={t} className="flex items-center gap-4 py-3">
-                      <span className={cn('w-10 h-10 rounded-full flex items-center justify-center', danger ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-700')}><Icon className="w-5 h-5" /></span>
+                    <div key={t} className="flex items-center gap-4 py-2">
+                      <span className={cn('w-9 h-9 rounded-full flex items-center justify-center', danger ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-700')}><Icon className="w-5 h-5" /></span>
                       <div className="flex-1 min-w-0"><p className="text-sm font-bold text-[#0F1E4A]">{t}</p><p className="text-xs text-slate-600">{d}</p></div>
-                      <button onClick={act} className={cn('h-9 w-24 rounded-lg border text-sm font-bold', danger ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-blue-200 text-[#1D4ED8] hover:bg-blue-50')}>{btn}</button>
+                      <button onClick={act} className={cn('h-8 w-24 rounded-lg border text-sm font-bold', danger ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-blue-200 text-[#1D4ED8] hover:bg-blue-50')}>{btn}</button>
                       <ChevronRight className="w-4 h-4 text-slate-500 hidden sm:block" />
                     </div>
                   ))}
@@ -126,7 +126,7 @@ export default function SiswaPengaturan() {
             <Card className="p-4 divide-y divide-slate-100">
               {([
                 ['tugas', 'Tugas & deadline', 'Pengingat tugas baru dan deadline mendekat.'],
-                ['jadwal', 'Jadwal Live Tutor', 'Notifikasi saat tutor membuka kelas online.'],
+                ['jadwal', 'Jadwal Kelas', 'Notifikasi saat tutor membuka kelas online.'],
                 ['nilai', 'Nilai & rapor', 'Saat nilai tugas atau rapor tersedia.'],
                 ['pembayaran', 'Pembayaran', 'Tagihan baru dan konfirmasi pembayaran.'],
                 ['promo', 'Promo & info bimbel', 'Informasi program dan promo terbaru.'],
@@ -174,8 +174,8 @@ export default function SiswaPengaturan() {
             </Card>
           )}
 
-          <Card className="p-4 bg-[#F5F8FF] border-blue-100 flex flex-wrap items-center gap-4">
-            <ShieldCheck className="w-12 h-12 text-[#1D4ED8]" />
+          <Card className="px-4 py-2.5 bg-[#F5F8FF] border-blue-100 flex flex-wrap items-center gap-3">
+            <ShieldCheck className="w-8 h-8 text-[#1D4ED8]" />
             <div className="flex-1 min-w-[220px]">
               <p className="text-sm font-bold text-[#1D4ED8]">Kami menjaga data dan privasi Anda</p>
               <p className="text-xs text-slate-700">LearnSpace+ menggunakan enkripsi untuk melindungi semua data dan informasi pribadi Anda.</p>
@@ -183,35 +183,35 @@ export default function SiswaPengaturan() {
           </Card>
         </div>
 
-        <div className="space-y-3 xl:pt-[60px]">
-          <Card className="p-4">
+        <div className="space-y-3 xl:pt-[52px]">
+          <Card className="p-3.5">
             <h2 className="font-extrabold text-[#0F1E4A] mb-3">Keamanan Akun</h2>
-            <div className="flex items-center gap-4 mb-3">
-              <span className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center"><ShieldCheck className="w-11 h-11 text-emerald-600" /></span>
+            <div className="flex items-center gap-4 mb-2">
+              <span className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center"><ShieldCheck className="w-8 h-8 text-emerald-600" /></span>
               <div><p className="text-sm font-bold text-[#0F1E4A]">Status Keamanan</p><p className="text-xl font-extrabold text-emerald-600">Aman</p><p className="text-xs text-slate-600">Akun Anda terlindungi dengan baik.</p></div>
             </div>
             {['Kata sandi kuat', 'Verifikasi email aktif', 'Tidak ada aktivitas mencurigakan', 'Perangkat terpercaya'].map((t) => (
-              <p key={t} className="flex items-center gap-2 text-sm text-slate-700 py-1"><Check className="w-4 h-4 text-emerald-600" /> {t}</p>
+              <p key={t} className="flex items-center gap-2 text-[13px] text-slate-700 py-0.5"><Check className="w-4 h-4 text-emerald-600" /> {t}</p>
             ))}
             <button onClick={() => setTab('keamanan')} className="mt-2 w-full text-sm font-bold text-[#1D4ED8] flex items-center justify-center gap-1 hover:underline">Lihat Aktivitas Login <ArrowRight className="w-4 h-4" /></button>
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-3.5">
             <h2 className="font-extrabold text-[#0F1E4A] mb-2">Perangkat Terhubung</h2>
             {[
               { icon: Monitor, n: 'Windows - Chrome', l: 'Jakarta, Indonesia', s: 'Aktif', c: '#1D4ED8', bg: '#EAF1FF' },
               { icon: Smartphone, n: 'Android - LearnSpace+ App', l: 'Jakarta, Indonesia', s: 'Aktif', c: '#7C3AED', bg: '#F3EDFF' },
               { icon: Tablet, n: 'iPad - Safari', l: 'Jakarta, Indonesia', s: '2 hari lalu', c: '#F97316', bg: '#FFF1E7' },
             ].map(({ icon: Icon, n, l, s, c, bg }) => (
-              <div key={n} className="flex items-center gap-3 py-2">
-                <span className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: bg, color: c }}><Icon className="w-5 h-5" /></span>
+              <div key={n} className="flex items-center gap-3 py-1.5">
+                <span className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: bg, color: c }}><Icon className="w-5 h-5" /></span>
                 <div className="flex-1 min-w-0"><p className="text-sm font-bold text-[#0F1E4A] truncate">{n}</p><p className="text-xs text-slate-600">{l}</p></div>
                 {s === 'Aktif' ? <Pill tone="green">Aktif</Pill> : <span className="text-[11px] text-slate-500 text-right">Terakhir aktif<br />{s}</span>}
               </div>
             ))}
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-3.5">
             <h2 className="font-extrabold text-[#0F1E4A] flex items-center gap-2 mb-1"><Headphones className="w-5 h-5 text-[#1D4ED8]" /> Butuh Bantuan?</h2>
             <p className="text-sm text-slate-600 mb-3">Jika Anda mengalami kendala dengan pengaturan akun, hubungi admin bimbel.</p>
             <button onClick={() => waAdmin(`Halo Admin, saya ${STUDENT.name} butuh bantuan pengaturan akun.`)} className="w-full h-10 rounded-xl border border-blue-200 text-[#1D4ED8] text-sm font-bold flex items-center justify-center gap-2 hover:bg-blue-50">

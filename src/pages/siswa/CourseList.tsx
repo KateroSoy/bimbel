@@ -39,7 +39,7 @@ export default function CourseList() {
     .sort((a, b) => sort === 'az' ? a.title.localeCompare(b.title) : courseStats(b).percent - courseStats(a).percent);
 
   if (courses.length === 0) {
-    return <DashboardLayout><div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-sm text-slate-600 font-medium">Belum ada course untuk akunmu. Course akan muncul setelah admin mendaftarkanmu ke program.</div></DashboardLayout>;
+    return <DashboardLayout><div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-sm text-slate-600 font-medium">Belum ada kursus untuk akunmu. Kursus akan muncul setelah admin mendaftarkanmu ke program.</div></DashboardLayout>;
   }
 
   // Course terakhir dipelajari
@@ -51,23 +51,24 @@ export default function CourseList() {
     <DashboardLayout>
       <div className="max-w-[1400px] space-y-3">
         <PageTitle
-          title="Course Saya"
+          title="Kursus Saya"
           subtitle={`Belajar mandiri lewat modul dan video. Mata pelajaran mengikuti program kamu: ${STUDENT.program}.`}
         />
 
         {/* Sedang belajar */}
-        <Card className="p-4 bg-[#F1FAF4] border-emerald-100">
+        <Card className="px-4 py-3 bg-[#F1FAF4] border-emerald-100">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-            <span className="w-20 h-20 rounded-2xl bg-white border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-              <BookOpen className="w-10 h-10" />
+            <span className="w-14 h-14 rounded-2xl bg-white border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+              <BookOpen className="w-7 h-7" />
             </span>
             <div className="flex-1 min-w-0">
               <Pill tone="green">Sedang Belajar</Pill>
-              <h2 className="text-lg font-extrabold text-[#0F1E4A] mt-1">{current.title}</h2>
-              <p className="text-xs text-slate-500 font-medium">Materi berikutnya</p>
-              <p className="text-sm font-bold text-[#0F1E4A]">{nextLesson?.title ?? 'Semua materi selesai'}</p>
-              <p className="text-xs text-slate-600 font-medium mt-1">{cs.done} dari {cs.total} materi · {cs.percent}% selesai</p>
-              <ProgressBar value={cs.percent} color="#16A34A" className="mt-1.5 max-w-sm" />
+              <h2 className="text-base font-extrabold text-[#0F1E4A] mt-0.5">{current.title}</h2>
+              <p className="text-sm text-[#0F1E4A]"><span className="text-xs text-slate-500 font-medium">Materi berikutnya: </span><b>{nextLesson?.title ?? 'Semua materi selesai'}</b></p>
+              <div className="flex items-center gap-3 mt-1">
+                <ProgressBar value={cs.percent} color="#16A34A" className="flex-1 max-w-sm" />
+                <span className="text-xs text-slate-600 font-medium">{cs.done}/{cs.total} materi · {cs.percent}%</span>
+              </div>
             </div>
             <div className="lg:border-l lg:border-emerald-100 lg:pl-6 flex items-start gap-2">
               <CalendarDays className="w-4 h-4 text-slate-500 mt-0.5" />
@@ -87,19 +88,16 @@ export default function CourseList() {
         </Card>
 
         {/* Stats */}
-        <Card className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100 py-3">
+        <Card className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100 py-1.5">
           {[
-            { v: `${courses.length} Course`, l: 'Total yang kamu ikuti', icon: Layers, c: '#1D4ED8' },
+            { v: `${courses.length} Kursus`, l: 'Total yang kamu ikuti', icon: Layers, c: '#1D4ED8' },
             { v: counts['Sedang Berjalan'], l: 'Sedang Berjalan', icon: PlayCircle, c: '#1D4ED8' },
             { v: counts['Belum Dimulai'], l: 'Belum Dimulai', icon: Clock, c: '#F97316' },
             { v: counts['Selesai'], l: 'Selesai', icon: CheckCircle2, c: '#16A34A' },
           ].map(({ v, l, icon: Icon, c }) => (
-            <div key={l} className="flex items-center gap-3 px-5 py-1">
-              <Icon className="w-8 h-8" style={{ color: c }} strokeWidth={1.6} />
-              <div>
-                <p className="text-lg font-extrabold text-[#0F1E4A] leading-tight">{v}</p>
-                <p className="text-xs text-slate-500 font-medium">{l}</p>
-              </div>
+            <div key={l} className="flex items-center gap-2.5 px-4 py-0.5">
+              <Icon className="w-6 h-6 shrink-0" style={{ color: c }} strokeWidth={1.8} />
+              <p className="text-base font-extrabold text-[#0F1E4A] leading-tight">{v} <span className="text-xs text-slate-500 font-medium">{l}</span></p>
             </div>
           ))}
         </Card>
@@ -111,8 +109,14 @@ export default function CourseList() {
           </select>
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari course atau pengajar..." className="w-full h-10 pl-9 pr-3 rounded-xl bg-white border border-slate-200 text-sm font-medium" />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari kursus…" className="w-full h-10 pl-9 pr-3 rounded-xl bg-white border border-slate-200 text-sm font-medium" />
           </div>
+          {(['Semua', 'Sedang Berjalan', 'Belum Dimulai', 'Selesai'] as const).map((t) => (
+            <button key={t} onClick={() => setTab(t)}
+              className={cn('h-8 px-4 rounded-full text-sm font-bold', tab === t ? 'bg-[#1D4ED8] text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200')}>
+              {t} ({t === 'Semua' ? courses.length : counts[t]})
+            </button>
+          ))}
           <div className="flex-1" />
           <select value={sort} onChange={(e) => setSort(e.target.value as 'progress' | 'az')} className="h-10 px-3 pr-8 rounded-xl bg-white border border-slate-200 text-sm font-bold text-[#0F1E4A]">
             <option value="progress">Progress tertinggi</option>
@@ -120,18 +124,9 @@ export default function CourseList() {
           </select>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {(['Semua', 'Sedang Berjalan', 'Belum Dimulai', 'Selesai'] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)}
-              className={cn('h-8 px-4 rounded-full text-sm font-bold', tab === t ? 'bg-[#1D4ED8] text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200')}>
-              {t} ({t === 'Semua' ? courses.length : counts[t]})
-            </button>
-          ))}
-        </div>
-
         {/* Cards */}
         {list.length === 0 ? (
-          <Card className="p-8 text-center text-sm text-slate-500 font-medium">Tidak ada course yang cocok.</Card>
+          <Card className="p-8 text-center text-sm text-slate-500 font-medium">Tidak ada kursus yang cocok.</Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
             {list.map((c) => {
@@ -140,22 +135,24 @@ export default function CourseList() {
               const status = statusOf(c);
               const first = c.chapters.flatMap((ch) => ch.lessons).find((l) => !l.done);
               return (
-                <Card key={c.id} className="p-4 flex flex-col">
-                  <div className="flex items-center justify-between mb-3">
+                <Card key={c.id} className="p-3 flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-slate-700">{c.category}</span>
                     <Pill tone={LEVEL_TONE[c.level]}>● {c.level}</Pill>
                   </div>
-                  <span className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: s.soft, color: s.color }}>
-                    <BookOpen className="w-7 h-7" />
-                  </span>
-                  <h3 className="font-extrabold text-[#0F1E4A] leading-snug min-h-[44px]">{c.title}</h3>
+                  <div className="flex items-center gap-2.5 mb-1">
+                    <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: s.soft, color: s.color }}>
+                      <BookOpen className="w-5 h-5" />
+                    </span>
+                    <h3 className="font-extrabold text-[#0F1E4A] leading-snug text-[15px]">{c.title}</h3>
+                  </div>
                   <p className="text-xs text-slate-500 font-medium mt-1">
                     <span className="font-bold" style={{ color: st.percent === 100 ? '#DC2626' : s.color }}>{st.percent}% selesai</span> · {st.done}/{st.total} materi
                   </p>
                   <ProgressBar value={st.percent} color={s.color} className="mt-1.5" />
                   {status === 'Selesai' && <Pill tone="green" className="mt-2 self-start">Selesai / Sertifikat tersedia</Pill>}
-                  <div className="flex items-center gap-2 mt-4">
-                    <img src={s.tutorAvatar} alt="" className="w-8 h-8 rounded-full object-cover bg-slate-100" />
+                  <div className="flex items-center gap-2 mt-2.5">
+                    <img src={s.tutorAvatar} alt="" className="w-7 h-7 rounded-full object-cover bg-slate-100" />
                     <div>
                       <p className="text-[11px] text-slate-500 font-medium">Pengajar</p>
                       <p className="text-xs font-bold text-[#0F1E4A]">{s.tutor}</p>
@@ -163,7 +160,7 @@ export default function CourseList() {
                   </div>
                   <button
                     onClick={() => navigate(status === 'Selesai' ? '/siswa/sertifikat' : `/siswa/course/${c.id}${first ? `?materi=${first.id}` : ''}`)}
-                    className={cn('mt-4 h-9 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors border',
+                    className={cn('mt-2.5 h-9 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors border',
                       status === 'Belum Dimulai' ? 'bg-white' : 'text-white')}
                     style={status === 'Belum Dimulai' ? { borderColor: s.color, color: s.color } : { backgroundColor: s.color, borderColor: s.color }}
                   >
@@ -176,12 +173,9 @@ export default function CourseList() {
         )}
 
         {showTips && (
-          <Card className="px-4 py-3 bg-[#F5F8FF] border-blue-100 flex items-start gap-3">
-            <span className="w-8 h-8 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center shrink-0"><Info className="w-4 h-4" /></span>
-            <div className="flex-1">
-              <p className="text-sm font-extrabold text-[#1D4ED8]">Tips Belajar</p>
-              <p className="text-sm text-slate-700 font-medium">Tonton video, baca catatan, lalu kerjakan latihan soal di setiap bab untuk mengukur pemahamanmu!</p>
-            </div>
+          <Card className="px-4 py-2 bg-[#F5F8FF] border-blue-100 flex items-center gap-3">
+            <Info className="w-4 h-4 text-[#1D4ED8] shrink-0" />
+            <p className="flex-1 text-[13px] text-slate-700 font-medium"><b className="text-[#1D4ED8]">Tips Belajar:</b> Tonton video, baca catatan, lalu kerjakan latihan soal di setiap bab untuk mengukur pemahamanmu!</p>
             <button onClick={() => setShowTips(false)} aria-label="Tutup tips" className="text-slate-400 hover:text-slate-700"><X className="w-4 h-4" /></button>
           </Card>
         )}

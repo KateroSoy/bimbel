@@ -454,7 +454,7 @@ export default function AbsensiKelasGuru() {
                       >
                         {/* Student Profile Info */}
                         <div className="flex items-center gap-3.5">
-                          <span className="text-xs font-mono font-bold text-slate-400 w-6">
+                          <span className="text-xs tabular-nums font-bold text-slate-400 w-6">
                             {index + 1}.
                           </span>
                           <div className="w-10 h-10 rounded-2xl bg-blue-100 border border-blue-200 flex items-center justify-center font-bold text-blue-700 shrink-0 overflow-hidden">
@@ -467,7 +467,7 @@ export default function AbsensiKelasGuru() {
                           <div>
                             <p className="font-bold text-sm text-slate-900 flex items-center gap-2">
                               {student.name}
-                              <span className="text-[10px] font-mono font-normal bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
+                              <span className="text-[10px] tabular-nums font-normal bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
                                 NIS: {student.nis || student.id}
                               </span>
                             </p>
@@ -567,7 +567,7 @@ export default function AbsensiKelasGuru() {
                         <span className="px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
                           {sess.room}
                         </span>
-                        <span className="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                        <span className="text-xs tabular-nums text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
                           {sess.date} • {sess.time}
                         </span>
                       </div>
@@ -673,10 +673,10 @@ export default function AbsensiKelasGuru() {
                   className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-slate-400 w-4">{i + 1}.</span>
+                    <span className="tabular-nums text-slate-400 w-4">{i + 1}.</span>
                     <div>
                       <p className="font-bold text-slate-900">{rec.studentName}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">ID: {rec.studentId}</p>
+                      <p className="text-[10px] text-slate-400 tabular-nums">ID: {rec.studentId}</p>
                     </div>
                   </div>
 

@@ -2557,5 +2557,67 @@
    "status": "Tidak Mengajar",
    "note": "Staff Keuangan"
   }
+ ],
+ "ALUMNI": [
+  {
+   "id": "ALM-0001",
+   "name": "Rafa Pratama",
+   "program": "English Primary",
+   "year": "2025",
+   "school": "SD Negeri 060843 Medan",
+   "continuedTo": "SMP Negeri 1 Medan",
+   "achievement": "Juara 2 Storytelling Kota Medan",
+   "phone": "0812-6611-2301",
+   "status": "Aktif Kontak",
+   "note": ""
+  },
+  {
+   "id": "ALM-0002",
+   "name": "Keisha Ramadhani",
+   "program": "Math Primary",
+   "year": "2025",
+   "school": "SD Swasta Al-Azhar Medan",
+   "continuedTo": "SMP Al-Azhar Medan",
+   "achievement": "Medali Perak OSN Matematika SD",
+   "phone": "0813-7022-4410",
+   "status": "Aktif Kontak",
+   "note": ""
+  },
+  {
+   "id": "ALM-0003",
+   "name": "Daffa Alfarizi",
+   "program": "Combo",
+   "year": "2024",
+   "school": "SD Negeri 064979 Medan",
+   "continuedTo": "SMP Negeri 3 Medan",
+   "achievement": "",
+   "phone": "0821-6650-9921",
+   "status": "Aktif Kontak",
+   "note": ""
+  },
+  {
+   "id": "ALM-0004",
+   "name": "Naura Salsabila",
+   "program": "Intensif",
+   "year": "2024",
+   "school": "SD IT Darul Hikmah",
+   "continuedTo": "MTsN 2 Medan",
+   "achievement": "Hafalan 3 Juz",
+   "phone": "0852-7712-3304",
+   "status": "Tidak Aktif",
+   "note": "Nomor wali berganti"
+  },
+  {
+   "id": "ALM-0005",
+   "name": "Bima Saputra",
+   "program": "English Primary",
+   "year": "2023",
+   "school": "SD Methodist 2 Medan",
+   "continuedTo": "SMP Methodist 2 Medan",
+   "achievement": "Skor TOEFL Junior 790",
+   "phone": "0811-6501-8890",
+   "status": "Aktif Kontak",
+   "note": ""
+  }
  ]
 }

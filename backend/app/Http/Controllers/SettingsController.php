@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 /** Institution settings (one key/value row each). */
 class SettingsController extends Controller
 {
-    private const KEYS = ['schoolName', 'address', 'academicYear', 'phone', 'email', 'principalName', 'website'];
+    private const KEYS = ['schoolName', 'address', 'academicYear', 'phone', 'email', 'principalName', 'website', 'bankAccounts', 'ewallets', 'appDownloadUrl'];
 
     public function show(): JsonResponse
     {
@@ -28,6 +28,11 @@ class SettingsController extends Controller
             'email' => ['sometimes', 'nullable', 'email', 'max:191'],
             'principalName' => ['sometimes', 'nullable', 'string', 'max:191'],
             'website' => ['sometimes', 'nullable', 'string', 'max:191'],
+            // One account per line: "Bank | Nomor | Atas nama"
+            'bankAccounts' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            // One wallet per line: "DANA | Nomor | Atas nama"
+            'ewallets' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'appDownloadUrl' => ['sometimes', 'nullable', 'url', 'max:500'],
         ]);
         foreach ($data as $key => $value) {
             DB::table('settings')->updateOrInsert(['key' => $key], ['value' => $value, 'updated_at' => now()]);

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CalendarDays, ClipboardCheck, Users, ArrowRight, BookOpen, FileText, Clock, Megaphone, Activity, ArrowDown, ArrowUp, User } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Panel, Avatar, Btn, Badge } from '../../components/portal/Kit';
@@ -8,6 +8,8 @@ import { TEACH_SLOTS, sessionStatus, type TeachRow, type AttentionRow, type Anno
 import { todayIndex } from '../../data/adminPortal';
 import { useResource } from '../../store/useRemote';
 import { cn } from '../../lib/utils';
+import { findClass, modeOf, openClass } from '../../lib/tutorClass';
+import { ModeBadge } from './KelasSaya';
 
 const More = ({ to, children }: { to: string; children: string }) => (
   <Link to={to} className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#1D4ED8] hover:underline whitespace-nowrap">{children} <ArrowRight className="w-4 h-4" /></Link>
@@ -17,6 +19,7 @@ const isSoon = (status: string) => status === 'Berlangsung' || status.endsWith('
 
 export default function TeacherDashboard() {
   const { user } = useAppStore();
+  const navigate = useNavigate();
   const { assignments, submissions } = useDataStore();
   const firstName = (user?.name ?? '').split(/[ ,]/)[0];
   const classes = useResource<TutorClass>('tutor-classes').rows;
@@ -30,10 +33,11 @@ export default function TeacherDashboard() {
     .sort((a, b) => a.slot - b.slot)
     .map((s) => {
       const status = sessionStatus(TEACH_SLOTS[s.slot]);
+      const cls = findClass(s.kelas, classes);
       return {
-        time: TEACH_SLOTS[s.slot].replace(' – ', ' - '), kelas: s.kelas, subject: s.subject, status,
-        action: status === 'Berlangsung' ? 'Buka Kelas' : status.endsWith('menit lagi') ? 'Siapkan' : 'Detail',
-        classId: classes.find((c) => c.name === s.kelas || c.name.endsWith(s.kelas))?.id ?? classes[0]?.id ?? '',
+        time: TEACH_SLOTS[s.slot].replace(' – ', ' - '), kelas: s.kelas, subject: s.subject, status, cls, room: s.room,
+        mode: modeOf(cls, s.room),
+        classId: cls?.id ?? classes[0]?.id ?? '',
       };
     });
 
@@ -45,7 +49,7 @@ export default function TeacherDashboard() {
   const avgAttendance = Math.round(MY_STUDENTS.reduce((a, s) => a + s.attendance, 0) / (MY_STUDENTS.length || 1));
 
   const top = [
-    { icon: CalendarDays, bg: '#EAF1FF', fg: '#1D4ED8', value: TODAY_CLASSES.length, label: 'Kelas Hari Ini', link: 'Lihat Jadwal', to: '/guru/jadwal' },
+    { icon: CalendarDays, bg: '#EAF1FF', fg: '#1D4ED8', value: TODAY_CLASSES.length, label: 'Kelas Hari Ini', link: 'Lihat Jadwal', to: '/guru/kelas' },
     { icon: ClipboardCheck, bg: '#E7F8EE', fg: '#16A34A', value: toGrade, label: 'Tugas Perlu Dinilai', link: 'Nilai Sekarang', to: '/guru/tugas' },
     { icon: Users, bg: '#FFF1E6', fg: '#F97316', value: risky.length, label: 'Siswa Perlu Perhatian', link: 'Lihat Siswa', to: '/guru/progress-siswa' },
   ];
@@ -60,7 +64,7 @@ export default function TeacherDashboard() {
     <DashboardLayout>
       <div className="space-y-4 max-w-[1300px]">
         <div>
-          <h1 className="text-2xl md:text-[26px] font-extrabold text-[#0F1E4A] tracking-tight">Selamat pagi, {firstName} 👋</h1>
+          <h1 className="text-2xl md:text-[26px] font-extrabold text-[#0F1E4A] tracking-tight">Selamat pagi, {firstName}</h1>
           <p className="text-sm text-slate-600 font-medium mt-0.5">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
 
@@ -93,24 +97,29 @@ export default function TeacherDashboard() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,5fr)_minmax(0,4fr)] gap-4">
-          <Panel title={<span className="flex items-center gap-2"><CalendarDays className="w-5 h-5 text-[#1D4ED8]" /> Kelas Hari Ini</span>} action={<More to="/guru/jadwal">Lihat Semua Jadwal</More>}>
+          <Panel title={<span className="flex items-center gap-2"><CalendarDays className="w-5 h-5 text-[#1D4ED8]" /> Kelas Hari Ini</span>} action={<More to="/guru/kelas">Lihat Semua Jadwal</More>}>
             <div className="overflow-x-auto">
-              <table className="w-full text-[13px] min-w-[520px]">
-                <thead><tr className="text-xs text-slate-600 font-bold border-b border-slate-100">{['Waktu', 'Kelas', 'Mata Pelajaran', 'Status', 'Aksi'].map((h) => <th key={h} className="text-left py-2 px-1.5">{h}</th>)}</tr></thead>
+              <table className="w-full text-[13px] min-w-[600px]">
+                <thead><tr className="text-xs text-slate-600 font-bold border-b border-slate-100">{['Waktu', 'Kelas', 'Mata Pelajaran', 'Tatap Muka / Online', 'Status', 'Aksi'].map((h) => <th key={h} className="text-left py-2 px-1.5">{h}</th>)}</tr></thead>
                 <tbody className="divide-y divide-slate-100">
-                  {TODAY_CLASSES.length === 0 && <tr><td colSpan={5} className="py-6 text-center text-xs text-slate-500 font-medium">Tidak ada kelas hari ini.</td></tr>}
+                  {TODAY_CLASSES.length === 0 && <tr><td colSpan={6} className="py-6 text-center text-xs text-slate-500 font-medium">Tidak ada kelas hari ini.</td></tr>}
                   {TODAY_CLASSES.map((c) => (
                     <tr key={c.time + c.kelas}>
                       <td className="py-2.5 px-1.5 font-bold text-[#0F1E4A] whitespace-nowrap">{c.time}</td>
                       <td className="px-1.5 font-bold text-[#0F1E4A]">{c.kelas}</td>
                       <td className="px-1.5 text-slate-600 font-medium">{c.subject}</td>
+                      <td className="px-1.5"><ModeBadge mode={c.mode} /></td>
                       <td className="px-1.5">
                         <span className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 whitespace-nowrap">
                           <span className={cn('w-2 h-2 rounded-full', dotOf(c.status))} />
                           {isSoon(c.status) ? <Badge tone={c.status === 'Berlangsung' ? 'green' : 'orange'}>{c.status}</Badge> : c.status}
                         </span>
                       </td>
-                      <td className="px-1.5"><Btn size="sm" variant={c.action === 'Buka Kelas' ? 'primary' : 'outline'} to={c.action === 'Detail' ? `/guru/kelas/${c.classId}` : '/guru/absensi'} className="w-[92px]">{c.action}</Btn></td>
+                      <td className="px-1.5">
+                        {c.status === 'Selesai'
+                          ? <Btn size="sm" variant="outline" to={`/guru/kelas/${c.classId}`} className="w-[92px]">Detail</Btn>
+                          : <Btn size="sm" variant={isSoon(c.status) ? 'primary' : 'outline'} onClick={() => openClass(c.cls, navigate, c.room)} className="w-[92px]">{c.mode === 'Online' ? 'Buka Meet' : 'Buka Kelas'}</Btn>}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

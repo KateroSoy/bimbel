@@ -367,7 +367,7 @@ export default function ManajemenKeuangan() {
                         key={trx.id}
                         className="border-b border-slate-50 last:border-0 hover:bg-white/60 transition-colors group"
                       >
-                        <td className="px-6 py-4 text-slate-500 font-mono text-sm group-hover:text-blue-600 transition-colors">
+                        <td className="px-6 py-4 text-slate-500 tabular-nums text-sm group-hover:text-blue-600 transition-colors">
                           {trx.id}
                         </td>
                         <td className="px-6 py-4 text-slate-600 whitespace-nowrap font-medium text-sm">

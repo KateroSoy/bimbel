@@ -1,43 +1,53 @@
-import { useState } from 'react';
-import { Search, Star, ArrowRight, ChevronDown } from 'lucide-react';
-import { toast } from 'sonner';
-import { cn } from '../../lib/utils';
+import { useMemo, useState } from 'react';
+import { Search, ArrowRight, ChevronDown } from 'lucide-react';
+import { openRegistration } from './RegistrationForm';
 
 const IMG = {
   math: '/assets/landing/course-math.jpg',
   physics: '/assets/landing/course-physics.jpg',
   english: '/assets/landing/course-english.jpg',
+  science: '/assets/landing/programs/wonderworld.jpg',
+  chemistry: '/assets/landing/programs/science-mastery.jpg',
+  mandarin: '/assets/landing/programs/mandarin.jpg',
+  abacus: '/assets/landing/programs/abacus.jpg',
+  literacy: '/assets/landing/programs/literacy.jpg',
 };
 
-const ALL_COURSES = [
-  { id: 1, tag: 'Matematika', category: 'SD', metode: 'Offline', cabang: 'Bandung Dago', rating: 4.8, students: 120, title: 'Matematika Dasar Kelas 6', tutor: 'Kak Aditya', price: 'Rp199.000', image: IMG.math },
-  { id: 2, tag: 'Fisika', category: 'SMA', metode: 'Online', cabang: 'Jakarta Selatan', rating: 4.7, students: 84, title: 'Fisika SMA: Mekanika Dasar', tutor: 'Kak Raka', price: 'Rp325.000', image: IMG.physics },
-  { id: 3, tag: 'Matematika', category: 'SMP', metode: 'Privat', cabang: 'Bandung Dago', rating: 4.8, students: 120, title: 'Aljabar & Geometri SMP', tutor: 'Kak Aditya', price: 'Rp199.000', image: IMG.math },
-  { id: 4, tag: 'Bahasa Inggris', category: 'UTBK', metode: 'Online', cabang: 'Surabaya Timur', rating: 5.0, students: 215, title: 'Bahasa Inggris: Grammar Fundamental', tutor: 'Kak Sinta', price: 'Rp225.000', image: IMG.english },
-  { id: 5, tag: 'Fisika', category: 'Ujian Sekolah', metode: 'Offline', cabang: 'Jakarta Selatan', rating: 4.7, students: 64, title: 'Fisika SMA: Listrik & Magnet', tutor: 'Kak Raka', price: 'Rp325.000', image: IMG.physics },
-  { id: 6, tag: 'Bahasa Inggris', category: 'SMP', metode: 'Offline', cabang: 'Bandung Dago', rating: 5.0, students: 215, title: 'Bahasa Inggris: Reading & Writing', tutor: 'Kak Sinta', price: 'Rp225.000', image: IMG.english },
-  { id: 7, tag: 'Matematika', category: 'SMA', metode: 'Privat', cabang: 'Surabaya Timur', rating: 4.9, students: 98, title: 'Trigonometri SMA', tutor: 'Kak Aditya', price: 'Rp249.000', image: IMG.math },
-  { id: 8, tag: 'Matematika', category: 'UTBK', metode: 'Online', cabang: 'Jakarta Selatan', rating: 4.8, students: 176, title: 'Penalaran Matematika UTBK', tutor: 'Kak Dimas', price: 'Rp275.000', image: IMG.math },
+const LEVELS = ['Early Childhood', 'Kids', 'Teens'] as const;
+const SUBJECTS = ['English', 'Math', 'Science', 'Mandarin', 'Abacus', 'Literacy', 'Physics', 'Chemistry'] as const;
+
+type Course = { id: number; level: typeof LEVELS[number]; subject: typeof SUBJECTS[number]; topic: string; title: string; tutor: string; price: number; image: string };
+
+const ALL_COURSES: Course[] = [
+  { id: 1, level: 'Early Childhood', subject: 'English', topic: 'Phonics & Alphabet', title: 'Phonics Fun: Mengenal Bunyi Huruf', tutor: 'Kak Fitri', price: 150_000, image: IMG.english },
+  { id: 2, level: 'Early Childhood', subject: 'Math', topic: 'Mengenal Angka', title: 'Mengenal Angka 1–20', tutor: 'Kak Andi', price: 150_000, image: IMG.math },
+  { id: 3, level: 'Kids', subject: 'Math', topic: 'Pecahan', title: 'Pecahan & Desimal Kelas 4–5', tutor: 'Kak Andi', price: 199_000, image: IMG.math },
+  { id: 4, level: 'Kids', subject: 'Math', topic: 'Soal Cerita', title: 'Strategi Soal Cerita Matematika', tutor: 'Kak Aditya', price: 199_000, image: IMG.math },
+  { id: 5, level: 'Kids', subject: 'English', topic: 'Grammar', title: 'Grammar Fundamental: Simple Tenses', tutor: 'Kak Sinta', price: 225_000, image: IMG.english },
+  { id: 6, level: 'Kids', subject: 'English', topic: 'Speaking', title: 'Speaking Confidence for Kids', tutor: 'Kak Fitri', price: 225_000, image: IMG.english },
+  { id: 7, level: 'Kids', subject: 'Science', topic: 'Tumbuhan & Hewan', title: 'Makhluk Hidup di Sekitar Kita', tutor: 'Kak Nurul', price: 199_000, image: IMG.science },
+  { id: 8, level: 'Kids', subject: 'Mandarin', topic: 'Pinyin', title: 'Pinyin & 4 Nada Dasar', tutor: 'Laoshi Mei', price: 199_000, image: IMG.mandarin },
+  { id: 9, level: 'Kids', subject: 'Abacus', topic: 'Mental Arithmetic', title: 'Abacus Level 1: Penjumlahan', tutor: 'Kak Rina', price: 175_000, image: IMG.abacus },
+  { id: 10, level: 'Kids', subject: 'Literacy', topic: 'Reading Comprehension', title: 'Memahami Ide Pokok Bacaan', tutor: 'Kak Sinta', price: 175_000, image: IMG.literacy },
+  { id: 11, level: 'Teens', subject: 'Math', topic: 'Aljabar', title: 'Aljabar & Persamaan Linear SMP', tutor: 'Kak Aditya', price: 249_000, image: IMG.math },
+  { id: 12, level: 'Teens', subject: 'Physics', topic: 'Mekanika', title: 'Fisika: Gerak & Hukum Newton', tutor: 'Kak Raka', price: 325_000, image: IMG.physics },
+  { id: 13, level: 'Teens', subject: 'Physics', topic: 'Listrik & Magnet', title: 'Fisika: Listrik & Magnet', tutor: 'Kak Raka', price: 325_000, image: IMG.physics },
+  { id: 14, level: 'Teens', subject: 'Chemistry', topic: 'Stoikiometri', title: 'Kimia: Mol & Stoikiometri', tutor: 'Kak Dimas', price: 325_000, image: IMG.chemistry },
+  { id: 15, level: 'Teens', subject: 'English', topic: 'Reading & Writing', title: 'Academic Reading & Writing', tutor: 'Kak Sinta', price: 249_000, image: IMG.english },
 ];
 
-const FILTER_PILLS = ['SD', 'SMP', 'SMA', 'UTBK', 'Ujian Sekolah', 'Privat', 'Online', 'Offline'];
 const MAX_CARDS = 6;
+type Filters = { level: string; subject: string; topic: string };
+const EMPTY: Filters = { level: '', subject: '', topic: '' };
 
-type Filters = { jenjang: string; metode: string; cabang: string };
-const EMPTY_FILTERS: Filters = { jenjang: '', metode: '', cabang: '' };
-
-function PillSelect({ value, onChange, placeholder, options }: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-  options: string[];
-}) {
+function PillSelect({ value, onChange, placeholder, options }: { value: string; onChange: (v: string) => void; placeholder: string; options: readonly string[] }) {
   return (
     <div className="relative flex-1 min-w-[150px]">
       <Search className="w-3.5 h-3.5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-label={placeholder}
         className="w-full appearance-none bg-white text-slate-700 font-bold pl-9 pr-9 h-11 rounded-full border border-[#DCE3EE] text-sm shadow-sm hover:border-[#062564] focus:outline-none focus:ring-2 focus:ring-[#062564]/30 cursor-pointer"
       >
         <option value="">{placeholder}</option>
@@ -48,35 +58,18 @@ function PillSelect({ value, onChange, placeholder, options }: {
   );
 }
 
+const matches = (c: Course, f: Filters) => (!f.level || c.level === f.level) && (!f.subject || c.subject === f.subject) && (!f.topic || c.topic === f.topic);
+
 export function CourseSearchSection() {
-  const [selectedPill, setSelectedPill] = useState<string | null>(null);
-  const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
-  const [applied, setApplied] = useState<Filters>(EMPTY_FILTERS);
+  const [draft, setDraft] = useState<Filters>(EMPTY);
+  const [applied, setApplied] = useState<Filters>(EMPTY);
 
-  const filteredCourses = ALL_COURSES.filter(course => {
-    const matchesPill = !selectedPill || course.category === selectedPill || course.metode === selectedPill;
-    const matchesJenjang = !applied.jenjang || course.category === applied.jenjang;
-    const matchesMetode = !applied.metode || course.metode === applied.metode;
-    const matchesCabang = !applied.cabang || course.cabang === applied.cabang;
-    return matchesPill && matchesJenjang && matchesMetode && matchesCabang;
-  }).slice(0, MAX_CARDS);
-
-  const handleSearch = () => {
-    setApplied(draft);
-    toast.info("Menampilkan materi sesuai pencarian");
-  };
-
-  const resetAll = () => {
-    setSelectedPill(null);
-    setDraft(EMPTY_FILTERS);
-    setApplied(EMPTY_FILTERS);
-  };
-
-  const handleEnroll = (courseTitle: string) => {
-    toast.success(`Pendaftaran ${courseTitle} berhasil dipilih!`, {
-      description: "Tim konsultan akan segera mengonfirmasi jadwal belajar Anda."
-    });
-  };
+  // Topics offered for the chosen level + subject
+  const topics = useMemo(
+    () => [...new Set(ALL_COURSES.filter((c) => matches(c, { ...draft, topic: '' })).map((c) => c.topic))],
+    [draft.level, draft.subject],
+  );
+  const results = ALL_COURSES.filter((c) => matches(c, applied)).slice(0, MAX_CARDS);
 
   return (
     <section id="kursus-materi" className="py-14 bg-white relative scroll-mt-32">
@@ -85,83 +78,42 @@ export function CourseSearchSection() {
           Kursus Per Materi
         </h2>
 
-        {/* Filter bar — one row */}
-        <div className="flex flex-col sm:flex-row gap-3 max-w-[900px] mx-auto mb-4">
-          <PillSelect
-            value={draft.jenjang}
-            onChange={(v) => setDraft({ ...draft, jenjang: v })}
-            placeholder="Pilih Jenjang"
-            options={['SD', 'SMP', 'SMA', 'UTBK']}
-          />
-          <PillSelect
-            value={draft.metode}
-            onChange={(v) => setDraft({ ...draft, metode: v })}
-            placeholder="Pilih Metode"
-            options={['Online', 'Offline', 'Privat']}
-          />
-          <PillSelect
-            value={draft.cabang}
-            onChange={(v) => setDraft({ ...draft, cabang: v })}
-            placeholder="Pilih Kota/Cabang"
-            options={['Jakarta Selatan', 'Bandung Dago', 'Surabaya Timur']}
-          />
+        <div className="flex flex-col sm:flex-row gap-3 max-w-[900px] mx-auto mb-8">
+          <PillSelect value={draft.level} onChange={(v) => setDraft({ ...draft, level: v, topic: '' })} placeholder="Pilih Jenjang" options={LEVELS} />
+          <PillSelect value={draft.subject} onChange={(v) => setDraft({ ...draft, subject: v, topic: '' })} placeholder="Pilih Pelajaran" options={SUBJECTS} />
+          <PillSelect value={draft.topic} onChange={(v) => setDraft({ ...draft, topic: v })} placeholder="Pilih Topik" options={topics} />
           <button
-            onClick={handleSearch}
+            onClick={() => setApplied(draft)}
             className="flex-1 min-w-[150px] h-11 flex items-center justify-center gap-2 bg-[#F16710] text-white font-extrabold px-6 rounded-full text-sm shadow-md shadow-orange-500/20 hover:bg-[#d95b0e] transition-colors cursor-pointer"
           >
             <Search className="w-4 h-4" /> Cari Program
           </button>
         </div>
 
-        {/* Quick filter pills — one row */}
-        <div className="flex gap-2 max-w-[900px] mx-auto mb-8 overflow-x-auto pb-1 sm:justify-between [scrollbar-width:none]">
-          {FILTER_PILLS.map(pill => (
-            <button
-              key={pill}
-              onClick={() => setSelectedPill(selectedPill === pill ? null : pill)}
-              className={cn(
-                "shrink-0 sm:flex-1 px-4 py-1.5 rounded-full text-xs font-bold transition-all border whitespace-nowrap cursor-pointer",
-                selectedPill === pill
-                  ? 'bg-[#062564] text-white border-[#062564]'
-                  : 'bg-white text-slate-600 border-[#DCE3EE] hover:border-[#062564] hover:text-[#062564]'
-              )}
-            >
-              {pill}
-            </button>
-          ))}
-        </div>
-
-        {/* Course cards — one row on desktop */}
-        {filteredCourses.length > 0 ? (
+        {results.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {filteredCourses.map((course) => (
+            {results.map((course) => (
               <div key={course.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#DCE3EE] flex flex-col hover:shadow-lg hover:-translate-y-0.5 transition-all group">
                 <div className="aspect-[3/2] relative overflow-hidden">
-                  <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <span className="absolute top-2 left-2 bg-white/95 text-[10px] font-bold px-2 py-0.5 rounded text-[#062564] shadow-sm">
-                    {course.tag}
-                  </span>
+                  <img src={course.image} alt={course.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <span className="absolute top-2 left-2 bg-white/95 text-[10px] font-bold px-2 py-0.5 rounded text-[#062564] shadow-sm">{course.subject}</span>
                 </div>
                 <div className="p-3 flex-1 flex flex-col">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Star className="w-3 h-3 text-amber-400 fill-current"/>
-                    <span className="text-[11px] font-bold text-slate-700">{course.rating}</span>
-                    <span className="text-[10px] text-slate-400">({course.students} siswa)</span>
-                  </div>
+                  <p className="text-[10px] font-extrabold text-[#F16710] uppercase tracking-wide mb-1">{course.level} · {course.topic}</p>
                   <h4 className="font-bold text-[#062564] text-[13px] mb-2 leading-snug">{course.title}</h4>
                   <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-3 font-semibold">
                     <span className="w-4 h-4 rounded-full bg-red-100 text-[#E52833] text-[9px] font-extrabold flex items-center justify-center">
-                      {course.tutor.replace('Kak ', '').charAt(0)}
+                      {course.tutor.split(' ').pop()!.charAt(0)}
                     </span>
                     {course.tutor}
                   </div>
                   <div className="mt-auto pt-2.5 border-t border-[#DCE3EE] flex justify-between items-center">
-                    <span className="text-[#E52833] font-extrabold text-sm">{course.price}</span>
+                    <span className="text-[#E52833] font-extrabold text-sm">Rp{course.price.toLocaleString('id-ID')}</span>
                     <button
-                      onClick={() => handleEnroll(course.title)}
+                      onClick={() => openRegistration(`Kursus: ${course.title}`, course.level)}
                       className="text-[11px] font-bold text-[#062564] flex items-center gap-0.5 hover:underline cursor-pointer"
                     >
-                      Daftar <ArrowRight className="w-3 h-3"/>
+                      Daftar <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
@@ -170,8 +122,8 @@ export function CourseSearchSection() {
           </div>
         ) : (
           <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-            <p className="text-slate-600 font-medium">Tidak ada kursus yang cocok dengan filter yang dipilih.</p>
-            <button onClick={resetAll} className="mt-3 text-xs font-bold text-blue-600 hover:underline cursor-pointer">
+            <p className="text-slate-600 font-medium">Belum ada kursus untuk pilihan ini.</p>
+            <button onClick={() => { setDraft(EMPTY); setApplied(EMPTY); }} className="mt-3 text-xs font-bold text-blue-600 hover:underline cursor-pointer">
               Tampilkan semua kursus
             </button>
           </div>

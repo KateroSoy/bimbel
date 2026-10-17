@@ -29,7 +29,10 @@
    "time": "14.00 – 15.30",
    "students": 32,
    "status": "Aktif",
-   "tone": "blue"
+   "tone": "blue",
+   "mode": "Tatap Muka",
+   "meetUrl": "",
+   "room": "Studio Belajar 1"
   },
   {
    "id": "2",
@@ -40,7 +43,10 @@
    "time": "18.30 – 20.30",
    "students": 28,
    "status": "Aktif",
-   "tone": "green"
+   "tone": "green",
+   "mode": "Online",
+   "meetUrl": "https://meet.google.com/lsp-ked2-fis",
+   "room": "Online (Google Meet)"
   },
   {
    "id": "3",
@@ -51,7 +57,10 @@
    "time": "16.00 – 17.30",
    "students": 24,
    "status": "Aktif",
-   "tone": "purple"
+   "tone": "purple",
+   "mode": "Online",
+   "meetUrl": "https://meet.google.com/lsp-eng1-lvl",
+   "room": "Online (Google Meet)"
   },
   {
    "id": "4",
@@ -62,7 +71,10 @@
    "time": "16.00 – 18.00",
    "students": 30,
    "status": "Aktif",
-   "tone": "orange"
+   "tone": "orange",
+   "mode": "Tatap Muka",
+   "meetUrl": "",
+   "room": "Studio Belajar 2"
   }
  ],
  "AI_RESULTS": [
@@ -355,7 +367,10 @@
    "time": "14.00 – 15.30",
    "students": 32,
    "status": "Aktif",
-   "tone": "blue"
+   "tone": "blue",
+   "mode": "Tatap Muka",
+   "meetUrl": "",
+   "room": "Studio Belajar 1"
   },
   {
    "id": "2",
@@ -366,7 +381,10 @@
    "time": "18.30 – 20.30",
    "students": 28,
    "status": "Aktif",
-   "tone": "green"
+   "tone": "green",
+   "mode": "Online",
+   "meetUrl": "https://meet.google.com/lsp-ked2-fis",
+   "room": "Online (Google Meet)"
   },
   {
    "id": "3",
@@ -377,7 +395,10 @@
    "time": "16.00 – 17.30",
    "students": 24,
    "status": "Aktif",
-   "tone": "purple"
+   "tone": "purple",
+   "mode": "Online",
+   "meetUrl": "https://meet.google.com/lsp-eng1-lvl",
+   "room": "Online (Google Meet)"
   },
   {
    "id": "4",
@@ -388,7 +409,10 @@
    "time": "16.00 – 18.00",
    "students": 30,
    "status": "Aktif",
-   "tone": "orange"
+   "tone": "orange",
+   "mode": "Tatap Muka",
+   "meetUrl": "",
+   "room": "Studio Belajar 2"
   },
   {
    "id": "5",
@@ -399,7 +423,10 @@
    "time": "14.00 – 15.30",
    "students": 0,
    "status": "Akan Datang",
-   "tone": "blue"
+   "tone": "blue",
+   "mode": "Tatap Muka",
+   "meetUrl": "",
+   "room": "Studio Belajar 1"
   },
   {
    "id": "6",
@@ -410,7 +437,10 @@
    "time": "18.30 – 20.30",
    "students": 26,
    "status": "Selesai",
-   "tone": "green"
+   "tone": "green",
+   "mode": "Online",
+   "meetUrl": "https://meet.google.com/lsp-ked1-fis",
+   "room": "Online (Google Meet)"
   }
  ],
  "CLASS_NAMES": [
@@ -421,38 +451,22 @@
  ],
  "CONVERSATIONS": [
   {
-   "id": "C1",
-   "name": "Orang Tua – Mecca",
-   "role": "Orang Tua Siswa",
+   "id": "C7",
+   "name": "Ms. Fitri Handayani",
+   "role": "Tutor",
    "time": "10.30",
-   "preview": "Bu, terima kasih atas update hari ini.",
-   "unread": 2,
-   "starred": true,
-   "avatar": "/assets/portal/ibu.png",
+   "preview": "Pak, materi Bab 3 sudah saya unggah ke Kursus.",
+   "unread": 1,
+   "starred": false,
    "messages": [
     {
      "from": "them",
-     "text": "Assalamu'alaikum Pak Budi 🙏",
+     "text": "Assalamu'alaikum Pak Budi, materi Bab 3 untuk Batch English Level 1 sudah saya unggah ke Kursus & Materi.",
      "time": "10.20"
     },
     {
      "from": "them",
-     "text": "Bagaimana perkembangan Mecca hari ini di kelas?",
-     "time": "10.21"
-    },
-    {
-     "from": "me",
-     "text": "Wa'alaikumsalam Ibu 🙂 Alhamdulillah, Mecca hari ini aktif dan semangat sekali. Ia sudah bisa menjawab pertanyaan dengan percaya diri.",
-     "time": "10.25"
-    },
-    {
-     "from": "me",
-     "text": "Tetap semangat belajar di rumah ya, Ibu. Jangan lupa istirahat yang cukup.",
-     "time": "10.26"
-    },
-    {
-     "from": "them",
-     "text": "Terima kasih banyak Pak 😊",
+     "text": "Mohon dicek sebelum kelas sore ya, Pak.",
      "time": "10.30"
     }
    ]
@@ -475,28 +489,6 @@
      "from": "me",
      "text": "Tentu Yasmin, silakan ya.",
      "time": "09.50"
-    }
-   ]
-  },
-  {
-   "id": "C3",
-   "name": "Orang Tua – Marco",
-   "role": "Orang Tua Siswa",
-   "time": "Kemarin",
-   "preview": "Marco sedikit kurang sehat hari ini...",
-   "unread": 0,
-   "starred": false,
-   "avatar": "/assets/portal/ayah.png",
-   "messages": [
-    {
-     "from": "them",
-     "text": "Marco sedikit kurang sehat hari ini, mohon izin tidak masuk kelas.",
-     "time": "07.10"
-    },
-    {
-     "from": "me",
-     "text": "Terima kasih informasinya, Pak. Semoga Marco lekas sembuh.",
-     "time": "07.25"
     }
    ]
   },
@@ -539,27 +531,6 @@
      "from": "me",
      "text": "Sudah saya cek, nanti sore ya.",
      "time": "13.30"
-    }
-   ]
-  },
-  {
-   "id": "C6",
-   "name": "Orang Tua – Askya",
-   "role": "Orang Tua Siswa",
-   "time": "2 hari lalu",
-   "preview": "Terima kasih untuk bimbingannya, Pak.",
-   "unread": 0,
-   "starred": false,
-   "messages": [
-    {
-     "from": "them",
-     "text": "Terima kasih untuk bimbingannya, Pak.",
-     "time": "19.40"
-    },
-    {
-     "from": "me",
-     "text": "Sama-sama, Ibu 😊",
-     "time": "19.55"
     }
    ]
   }
@@ -1040,7 +1011,7 @@
    "slot": 2,
    "subject": "Bahasa Inggris",
    "kelas": "English Level 1",
-   "room": "Studio Belajar 2",
+   "room": "Online (Google Meet)",
    "title": "Bahasa Inggris",
    "lines": [
     "English Level 1",
@@ -1068,7 +1039,7 @@
    "slot": 5,
    "subject": "Fisika",
    "kelas": "Batch Kedinasan 2",
-   "room": "Lab IPA",
+   "room": "Online (Google Meet)",
    "title": "Fisika",
    "lines": [
     "Batch Kedinasan 2",
@@ -1111,7 +1082,7 @@
    "slot": 4,
    "subject": "Bahasa Inggris",
    "kelas": "English Level 1",
-   "room": "Studio Belajar 2",
+   "room": "Online (Google Meet)",
    "title": "Bahasa Inggris",
    "lines": [
     "English Level 1",
@@ -1140,7 +1111,7 @@
    "slot": 0,
    "subject": "Bahasa Inggris",
    "kelas": "English Level 1",
-   "room": "Studio Belajar 2",
+   "room": "Online (Google Meet)",
    "title": "Bahasa Inggris",
    "lines": [
     "English Level 1",
@@ -1196,7 +1167,7 @@
    "slot": 5,
    "subject": "Fisika",
    "kelas": "Batch Kedinasan 2",
-   "room": "Lab IPA",
+   "room": "Online (Google Meet)",
    "title": "Fisika",
    "lines": [
     "Batch Kedinasan 2",
@@ -1220,7 +1191,8 @@
    "subject": "Matematika",
    "status": "Berlangsung",
    "action": "Buka Kelas",
-   "classId": "1"
+   "classId": "1",
+   "mode": "Tatap Muka"
   },
   {
    "time": "09.00 - 10.30",
@@ -1228,7 +1200,8 @@
    "subject": "Fisika",
    "status": "30 menit lagi",
    "action": "Siapkan",
-   "classId": "2"
+   "classId": "2",
+   "mode": "Online"
   },
   {
    "time": "13.00 - 14.30",
@@ -1236,7 +1209,8 @@
    "subject": "Bahasa Inggris",
    "status": "2 jam lagi",
    "action": "Detail",
-   "classId": "3"
+   "classId": "3",
+   "mode": "Online"
   },
   {
    "time": "16.00 - 18.00",
@@ -1244,7 +1218,8 @@
    "subject": "Matematika",
    "status": "3 jam lagi",
    "action": "Detail",
-   "classId": "4"
+   "classId": "4",
+   "mode": "Tatap Muka"
   }
  ],
  "TUTOR": {

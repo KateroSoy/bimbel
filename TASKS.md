@@ -60,3 +60,20 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` completed · `[!]` block
 - [!] T073 Mail provider credentials for reset links in production
 - [ ] T074 Dates are stored as display strings; move to DATE columns when reporting needs ranges
 - [ ] T075 Remove unrouted legacy pages (`ManajemenGuru`, `ManajemenKeuangan`, `AbsensiKelasGuru`, …)
+
+## Revisi Tahap 2 (client feedback in `FEEDBACK_TAHAP2/`, 2026-10-17)
+- [x] R201 Landing: official contact (0812-8591-7614, help.studyhack@gmail.com, Medan address), hero copy, promo "Bawa Teman", hero stats removed
+- [x] R202 Landing: programs regrouped (Early Childhood / Kids / Creativity / Specialization), `/program/:slug` detail page with sign-up form
+- [x] R203 Website sign-up → `POST /api/public/registrations` (throttled, honeypot) → Admin Pendaftaran + notification
+- [x] R204 Landing: monthly bundles (Essential / Plus / Comprehensive), Kursus per Materi filters (Jenjang / Pelajaran / Topik)
+- [x] R205 Landing: Lynk products link, consultation chatbox, gallery photos 4:3, Google reviews + school-logo slideshow, Instagram/TikTok, "Download Aplikasi", footer "Link Cepat" removed
+- [x] R206 Admin: monospace font removed, Tes Kemampuan Dasar (Matematika, Logika & Coding SD) replaces CBT, Alumni page, WhatsApp inbox with per-class batch send, Template Pesan menu removed
+- [x] R207 Admin Pengaturan Lembaga: bank accounts, e-wallets, app download link
+- [x] R208 Siswa: menu renames (Jadwal Kelas, Kursus & Materi, Latihan dan Tugas), Tatap Muka / Online labels, one-screen layouts, multi-line grade chart
+- [x] R209 Siswa: rapor and attendance recap download as PDF on the StudyHack letterhead (jsPDF)
+- [x] R210 Siswa: Transfer Bank shows account numbers, E-Wallet replaces Virtual Account, card payment disabled
+- [x] R211 Tutor: Jadwal Mengajar (weekly view like the student schedule) replaces Kelas Saya + old schedule; Tatap Muka → presensi, Online → Google Meet
+- [x] R212 Tutor: Materi & Modul edits student course content (video, penjelasan, contoh soal, soal latihan, lampiran); only admin creates/deletes courses
+- [x] R213 Tutor: Rekap Nilai in Tugas & Assessment (Buku Nilai page removed), per-student grade input in Nilai & Progress, Bank Soal folders, Pesan limited to own students/admin/tutors
+- [ ] R214 AI Pembuat Bahan Ajar with a real AI provider (needs provider + API key; see T070)
+- [ ] R215 Laporan revisions (client: "menyusul"), Threads / YouTube links (client: "menyusul")

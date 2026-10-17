@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { toast } from 'sonner';
 import { CalendarDays, ChevronDown, Download, Star, Award, TrendingUp, ArrowRight, BookOpen, PencilLine, FlaskConical } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, PageTitle, SubjectBadge } from '../../components/siswa/PortalUI';
@@ -9,7 +9,7 @@ import { cn } from '../../lib/utils';
 import {
   STUDENT, SUBJECTS, GRADE_TREND, REPORT_SUMMARY, SUBJECT_DESCRIPTIONS, ATTENDANCE, type SubjectId,
 } from '../../data/siswaPortal';
-import { Logo } from '../../components/ui/Logo';
+import { downloadReport } from '../../lib/pdfReport';
 
 const STATUS_CLASS: Record<string, string> = { 'Sangat Baik': 'text-emerald-600', 'Baik': 'text-emerald-600', 'Perlu Perhatian': 'text-red-600' };
 const PREDIKAT_CLASS: Record<string, string> = { A: 'bg-emerald-50 text-emerald-700', B: 'bg-blue-50 text-blue-700', C: 'bg-orange-50 text-orange-600' };
@@ -20,12 +20,63 @@ export default function NilaiSiswa() {
   const [period, setPeriod] = useState(6);
 
   const weakest = [...SUBJECTS].sort((a, b) => a.score - b.score)[0];
-  const trend = GRADE_TREND.slice(-period).map((p, i) => {
-    if (chartSubject === 'all') return p;
-    const s = SUBJECTS.find((x) => x.id === chartSubject)!;
-    return { ...p, nilai: Math.max(40, Math.min(100, s.score - (period - 1 - i) * (s.trend >= 0 ? 3 : -1))) };
-  });
-  const gain = trend[trend.length - 1].nilai - trend[0].nilai;
+  // One series per subject, ending at its current score; "nilai" is the overall average
+  const shown = chartSubject === 'all' ? SUBJECTS : SUBJECTS.filter((s) => s.id === chartSubject);
+  const trend: Record<string, string | number>[] = GRADE_TREND.slice(-period).map((p, i) => ({
+    ...p,
+    ...Object.fromEntries(SUBJECTS.map((s) => [s.id, Math.max(40, Math.min(100, s.score - (period - 1 - i) * (s.trend >= 0 ? 3 : -1)))])),
+  }));
+  const gainKey = chartSubject === 'all' ? 'nilai' : chartSubject;
+  const gain = trend.length ? Number(trend[trend.length - 1][gainKey]) - Number(trend[0][gainKey]) : 0;
+  const [busy, setBusy] = useState(false);
+
+  const downloadRapor = async () => {
+    setBusy(true);
+    const counts = {
+      hadir: ATTENDANCE.filter((a) => a.status === 'Hadir' || a.status === 'Terlambat').length,
+      izin: ATTENDANCE.filter((a) => a.status === 'Izin').length,
+      sakit: ATTENDANCE.filter((a) => a.status === 'Sakit').length,
+      alpha: ATTENDANCE.filter((a) => a.status === 'Alpha').length,
+    };
+    try {
+      await downloadReport({
+        filename: `rapor-${STUDENT.name.toLowerCase().replace(/\s+/g, '-')}-${semester.replace(/\W+/g, '-').toLowerCase()}`,
+        title: 'LAPORAN HASIL BELAJAR',
+        subtitle: `${semester}${STUDENT.program ? ` · Program ${STUDENT.program}` : ''}`,
+        identity: [
+          ['Nama Siswa', STUDENT.name], ['Level', STUDENT.level || '-'],
+          ['ID Siswa', STUDENT.id], ['Sekolah Asal', STUDENT.school || '-'],
+          ['Orang Tua/Wali', STUDENT.parents[0]?.name ?? '-'], ['Kelas Sekolah', STUDENT.schoolClass || '-'],
+        ],
+        sections: [
+          {
+            title: 'A. Rekap Nilai',
+            head: ['No', 'Mata Pelajaran', 'Tutor', 'Nilai', 'Predikat', 'Deskripsi Capaian'],
+            widths: [9, 32, 28, 13, 17, 'auto'], align: ['center', 'left', 'left', 'center', 'center', 'left'],
+            body: [
+              ...SUBJECTS.map((s, i) => [i + 1, s.name, s.tutor, s.score, s.predikat, SUBJECT_DESCRIPTIONS[s.id] ?? '-']),
+              ['', 'Rata-rata', '', REPORT_SUMMARY.average, '', `Peringkat ${REPORT_SUMMARY.rank} dari ${REPORT_SUMMARY.classSize} siswa`],
+            ],
+          },
+          {
+            title: 'B. Rekap Kehadiran',
+            head: ['Hadir', 'Izin', 'Sakit', 'Tanpa Keterangan', 'Total Sesi'],
+            align: ['center', 'center', 'center', 'center', 'center'],
+            body: [[`${counts.hadir} sesi`, `${counts.izin} sesi`, `${counts.sakit} sesi`, `${counts.alpha} sesi`, `${ATTENDANCE.length} sesi`]],
+          },
+        ],
+        note: {
+          title: 'C. Catatan',
+          text: `Mata pelajaran terkuat: ${[...SUBJECTS].sort((a, b) => b.score - a.score)[0]?.name ?? '-'}. Fokus berikutnya: ${weakest?.name ?? '-'} (nilai ${weakest?.score ?? '-'}).`,
+        },
+      });
+      toast.success('Rapor PDF diunduh');
+    } catch {
+      toast.error('Gagal membuat PDF. Coba lagi.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -42,8 +93,8 @@ export default function NilaiSiswa() {
               </select>
               <ChevronDown className="w-4 h-4 absolute right-2.5 pointer-events-none" />
             </label>
-            <button onClick={() => window.print()} className="flex items-center gap-2 h-10 px-4 rounded-xl bg-white border border-slate-200 text-sm font-bold text-[#0F1E4A] hover:bg-slate-50">
-              <Download className="w-4 h-4" /> Unduh / Cetak Rapor
+            <button onClick={() => void downloadRapor()} disabled={busy} className="flex items-center gap-2 h-10 px-4 rounded-xl bg-white border border-slate-200 text-sm font-bold text-[#0F1E4A] hover:bg-slate-50 disabled:opacity-60">
+              <Download className="w-4 h-4" /> {busy ? 'Menyiapkan PDF…' : 'Unduh Rapor (PDF)'}
             </button>
           </>}
         />
@@ -118,21 +169,19 @@ export default function NilaiSiswa() {
                   </label>
                 </div>
               </div>
-              <div className="h-44">
+              <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={trend} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="nilaiFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#1D4ED8" stopOpacity={0.18} />
-                        <stop offset="100%" stopColor="#1D4ED8" stopOpacity={0.02} />
-                      </linearGradient>
-                    </defs>
+                  <LineChart data={trend} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                     <CartesianGrid stroke="#EEF2F7" vertical={false} />
                     <XAxis dataKey="bulan" tick={{ fontSize: 11, fill: '#334155' }} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tick={{ fontSize: 11, fill: '#334155' }} axisLine={false} tickLine={false} />
-                    <Tooltip formatter={(v) => [`${v}`, 'Nilai']} />
-                    <Area type="linear" dataKey="nilai" stroke="#1D4ED8" strokeWidth={2.5} fill="url(#nilaiFill)" dot={{ r: 4, fill: '#1D4ED8' }} />
-                  </AreaChart>
+                    <YAxis domain={[40, 100]} ticks={[40, 60, 80, 100]} tick={{ fontSize: 11, fill: '#334155' }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ borderRadius: 10, fontSize: 12 }} />
+                    <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, fontWeight: 700 }} />
+                    {shown.map((s) => (
+                      <Line key={s.id} type="monotone" dataKey={s.id} name={s.name} stroke={s.color} strokeWidth={2.5} dot={{ r: 3, fill: s.color }} activeDot={{ r: 5 }} />
+                    ))}
+                    {chartSubject === 'all' && <Line type="monotone" dataKey="nilai" name="Rata-rata" stroke="#0F1E4A" strokeWidth={2} strokeDasharray="5 4" dot={false} />}
+                  </LineChart>
                 </ResponsiveContainer>
               </div>
               <div className="mt-2 rounded-xl bg-[#EEF3FF] px-3 py-2 flex items-center gap-3">
@@ -168,96 +217,6 @@ export default function NilaiSiswa() {
         </Card>
       </div>
 
-      {createPortal(<RaporPrint semester={semester} />, document.body)}
     </DashboardLayout>
-  );
-}
-
-/** Lembar rapor A4 — hanya tampil saat dicetak (lihat .print-root di index.css). */
-function RaporPrint({ semester }: { semester: string }) {
-  const counts = {
-    hadir: ATTENDANCE.filter((a) => a.status === 'Hadir' || a.status === 'Terlambat').length,
-    izin: ATTENDANCE.filter((a) => a.status === 'Izin').length,
-    sakit: ATTENDANCE.filter((a) => a.status === 'Sakit').length,
-    alpha: ATTENDANCE.filter((a) => a.status === 'Alpha').length,
-  };
-  const cell = 'border border-slate-400 px-2 py-1.5';
-
-  return (
-    <div className="print-root text-[11pt] text-black bg-white" style={{ fontFamily: '"Plus Jakarta Sans", Arial, sans-serif' }}>
-      <div className="flex items-center gap-4 border-b-[3px] border-double border-black pb-4 mb-5">
-        <Logo size="xl" showText={true} />
-        <div className="flex-1 ml-4 border-l-2 border-slate-300 pl-4">
-          <p className="text-[14pt] font-extrabold leading-tight text-[#0F1E4A]">STUDYHACK EDUCATION CENTER</p>
-          <p className="text-[9.5pt] text-slate-700 mt-0.5">Jl. Pendidikan No. 123, Kota Bandung · 0823-2456-7906 · info@studyhack.co.id</p>
-        </div>
-        <div className="text-right text-[9pt]"><p className="font-bold text-[#1D4ED8]">Portal Siswa</p><p>Rapor Resmi</p></div>
-      </div>
-
-      <p className="text-center text-[14pt] font-extrabold tracking-wide">LAPORAN HASIL BELAJAR</p>
-      <p className="text-center text-[10pt] mb-4">{semester} · Program {STUDENT.program}</p>
-
-      <table className="w-full text-[10pt] mb-4">
-        <tbody>
-          <tr><td className="w-36 py-0.5">Nama Siswa</td><td>: <b>{STUDENT.name}</b></td><td className="w-32">Level</td><td>: {STUDENT.level}</td></tr>
-          <tr><td className="py-0.5">ID Siswa</td><td>: {STUDENT.id}</td><td>Sekolah Asal</td><td>: {STUDENT.school}</td></tr>
-          <tr><td className="py-0.5">Orang Tua/Wali</td><td>: {STUDENT.parents[0].name}</td><td>Kelas Sekolah</td><td>: {STUDENT.schoolClass}</td></tr>
-        </tbody>
-      </table>
-
-      <p className="font-bold text-[10.5pt] mb-1">A. Nilai Akademik</p>
-      <table className="w-full border-collapse text-[10pt] mb-4">
-        <thead className="bg-slate-100">
-          <tr>
-            <th className={`${cell} w-8`}>No</th><th className={`${cell} text-left`}>Mata Pelajaran</th><th className={`${cell} w-28 text-left`}>Tutor</th>
-            <th className={`${cell} w-14`}>Nilai</th><th className={`${cell} w-16`}>Predikat</th><th className={`${cell} text-left`}>Deskripsi Capaian</th>
-          </tr>
-        </thead>
-        <tbody>
-          {SUBJECTS.map((s, i) => (
-            <tr key={s.id} style={{ breakInside: 'avoid' }}>
-              <td className={`${cell} text-center`}>{i + 1}</td>
-              <td className={cell}>{s.name}</td>
-              <td className={cell}>{s.tutor}</td>
-              <td className={`${cell} text-center font-bold`}>{s.score}</td>
-              <td className={`${cell} text-center`}>{s.predikat}</td>
-              <td className={`${cell} text-[9pt]`}>{SUBJECT_DESCRIPTIONS[s.id]}</td>
-            </tr>
-          ))}
-          <tr>
-            <td className={`${cell} font-bold text-right`} colSpan={3}>Rata-rata</td>
-            <td className={`${cell} text-center font-bold`}>{REPORT_SUMMARY.average}</td>
-            <td className={cell} colSpan={2}>Peringkat {REPORT_SUMMARY.rank} dari {REPORT_SUMMARY.classSize} siswa</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div className="grid grid-cols-2 gap-6 mb-4" style={{ breakInside: 'avoid' }}>
-        <div>
-          <p className="font-bold text-[10.5pt] mb-1">B. Kehadiran</p>
-          <table className="w-full border-collapse text-[10pt]">
-            <tbody>
-              <tr><td className={cell}>Hadir</td><td className={`${cell} text-center w-20`}>{counts.hadir} sesi</td></tr>
-              <tr><td className={cell}>Izin</td><td className={`${cell} text-center`}>{counts.izin} sesi</td></tr>
-              <tr><td className={cell}>Sakit</td><td className={`${cell} text-center`}>{counts.sakit} sesi</td></tr>
-              <tr><td className={cell}>Tanpa Keterangan</td><td className={`${cell} text-center`}>{counts.alpha} sesi</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <p className="font-bold text-[10.5pt] mb-1">C. Catatan Tutor</p>
-          <div className="border border-slate-400 p-2 text-[9.5pt] leading-relaxed min-h-[110px]">
-            Andi menunjukkan perkembangan yang baik, terutama pada English dan Bahasa Indonesia. Fokus semester berikutnya:
-            memperkuat Science (materi cahaya & bayangan) dan membiasakan latihan soal cerita Matematika.
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 text-center text-[10pt] mt-8" style={{ breakInside: 'avoid' }}>
-        <div className="flex flex-col h-32"><p>&nbsp;</p><p>Orang Tua/Wali</p><p className="mt-auto font-bold underline">{STUDENT.parents[0].name}</p></div>
-        <div className="flex flex-col h-32"><p>&nbsp;</p><p>Tutor Pembimbing</p><p className="mt-auto font-bold underline">{SUBJECTS[1].tutor}</p></div>
-        <div className="flex flex-col h-32"><p>Bandung, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p><p>Kepala Bimbel</p><p className="mt-auto font-bold underline">StudyHack Education</p></div>
-      </div>
-    </div>
   );
 }

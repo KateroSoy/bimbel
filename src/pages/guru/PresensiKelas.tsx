@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ArrowLeft, NotebookPen, Save, CalendarCheck, CalendarDays, Clock, Timer, CircleCheck, Users, SquarePen, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
@@ -14,7 +15,9 @@ export default function PresensiKelas() {
   const remote = useResource<PresenceRow>('presences');
   const rows = remote.rows;
   const notes = useResource<TeachingNote>('teaching-notes');
-  const kelas = useResource<TutorClass>('tutor-classes').rows.find((c) => c.status === 'Aktif');
+  const [params] = useSearchParams();
+  const allClasses = useResource<TutorClass>('tutor-classes').rows;
+  const kelas = allClasses.find((c) => c.id === params.get('kelas')) ?? allClasses.find((c) => c.status === 'Aktif');
   const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const [tab, setTab] = useState('Daftar Siswa');
   const [q, setQ] = useState('');
@@ -59,7 +62,7 @@ export default function PresensiKelas() {
       <div className="space-y-4 max-w-[1300px]">
         <PageHead title="Presensi Kelas" subtitle="Kelola kehadiran siswa pada sesi bimbingan belajar Anda." />
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Btn variant="ghost" icon={ArrowLeft} to="/guru/jadwal">Kembali ke Jadwal</Btn>
+          <Btn variant="ghost" icon={ArrowLeft} to="/guru/kelas">Kembali ke Jadwal</Btn>
           <div className="flex gap-2">
             <Btn variant="ghost" icon={NotebookPen} onClick={() => setJournal(true)}>Catatan Mengajar</Btn>
             <Btn variant="primary" icon={Save} onClick={() => { touch(); toast.success('Presensi disimpan', { description: `${n('Hadir') + n('Terlambat')} dari ${rows.length} siswa hadir.` }); }}>Selesai & Simpan</Btn>

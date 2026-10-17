@@ -272,7 +272,7 @@ export default function InventarisBimbel() {
                     <td className="py-4 px-5">
                       <p className="font-bold text-slate-900 text-xs">{item.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                        <span className="whitespace-nowrap shrink-0 text-[10px] font-semibold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
                           {item.itemCode}
                         </span>
                         {item.notes && (
@@ -323,7 +323,7 @@ export default function InventarisBimbel() {
                     </td>
 
                     {/* Valuation */}
-                    <td className="py-4 px-4 text-right font-mono font-bold text-slate-900">
+                    <td className="py-4 px-4 text-right tabular-nums whitespace-nowrap font-bold text-slate-900">
                       Rp {(item.totalValue || item.quantity * item.pricePerUnit).toLocaleString('id-ID')}
                     </td>
 
@@ -455,15 +455,15 @@ export default function InventarisBimbel() {
                 <tbody className="divide-y divide-slate-200">
                   {inventoryItems.map((it, idx) => (
                     <tr key={it.id}>
-                      <td className="p-2 border-r border-slate-200 font-mono text-center">{idx + 1}</td>
-                      <td className="p-2 border-r border-slate-200 font-mono">{it.itemCode}</td>
+                      <td className="p-2 border-r border-slate-200 tabular-nums text-center">{idx + 1}</td>
+                      <td className="p-2 border-r border-slate-200 tabular-nums">{it.itemCode}</td>
                       <td className="p-2 border-r border-slate-200 font-semibold">{it.name}</td>
                       <td className="p-2 border-r border-slate-200">{it.location}</td>
                       <td className="p-2 border-r border-slate-200 text-center font-bold">
                         {it.quantity} {it.unit}
                       </td>
                       <td className="p-2 border-r border-slate-200">{it.condition}</td>
-                      <td className="p-2 text-right font-mono">
+                      <td className="p-2 text-right tabular-nums">
                         {(it.totalValue || it.quantity * it.pricePerUnit).toLocaleString('id-ID')}
                       </td>
                     </tr>
@@ -472,7 +472,7 @@ export default function InventarisBimbel() {
                     <td colSpan={6} className="p-2 text-right border-r border-slate-300">
                       TOTAL VALUASI ASET KESELURUHAN:
                     </td>
-                    <td className="p-2 text-right font-mono">
+                    <td className="p-2 text-right tabular-nums">
                       Rp {metrics.totalValuation.toLocaleString('id-ID')}
                     </td>
                   </tr>

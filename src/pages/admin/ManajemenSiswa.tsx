@@ -247,7 +247,7 @@ export default function ManajemenSiswa() {
                         key={student.id} 
                         className="border-b border-slate-50 last:border-0 hover:bg-white/60 transition-colors group"
                       >
-                        <td className="px-6 py-4 text-slate-500 font-mono text-sm group-hover:text-blue-600 transition-colors">{student.id}</td>
+                        <td className="px-6 py-4 text-slate-500 tabular-nums text-sm group-hover:text-blue-600 transition-colors">{student.id}</td>
                         <td className="px-6 py-4 font-bold text-slate-900 flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600 flex items-center justify-center font-bold text-sm shadow-inner">
                             {student.name.charAt(0)}
@@ -256,7 +256,7 @@ export default function ManajemenSiswa() {
                         </td>
                         <td className="px-6 py-4 text-slate-600 font-medium">{student.grade}</td>
                         <td className="px-6 py-4">
-                          <span className="font-mono font-bold text-slate-700">{student.gpa.toFixed(2)}</span>
+                          <span className="tabular-nums font-bold text-slate-700">{student.gpa.toFixed(2)}</span>
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold tracking-wide uppercase ${

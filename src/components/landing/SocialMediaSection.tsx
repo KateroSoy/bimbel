@@ -1,21 +1,9 @@
-import { useState } from 'react';
-import { Check } from 'lucide-react';
-import { toast } from 'sonner';
+import { LINKS } from '../../lib/contact';
+
+const followBtn = 'px-6 py-1.5 rounded-full text-xs font-bold transition-all bg-[#062564] text-white hover:bg-blue-900';
+const soonBtn = 'px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 cursor-default';
 
 export function SocialMediaSection() {
-  const [socialState, setSocialState] = useState<Record<string, boolean>>({});
-
-  const toggleFollow = (platform: string) => {
-    const isFollowed = !!socialState[platform];
-    setSocialState(prev => ({ ...prev, [platform]: !isFollowed }));
-    if (!isFollowed) {
-      toast.success(`Berhasil mengikuti ${platform} StudyHack!`, {
-        description: "Terima kasih sudah terhubung dengan komunitas belajar kami."
-      });
-    } else {
-      toast.info(`Berhenti mengikuti ${platform}`);
-    }
-  };
 
   return (
     <section id="sosial-media" className="py-14 bg-white">
@@ -32,7 +20,7 @@ export function SocialMediaSection() {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl shadow-sm">IG</div>
               <div>
                 <h4 className="font-bold text-sm text-slate-800">Instagram</h4>
-                <p className="text-[10px] text-slate-500">@studyhack.education</p>
+                <p className="text-[10px] text-slate-500">@studyhack_education</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-4 flex-1">
@@ -43,14 +31,7 @@ export function SocialMediaSection() {
             </div>
             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
               <div className="font-bold text-sm">1.2K <span className="text-[10px] text-slate-500 font-normal">Followers</span></div>
-              <button 
-                onClick={() => toggleFollow('Instagram')}
-                className={`px-6 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  socialState['Instagram'] ? 'bg-emerald-600 text-white flex items-center gap-1' : 'bg-[#062564] text-white hover:bg-blue-900'
-                }`}
-              >
-                {socialState['Instagram'] ? <><Check className="w-3.5 h-3.5" /> Mengikuti</> : 'Ikuti'}
-              </button>
+              <a href={LINKS.instagram} target="_blank" rel="noreferrer" className={followBtn}>Ikuti</a>
             </div>
           </div>
 
@@ -60,7 +41,7 @@ export function SocialMediaSection() {
               <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white font-bold text-xl shadow-sm">TK</div>
               <div>
                 <h4 className="font-bold text-sm text-slate-800">TikTok</h4>
-                <p className="text-[10px] text-slate-500">@studyhack.education</p>
+                <p className="text-[10px] text-slate-500">@studyhack_education</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-4 flex-1">
@@ -69,14 +50,7 @@ export function SocialMediaSection() {
             </div>
             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
               <div className="font-bold text-sm">8.7K <span className="text-[10px] text-slate-500 font-normal">Followers</span></div>
-              <button 
-                onClick={() => toggleFollow('TikTok')}
-                className={`px-6 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  socialState['TikTok'] ? 'bg-emerald-600 text-white flex items-center gap-1' : 'bg-[#062564] text-white hover:bg-blue-900'
-                }`}
-              >
-                {socialState['TikTok'] ? <><Check className="w-3.5 h-3.5" /> Mengikuti</> : 'Ikuti'}
-              </button>
+              <a href={LINKS.tiktok} target="_blank" rel="noreferrer" className={followBtn}>Ikuti</a>
             </div>
           </div>
 
@@ -86,7 +60,7 @@ export function SocialMediaSection() {
               <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white font-bold text-xl shadow-sm">@</div>
               <div>
                 <h4 className="font-bold text-sm text-slate-800">Threads</h4>
-                <p className="text-[10px] text-slate-500">@studyhack.education</p>
+                <p className="text-[10px] text-slate-500">@studyhack_education</p>
               </div>
             </div>
             <div className="bg-slate-50 rounded-lg p-3 mb-4 flex-1 border border-slate-100">
@@ -100,14 +74,7 @@ export function SocialMediaSection() {
             </div>
             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
               <div className="font-bold text-sm">755 <span className="text-[10px] text-slate-500 font-normal">Followers</span></div>
-              <button 
-                onClick={() => toggleFollow('Threads')}
-                className={`px-6 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  socialState['Threads'] ? 'bg-emerald-600 text-white flex items-center gap-1' : 'bg-[#062564] text-white hover:bg-blue-900'
-                }`}
-              >
-                {socialState['Threads'] ? <><Check className="w-3.5 h-3.5" /> Mengikuti</> : 'Ikuti'}
-              </button>
+              <span className={soonBtn}>Segera Hadir</span>
             </div>
           </div>
 
@@ -129,14 +96,7 @@ export function SocialMediaSection() {
             </div>
             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
               <div className="font-bold text-sm">4.1K <span className="text-[10px] text-slate-500 font-normal">Subscribers</span></div>
-              <button 
-                onClick={() => toggleFollow('YouTube')}
-                className={`px-6 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  socialState['YouTube'] ? 'bg-emerald-600 text-white flex items-center gap-1' : 'bg-[#E52833] text-white hover:bg-red-700'
-                }`}
-              >
-                {socialState['YouTube'] ? <><Check className="w-3.5 h-3.5" /> Subscribed</> : 'Subscribe'}
-              </button>
+              <span className={soonBtn}>Segera Hadir</span>
             </div>
           </div>
         </div>

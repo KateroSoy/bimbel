@@ -183,7 +183,7 @@ export default function Quiz() {
                 onClick={() => navigate('/siswa/course/2')}
                 className="px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-colors"
               >
-                Kembali ke Course
+                Kembali ke Kursus
               </button>
               <button 
                 className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md"
@@ -215,7 +215,7 @@ export default function Quiz() {
             <button className="text-slate-400 hover:text-amber-500 transition-colors" title="Tandai ragu-ragu">
               <Flag className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-50 text-rose-600 font-mono font-bold text-lg border border-rose-100">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-50 text-rose-600 tabular-nums font-bold text-lg border border-rose-100">
               <Clock className="w-5 h-5" />
               {timeLeft}
             </div>

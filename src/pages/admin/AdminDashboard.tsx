@@ -81,7 +81,7 @@ export default function AdminDashboard() {
     <DashboardLayout>
       <div className="space-y-4 max-w-[1500px]">
         <PageHead
-          title="Selamat datang, Admin! 👋"
+          title="Selamat datang, Admin!"
           subtitle="Kelola bimbel lebih mudah, semua informasi penting ada di sini."
           actions={<span className="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-slate-200 bg-white text-[13px] font-bold text-slate-800"><CalendarDays className="w-4 h-4 text-[#1D4ED8]" /> {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>}
         />

@@ -9,8 +9,8 @@
    "desc": "Level 1"
   }
  ],
- "ADMIN_WA": "6282324567906",
- "ADMIN_WA_LABEL": "0823-2456-7906",
+ "ADMIN_WA": "6281285917614",
+ "ADMIN_WA_LABEL": "0812-8591-7614",
  "ANNOUNCEMENTS": [
   {
    "title": "Libur Kemerdekaan",
@@ -1065,7 +1065,8 @@
    "end": "17.30",
    "room": "Studio Belajar 1",
    "status": "Selesai",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Tatap Muka"
   },
   {
    "id": "LC2",
@@ -1078,7 +1079,8 @@
    "end": "17.30",
    "room": "Studio Belajar 2",
    "status": "Selesai",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Tatap Muka"
   },
   {
    "id": "LC3",
@@ -1091,7 +1093,8 @@
    "end": "17.30",
    "room": "Studio Belajar 1",
    "status": "Selesai",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Tatap Muka"
   },
   {
    "id": "LC4",
@@ -1104,7 +1107,8 @@
    "end": "20.00",
    "room": "Studio Sains",
    "status": "Selesai",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Tatap Muka"
   },
   {
    "id": "LC5",
@@ -1117,7 +1121,8 @@
    "end": "17.30",
    "room": "Studio Belajar 2",
    "status": "Selesai",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Tatap Muka"
   },
   {
    "id": "LC6",
@@ -1131,7 +1136,8 @@
    "room": "Online (Google Meet)",
    "status": "Berlangsung",
    "meetUrl": "https://meet.google.com/lsp-sci3-p3a",
-   "openedByTutor": true
+   "openedByTutor": true,
+   "mode": "Online"
   },
   {
    "id": "LC7",
@@ -1145,7 +1151,8 @@
    "room": "Online (Google Meet)",
    "status": "Akan Datang",
    "meetUrl": "https://meet.google.com/lsp-mgj2-lv2",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Online"
   },
   {
    "id": "LC8",
@@ -1158,7 +1165,8 @@
    "end": "17.30",
    "room": "Studio Belajar 3",
    "status": "Akan Datang",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Tatap Muka"
   },
   {
    "id": "LC9",
@@ -1171,7 +1179,8 @@
    "end": "20.00",
    "room": "Studio Sains",
    "status": "Akan Datang",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Tatap Muka"
   },
   {
    "id": "LC10",
@@ -1184,7 +1193,8 @@
    "end": "11.30",
    "room": "Ruang Mengaji",
    "status": "Akan Datang",
-   "openedByTutor": false
+   "openedByTutor": false,
+   "mode": "Tatap Muka"
   }
  ],
  "PAYMENT_METHODS": [

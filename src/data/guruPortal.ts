@@ -2,7 +2,11 @@
 import type { Session, Tone } from '../components/portal/Kit';
 
 /* ---------- Kelas (resource: tutor-classes) ---------- */
-export interface TutorClass { id: string; name: string; code: string; subject: string; days: string; time: string; students: number; status: 'Aktif' | 'Akan Datang' | 'Selesai'; tone: Tone }
+export interface TutorClass {
+  id: string; name: string; code: string; subject: string; days: string; time: string; students: number; status: 'Aktif' | 'Akan Datang' | 'Selesai'; tone: Tone;
+  /** Tatap Muka (presensi di ruang) atau Online (Google Meet) */
+  mode?: 'Tatap Muka' | 'Online' | null; meetUrl?: string | null; room?: string | null;
+}
 
 /* ---------- Jadwal mengajar (resource: teach-sessions) ---------- */
 export const TEACH_SLOTS = ['09.00 – 10.30', '11.00 – 12.30', '13.00 – 14.30', '14.00 – 15.30', '16.00 – 18.00', '18.30 – 20.30'];
@@ -51,7 +55,9 @@ export type Risk = 'Risiko Tinggi' | 'Risiko Sedang' | 'Membaik' | 'Remedial Akt
 export interface AttentionRow { id: string; name: string; kelas: string; subject: string; issue: string; issueSub: string; stats: [string, string][]; risk: Risk; trend: number; note: string }
 
 /* ---------- Bank soal (resource: questions) ---------- */
-export interface QuestionRow { id: string; text: string; type: 'Pilihan Ganda' | 'Uraian'; subject: string; topic: string; grade: string; level: 'Mudah' | 'Sedang' | 'Sulit'; mine: boolean; fav: boolean }
+export interface QuestionRow { id: string; text: string; type: 'Pilihan Ganda' | 'Uraian'; subject: string; topic: string; grade: string; level: 'Mudah' | 'Sedang' | 'Sulit'; mine: boolean; fav: boolean; folder?: string | null }
+/** Folder a question is filed under: its own folder name, otherwise its topic. */
+export const folderOf = (q: Pick<QuestionRow, 'folder' | 'topic'>) => (q.folder || q.topic || 'Tanpa Folder').trim();
 
 /* ---------- AI bahan ajar (resource: ai-results) ---------- */
 export const AI_TYPES = ['Worksheet', 'Modul', 'Quiz / Soal', 'Presentasi', 'RPP / ATP', 'Infografis', 'Lainnya'];

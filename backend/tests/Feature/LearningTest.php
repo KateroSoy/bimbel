@@ -14,11 +14,12 @@ class LearningTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** Course with one module and $lessons lessons, built through the API as a tutor. */
+    /** Course created by the admin, then one module and $lessons lessons filled in by a tutor. */
     private function course(int $lessons = 2, string $status = 'Published'): array
     {
-        $this->actingAsRole('guru');
+        $this->actingAsRole('admin');
         $course = $this->postJson('/api/r/courses', ['title' => 'Matematika P3', 'status' => $status, 'subjectId' => 'math'])->assertCreated()->json('data.id');
+        $this->actingAsRole('guru');
         $module = $this->postJson("/api/courses/$course/modules", ['title' => 'Bab 1'])->assertCreated()->json('data.id');
         $ids = [];
         for ($i = 1; $i <= $lessons; $i++) {
@@ -51,6 +52,30 @@ class LearningTest extends TestCase
         $this->deleteJson("/api/lessons/$lesson")->assertOk();
         $this->assertDatabaseMissing('lessons', ['ref' => $lesson]);
         $this->deleteJson("/api/lessons/$lesson")->assertNotFound();
+    }
+
+    public function test_only_admin_creates_or_deletes_courses(): void
+    {
+        [$course] = $this->course(0);
+
+        $this->postJson('/api/r/courses', ['title' => 'Kursus Tutor'])->assertForbidden();
+        $this->deleteJson("/api/r/courses/$course")->assertForbidden();
+        // Tutors may still edit the content fields of an existing course, but not rename it
+        $this->putJson("/api/r/courses/$course", ['description' => 'Bab bilangan bulat', 'title' => 'Diganti'])->assertOk()
+            ->assertJsonPath('data.description', 'Bab bilangan bulat')->assertJsonPath('data.title', 'Matematika P3');
+    }
+
+    public function test_lessons_store_examples_practice_and_attachments(): void
+    {
+        [, , [$lesson]] = $this->course(1);
+
+        $this->putJson("/api/lessons/$lesson", [
+            'kind' => 'latihan',
+            'notes' => [['question' => '2 + 3 = ?', 'options' => ['4', '5', '6'], 'answer' => 1]],
+            'files' => [['name' => 'Ringkasan.pdf', 'url' => 'https://drive.google.com/file/d/abc/view']],
+        ])->assertOk()
+            ->assertJsonPath('data.notes.0.options.1', '5')
+            ->assertJsonPath('data.files.0.name', 'Ringkasan.pdf');
     }
 
     public function test_deleting_a_course_cascades(): void

@@ -13,8 +13,8 @@ if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
 
 const ROUTES = {
   admin: ['dashboard', 'notifikasi', 'siswa', 'pendaftaran', 'ortu', 'guru', 'jadwal-tutor', 'kehadiran-tutor', 'beban', 'course', 'course-digital', 'kelas', 'jadwal-kelas', 'ruang',
-    'keuangan', 'pembayaran', 'piutang', 'pengeluaran', 'honor', 'laporan-keuangan', 'whatsapp', 'inventaris', 'laporan', 'laporan-siswa', 'laporan-kelas', 'laporan-tutor', 'laporan-operasional', 'pengumuman', 'pengaturan', 'alumni'],
-  guru: ['dashboard', 'kelas', 'kelas/1', 'jadwal', 'course', 'course/kelola', 'tugas', 'tugas/1', 'absensi', 'siswa', 'nilai', 'nilai/input', 'progress-siswa', 'bank-soal',
+    'keuangan', 'pembayaran', 'piutang', 'pengeluaran', 'honor', 'laporan-keuangan', 'whatsapp', 'inventaris', 'laporan', 'laporan-siswa', 'laporan-kelas', 'laporan-tutor', 'laporan-operasional', 'pengumuman', 'pengaturan', 'alumni', 'tes-dasar'],
+  guru: ['dashboard', 'kelas', 'kelas/1', 'course', 'tugas', 'tugas/1', 'tugas?tab=rekap', 'absensi', 'siswa', 'nilai', 'progress-siswa', 'bank-soal',
     'ai-bahan-ajar', 'pengumuman', 'pesan', 'profil', 'pengaturan'],
   siswa: ['dashboard', 'jadwal', 'course', 'course/math-p3', 'tugas', 'tugas/1', 'katalog-tes', 'toefl', 'nilai', 'absensi', 'spp', 'profil', 'pengaturan', 'pengumuman', 'sertifikat'],
 };
@@ -85,13 +85,53 @@ for (const [role, routes] of Object.entries(ROUTES)) {
     if (!title) fail(`${role}/${route}: no heading rendered`);
     if (overflow) fail(`${role}/${route}: horizontal overflow`);
     for (const problem of new Set(page.problems)) fail(`${role}/${route}: ${problem}`);
-    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, `${role}-${route.replace(/\//g, '_')}.png`) });
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, `${role}-${route.replace(/[/?=]/g, '_')}.png`) });
     console.log(`  ${role}/${route} — ${title}`);
   }
   await page.close();
 }
 
-// ---- 3. a write through the UI survives a reload (admin adds a guardian)
+// ---- 3. public website: landing, program detail, sign-up form reaching the admin
+{
+  console.log('Public website');
+  const page = await newPage();
+  for (const route of ['/', '/program/math-essential', '/karir']) {
+    page.problems.length = 0;
+    await page.goto(`${BASE}${route}`, { waitUntil: 'networkidle2' });
+    await sleep(700);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
+    if (overflow) fail(`${route}: horizontal overflow`);
+    for (const problem of new Set(page.problems)) fail(`${route}: ${problem}`);
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, `public${route.replace(/\//g, '_') || '_home'}.png`), fullPage: route === '/' });
+    console.log(`  ${route}`);
+  }
+  const child = `Calon Uji ${Date.now()}`;
+  page.problems.length = 0;
+  await page.goto(`${BASE}/program/math-essential`, { waitUntil: 'networkidle2' });
+  const inputs = await page.$$('#daftar form input:not([name=website])');
+  await inputs[0].type(child);
+  await inputs[2].type('Wali Uji');
+  await inputs[3].type('081299990000');
+  await page.click('#daftar form button[type=submit]');
+  await page.waitForFunction(() => document.body.innerText.includes('Pendaftaran terkirim'), { timeout: 10000 }).catch(() => fail('sign-up form did not confirm'));
+  for (const problem of new Set(page.problems)) fail(`sign-up: ${problem}`);
+  await page.close();
+
+  const admin = await newPage();
+  await login(admin, ACCOUNTS.admin);
+  const found = await admin.evaluate(async (n) => {
+    const token = JSON.parse(localStorage.getItem('LearnSpace+-storage') || '{}')?.state?.token;
+    const headers = { Accept: 'application/json', Authorization: `Bearer ${token}` };
+    const row = (await (await fetch(`/api/r/registrations?q=${encodeURIComponent(n)}`, { headers })).json()).data.find((r) => r.name === n);
+    if (!row) return 'missing';
+    await fetch(`/api/r/registrations/${encodeURIComponent(row.id)}`, { method: 'DELETE', headers });
+    return row.source;
+  }, child);
+  if (found !== 'Website') fail(`website sign-up not found in admin registrations (${found})`);
+  await admin.close();
+}
+
+// ---- 4. a write through the UI survives a reload (admin adds a guardian)
 {
   console.log('Persistence through the UI');
   const page = await newPage();

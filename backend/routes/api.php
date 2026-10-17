@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactsController;
 use App\Http\Controllers\CourseContentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PublicController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SubmissionFileController;
@@ -17,6 +19,9 @@ Route::prefix('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
+Route::get('public/info', [PublicController::class, 'info'])->middleware('throttle:60,1');
+Route::post('public/registrations', [PublicController::class, 'register'])->middleware('throttle:5,1');
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [AuthController::class, 'me']);
     Route::put('me', [AuthController::class, 'updateProfile']);
@@ -26,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('settings', [SettingsController::class, 'update'])->middleware('role:admin');
 
     Route::get('admin/dashboard', [DashboardController::class, 'admin'])->middleware('role:admin');
+    Route::get('guru/contacts', [ContactsController::class, 'index'])->middleware('role:guru');
     Route::get('admin/reports/{section}', [DashboardController::class, 'report'])->middleware('role:admin');
     Route::post('student/submissions/file', [SubmissionFileController::class, 'store'])->middleware('role:siswa');
     Route::get('submissions/{submission}/file', [SubmissionFileController::class, 'download']);

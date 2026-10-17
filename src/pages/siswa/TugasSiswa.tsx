@@ -61,7 +61,7 @@ export default function TugasSiswa() {
     <DashboardLayout>
       <div className="max-w-[1400px] grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4">
         <div className="min-w-0 space-y-3">
-          <PageTitle title="Tugas & Asesmen" subtitle="Kerjakan tugas tepat waktu dan pantau hasil penilaian guru." />
+          <PageTitle title="Latihan dan Tugas" subtitle="Kerjakan latihan dan tugas tepat waktu, lalu pantau hasil penilaian tutor." />
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {stats.map(({ label, value, unit, note, noteClass, icon: Icon, fg, bg }) => (

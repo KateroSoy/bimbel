@@ -12,8 +12,9 @@ import {
 } from '../../components/portal/Kit';
 import { programTone, type Registration, type RegStatus } from '../../data/adminPortal';
 import { cn } from '../../lib/utils';
+import { BUNDLES, LANDING_PROGRAMS } from '../../data/landingPrograms';
 
-const PROGRAMS = ['English Primary', 'Math Primary', 'Combo', 'Intensif'];
+const PROGRAMS = [...LANDING_PROGRAMS.map((p) => p.name), ...BUNDLES.map((b) => `Paket ${b.name}`), 'English Primary', 'Math Primary', 'Combo', 'Intensif'];
 const SOURCES = ['Instagram', 'WhatsApp', 'Website', 'Walk-in', 'Referensi Orang Tua'];
 const SOURCE_ICON = { Instagram: Camera, WhatsApp: MessageCircle, Website: Globe, 'Walk-in': User, 'Referensi Orang Tua': Users } as const;
 const STATUSES: RegStatus[] = ['Dalam Proses', 'Menunggu Verifikasi', 'Diterima', 'Ditolak'];
@@ -44,7 +45,11 @@ export default function PendaftaranSiswa() {
       gender: v.gender as 'L' | 'P', age: Number(v.age) || 0, program: v.program, source: v.source, status: v.status as RegStatus,
       stage: 'Verifikasi Data', stageNote: 'Oleh: Admin',
     }),
-    detail: (r) => [['No. Daftar', r.id], ['Tanggal', `${r.date} ${r.time}`], ['Calon Siswa', `${r.name} (${r.gender} / ${r.age} thn)`], ['Program', r.program], ['Sumber', r.source], ['Status', <Badge>{r.status}</Badge>], ['Tahap Saat Ini', `${r.stage} · ${r.stageNote}`]],
+    detail: (r) => [
+      ['No. Daftar', r.id], ['Tanggal', `${r.date} ${r.time}`], ['Calon Siswa', `${r.name} (${r.gender ?? '-'} / ${r.age} thn)`], ['Program', r.program],
+      ...(r.parentName ? [['Orang Tua / Wali', r.parentName], ['No. WhatsApp', r.phone ?? '-'], ['Email', r.email || '-'], ['Asal Sekolah', r.school || '-'], ['Jenjang / Metode', `${r.level || '-'} · ${r.method || '-'}`], ['Catatan', r.note || '-']] as [string, string][] : []),
+      ['Sumber', r.source], ['Status', <Badge>{r.status}</Badge>], ['Tahap Saat Ini', `${r.stage} · ${r.stageNote}`],
+    ],
   });
 
   const setStatusOf = (r: Registration, s: RegStatus, stage: string, note: string) => {
@@ -63,7 +68,7 @@ export default function PendaftaranSiswa() {
   const columns: Col<Registration>[] = [
     { header: 'No. Daftar', cell: (r) => <span className="whitespace-nowrap font-bold text-slate-800">{r.id}</span> },
     { header: 'Tanggal Daftar', cell: (r) => <>{r.date}<span className="block text-[11px] text-slate-500">{r.time}</span></> },
-    { header: 'Calon Siswa', cell: (r) => <Person name={r.name} sub={`${r.gender} / ${r.age} thn`} /> },
+    { header: 'Calon Siswa', cell: (r) => <Person name={r.name} sub={[r.gender, r.age ? `${r.age} thn` : '', r.phone].filter(Boolean).join(' / ') || '-'} /> },
     { header: 'Program Pilihan', cell: (r) => <Badge tone={programTone(r.program)}>{r.program}</Badge> },
     { header: 'Sumber', cell: (r) => r.source },
     { header: 'Status', cell: (r) => <Badge>{r.status}</Badge> },

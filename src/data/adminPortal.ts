@@ -20,6 +20,8 @@ export type RegStatus = 'Dalam Proses' | 'Menunggu Verifikasi' | 'Diterima' | 'D
 export interface Registration {
   id: string; date: string; time: string; name: string; gender: 'L' | 'P'; age: number; program: string;
   source: string; status: RegStatus; stage: string; stageNote: string;
+  /** Filled by the website sign-up form */
+  parentName?: string; phone?: string; email?: string; school?: string; level?: string; method?: string; note?: string;
 }
 
 /* ---------- Orang tua / wali (resource: guardians) ---------- */

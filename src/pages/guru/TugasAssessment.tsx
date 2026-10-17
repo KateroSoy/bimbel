@@ -1,10 +1,104 @@
-import { useState } from 'react';
-import { ClipboardList, ClipboardPen, Clock, CircleCheck, Plus, CalendarDays, FileText, BookOpenCheck } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { ClipboardList, ClipboardPen, Clock, CircleCheck, Plus, CalendarDays, FileText, BookOpenCheck, Download, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { PageHead, StatStrip, Tabs, SearchInput, Select, DataTable, Badge, Btn, RowMenu, Meter, Modal, type Col } from '../../components/portal/Kit';
+import { PageHead, StatStrip, Tabs, SearchInput, Select, DataTable, Badge, Btn, RowMenu, Meter, Modal, Panel, exportCsv, type Col } from '../../components/portal/Kit';
+import { downloadReport } from '../../lib/pdfReport';
+import { useAppStore } from '../../store/useAppStore';
 import { AssignmentFormDialog } from '../../components/common/AssignmentFormDialog';
-import { useDataStore, type Assignment } from '../../store/useDataStore';
+import { useDataStore, type Assignment, type Submission } from '../../store/useDataStore';
+
+const predikat = (n: number) => (n >= 90 ? 'A' : n >= 80 ? 'B' : n >= 70 ? 'C' : 'D');
+
+/** Rekap nilai: one row per student, one column per graded assignment of the chosen class. */
+function RekapNilai({ assignments, submissions }: { assignments: Assignment[]; submissions: Submission[] }) {
+  const tutor = useAppStore((st) => st.user?.name ?? '');
+  const classes = [...new Set(assignments.map((a) => a.kelas))].sort();
+  const [picked, setKelas] = useState('');
+  // Default to the first class that already has submissions
+  const kelas = picked || classes.find((c) => submissions.some((sub) => assignments.find((a) => a.id === sub.assignmentId)?.kelas === c)) || classes[0] || '';
+  const tasks = assignments.filter((a) => a.kelas === kelas);
+  const rows = useMemo(() => {
+    const byStudent = new Map<string, { name: string; nis: string; scores: Record<string, number | null> }>();
+    for (const sub of submissions) {
+      if (!tasks.some((t) => t.id === sub.assignmentId)) continue;
+      const key = sub.studentId || sub.studentName;
+      const row = byStudent.get(key) ?? { name: sub.studentName, nis: sub.studentNis ?? '', scores: {} };
+      row.scores[sub.assignmentId] = sub.status === 'Dinilai' && sub.score !== null ? Number(sub.score) : null;
+      byStudent.set(key, row);
+    }
+    return [...byStudent.values()].map((r) => {
+      const graded = Object.values(r.scores).filter((v): v is number => v !== null);
+      const avg = graded.length ? Math.round(graded.reduce((a, b) => a + b, 0) / graded.length) : null;
+      return { ...r, avg, ungraded: Object.values(r.scores).filter((v) => v === null).length };
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }, [submissions, kelas]); // eslint-disable-line react-hooks/exhaustive-deps
+  const queue = submissions.filter((sub) => sub.status === 'Perlu Dinilai');
+
+  const header = ['No', 'Siswa', 'NIS', ...tasks.map((t) => t.title), 'Rata-rata', 'Predikat'];
+  const body = rows.map((r, i) => [i + 1, r.name, r.nis, ...tasks.map((t) => (r.scores[t.id] ?? (t.id in r.scores ? 'Belum dinilai' : '-'))), r.avg ?? '-', r.avg === null ? '-' : predikat(r.avg)]);
+
+  const pdf = () => downloadReport({
+    filename: `rekap-nilai-${kelas.toLowerCase().replace(/\s+/g, '-')}`,
+    title: 'REKAP NILAI TUGAS & ASSESSMENT',
+    subtitle: `Kelas ${kelas}`,
+    identity: [['Kelas', kelas], ['Tutor', tutor || '-'], ['Jumlah Siswa', String(rows.length)], ['Jumlah Tugas', String(tasks.length)]],
+    sections: [{ head: header, body, align: header.map((_, i) => (i === 1 ? 'left' : 'center')) }],
+  }).then(() => toast.success('Rekap nilai (PDF) diunduh')).catch(() => toast.error('Gagal membuat PDF'));
+
+  return (
+    <div className="space-y-3">
+      {queue.length > 0 && (
+        <Panel title={<span className="flex items-center gap-2"><ClipboardPen className="w-5 h-5 text-red-500" /> Perlu Diperiksa ({queue.length})</span>}>
+          <ul className="divide-y divide-slate-100">
+            {queue.slice(0, 6).map((sub) => {
+              const task = assignments.find((a) => a.id === sub.assignmentId);
+              return (
+                <li key={sub.id} className="flex items-center gap-3 py-2">
+                  <span className="flex-1 min-w-0"><span className="block text-sm font-bold text-[#0F1E4A] truncate">{sub.studentName}</span><span className="block text-xs text-slate-500 truncate">{task?.title ?? sub.assignmentId} · {sub.submittedAt ?? ''}</span></span>
+                  <Btn size="sm" variant="primary" to={`/guru/tugas/${sub.assignmentId}`}>Periksa & Nilai</Btn>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel>
+      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <Select value={kelas} onChange={setKelas} options={classes} />
+        <span className="flex-1" />
+        <Btn icon={Download} onClick={() => exportCsv(`rekap-nilai-${kelas}`, header, body)}>Export Excel (CSV)</Btn>
+        <Btn variant="primary" icon={FileDown} onClick={() => void pdf()}>Unduh PDF</Btn>
+      </div>
+      <div className="bg-white rounded-2xl border border-slate-200/80 overflow-x-auto">
+        <table className="w-full text-[13px]">
+          <thead>
+            <tr className="bg-slate-50/80 border-b border-slate-200 text-xs text-slate-700">
+              <th className="px-3 py-3 text-left font-bold">Siswa</th>
+              {tasks.map((t) => <th key={t.id} className="px-3 py-3 font-bold text-center max-w-[160px]" title={t.title}><span className="block truncate">{t.title}</span><span className="block text-[10px] font-semibold text-slate-500">{t.type === 'quiz' ? 'Quiz' : 'Tugas'}</span></th>)}
+              <th className="px-3 py-3 font-bold text-center">Rata-rata</th>
+              <th className="px-3 py-3 font-bold text-center">Predikat</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.length === 0 && <tr><td colSpan={tasks.length + 3} className="px-4 py-10 text-center text-sm text-slate-500">Belum ada pengumpulan untuk kelas ini.</td></tr>}
+            {rows.map((r) => (
+              <tr key={r.name + r.nis} className="hover:bg-slate-50/60">
+                <td className="px-3 py-2.5"><p className="font-bold text-[#0F1E4A]">{r.name}</p><p className="text-[11px] text-slate-500">{r.nis}</p></td>
+                {tasks.map((t) => {
+                  const v = r.scores[t.id];
+                  return <td key={t.id} className="px-3 py-2.5 text-center">{v === undefined ? <span className="text-slate-300">–</span> : v === null ? <Badge tone="orange">Belum dinilai</Badge> : <span className={v < 70 ? 'font-extrabold text-red-600' : 'font-extrabold text-[#0F1E4A]'}>{v}</span>}</td>;
+                })}
+                <td className="px-3 py-2.5 text-center font-extrabold text-[#1D4ED8]">{r.avg ?? '-'}</td>
+                <td className="px-3 py-2.5 text-center">{r.avg === null ? '-' : <Badge tone={r.avg >= 80 ? 'green' : r.avg >= 70 ? 'blue' : 'red'}>{predikat(r.avg)}</Badge>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 const DAY = 86400000;
 const daysLeft = (deadline: string) => Math.ceil((new Date(deadline).setHours(23, 59, 59) - Date.now()) / DAY);
@@ -17,7 +111,8 @@ const dueLabel = (deadline: string) => {
 
 export default function TugasAssessment() {
   const { assignments, submissions, addAssignment, updateAssignment, deleteAssignment } = useDataStore();
-  const [tab, setTab] = useState('Semua');
+  const [params] = useSearchParams();
+  const [tab, setTab] = useState(params.get('tab') === 'rekap' ? 'Rekap Nilai' : 'Semua');
   const [q, setQ] = useState('');
   const [kelas, setKelas] = useState('');
   const [status, setStatus] = useState('');
@@ -83,7 +178,7 @@ export default function TugasAssessment() {
   return (
     <DashboardLayout>
       <div className="space-y-4 max-w-[1300px]">
-        <PageHead title="Tugas & Assessment" subtitle="Kelola tugas, assessment, quiz, dan penilaian untuk kelas yang Anda ajar." />
+        <PageHead title="Tugas & Assessment" subtitle="Siapkan latihan dan tugas yang tampil di halaman Latihan dan Tugas siswa, periksa jawaban, beri nilai, dan lihat rekap nilai." />
         <StatStrip
           items={[
             { icon: ClipboardList, value: assignments.filter((a) => a.status === 'Aktif').length, label: 'Tugas Aktif', color: '#1D4ED8' },
@@ -93,13 +188,15 @@ export default function TugasAssessment() {
           ]}
           action={<Btn variant="primary" icon={Plus} onClick={() => setForm({ item: null })}>Buat Tugas</Btn>}
         />
-        <Tabs tabs={['Semua', 'Aktif', 'Akan Datang', 'Selesai']} value={tab} onChange={setTab} />
+        <Tabs tabs={['Semua', 'Aktif', 'Akan Datang', 'Selesai', { label: 'Rekap Nilai', value: 'Rekap Nilai' }]} value={tab} onChange={setTab} />
+        {tab === 'Rekap Nilai' ? <RekapNilai assignments={assignments} submissions={submissions} /> : <>
         <div className="flex flex-wrap gap-2">
           <SearchInput value={q} onChange={setQ} placeholder="Cari tugas atau assessment..." />
           <Select value={kelas} onChange={setKelas} all="Semua Kelas" options={[...new Set(assignments.map((a) => a.kelas))].sort()} />
           <Select value={status} onChange={setStatus} all="Semua Status" options={['Aktif', 'Perlu Dinilai', 'Selesai']} />
         </div>
         <DataTable columns={columns} rows={rows} rowKey={(a) => a.id} unit="tugas" empty="Belum ada tugas pada filter ini." />
+        </>}
 
         <AssignmentFormDialog isOpen={!!form} onClose={() => setForm(null)} onSubmit={submit} initialData={form?.item ?? null} />
         <Modal

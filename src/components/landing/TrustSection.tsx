@@ -1,5 +1,13 @@
-// Logo sekolah mitra — tambahkan file ke /public/assets/landing/schools/ lalu daftarkan di sini
-const SCHOOL_LOGOS = Array.from({ length: 19 }, (_, i) => `/assets/landing/schools/school-${String(i + 1).padStart(2, '0')}.png`);
+// Logo sekolah asal siswa StudyHack (Medan) — tambahkan file ke /public/assets/landing/schools/ lalu daftarkan di sini
+const SCHOOLS = [
+  { src: '/assets/landing/schools/medan-01.jpg', name: 'Perguruan An-Nizam' },
+  { src: '/assets/landing/schools/medan-02.jpg', name: 'Perguruan Buddhis Bodhicitta' },
+  { src: '/assets/landing/schools/medan-03.jpg', name: 'SD Swasta RK Budi Luhur (YPK Don Bosco KAM)' },
+  { src: '/assets/landing/schools/medan-04.jpg', name: 'Global Prima School' },
+  { src: '/assets/landing/schools/medan-05.jpg', name: 'SD Islam Terpadu Hikmatul Fadhillah' },
+];
+// Repeat the set so the marquee track is always wider than the screen
+const TRACK = [...SCHOOLS, ...SCHOOLS, ...SCHOOLS];
 
 const GOOGLE_REVIEWS = [
   { name: 'Budi Santoso', date: '2 bulan lalu', rating: 5, text: 'Tutornya sabar banget ngajarin anak saya. Nilai matematikanya naik drastis sejak ikut StudyHack.' },
@@ -11,22 +19,6 @@ export function TrustSection() {
   return (
     <section className="py-10 bg-white">
       <div className="max-w-[1240px] mx-auto px-6 space-y-8">
-        <div className="bg-[#F9F8F9] rounded-2xl border border-[#DCE3EE] py-7 overflow-hidden">
-          <div className="px-6 md:px-8 mb-5">
-            <h2 className="text-xl md:text-2xl font-extrabold text-[#062564] mb-1">Dipercaya oleh orang tua dari sekolah favorit</h2>
-            <p className="text-slate-500 text-sm font-semibold">Kami berkomitmen memberikan pendidikan terbaik untuk masa depan anak bangsa.</p>
-          </div>
-          <div className="relative [mask-image:linear-gradient(to_right,transparent,#000_4%,#000_96%,transparent)]">
-            <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
-              {[...SCHOOL_LOGOS, ...SCHOOL_LOGOS].map((src, i) => (
-                <div key={i} className="h-16 px-4 md:px-5 flex items-center shrink-0" aria-hidden={i >= SCHOOL_LOGOS.length}>
-                  <img src={src} alt={i < SCHOOL_LOGOS.length ? `Logo sekolah mitra ${i + 1}` : ''} className="h-full w-auto max-w-[150px] object-contain mix-blend-multiply" loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
         <div>
           <div className="flex items-center justify-between mb-5 px-2">
             <h2 className="text-xl md:text-2xl font-extrabold text-[#062564]">Ulasan Google</h2>
@@ -66,6 +58,22 @@ export function TrustSection() {
             ))}
           </div>
         </div>
+        <div className="bg-[#F9F8F9] rounded-2xl border border-[#DCE3EE] py-7 overflow-hidden">
+          <div className="px-6 md:px-8 mb-5">
+            <h2 className="text-xl md:text-2xl font-extrabold text-[#062564] mb-1">Dipercaya oleh orang tua dari sekolah favorit</h2>
+            <p className="text-slate-500 text-sm font-semibold">Kami berkomitmen memberikan pendidikan terbaik untuk masa depan anak bangsa.</p>
+          </div>
+          <div className="relative [mask-image:linear-gradient(to_right,transparent,#000_4%,#000_96%,transparent)]">
+            <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
+              {[...TRACK, ...TRACK].map((school, i) => (
+                <div key={i} className="h-20 px-6 md:px-8 flex items-center shrink-0" aria-hidden={i >= SCHOOLS.length}>
+                  <img src={school.src} alt={i < SCHOOLS.length ? school.name : ''} title={school.name} className="h-full w-auto max-w-[160px] object-contain mix-blend-multiply" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
   );

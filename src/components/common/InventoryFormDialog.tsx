@@ -115,7 +115,7 @@ export function InventoryFormDialog({
                 value={itemCode}
                 onChange={(e) => setItemCode(e.target.value)}
                 placeholder="INV-001"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs tabular-nums text-slate-900 outline-none focus:ring-2 focus:ring-blue-500 font-bold"
               />
             </div>
 
@@ -194,7 +194,7 @@ export function InventoryFormDialog({
                 required
                 value={pricePerUnit}
                 onChange={(e) => setPricePerUnit(parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs tabular-nums font-bold text-slate-900 outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -275,7 +275,7 @@ export function InventoryFormDialog({
           {/* Value Preview Banner */}
           <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 flex items-center justify-between text-xs">
             <span className="text-blue-700 font-medium">Estimasi Total Valuasi Aset:</span>
-            <strong className="text-blue-900 font-mono font-bold text-sm">
+            <strong className="text-blue-900 tabular-nums font-bold text-sm">
               Rp {(quantity * pricePerUnit).toLocaleString('id-ID')}
             </strong>
           </div>

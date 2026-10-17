@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, Mail, LogIn } from 'lucide-react';
 import { Logo } from '../ui/Logo';
 import { cn } from '../../lib/utils';
+import { CONTACT } from '../../lib/contact';
 
 // targetId = section on the landing page; route = standalone page
 const NAV_LINKS: { id: string; label: string; path: string; targetId?: string; route?: string; highlight?: boolean }[] = [
@@ -76,10 +77,10 @@ export function Navbar() {
           <div className="max-w-7xl mx-auto flex justify-between items-center text-sm font-medium">
             <div className="flex items-center gap-6">
               <span className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-blue-300" /> 0823-2456-7906
+                <Phone className="w-4 h-4 text-blue-300" /> {CONTACT.phone}
               </span>
               <span className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-blue-300" /> info@studyhack.co.id
+                <Mail className="w-4 h-4 text-blue-300" /> {CONTACT.email}
               </span>
             </div>
             <Link

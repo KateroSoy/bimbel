@@ -159,7 +159,7 @@ export default function DetailTugasGuru() {
                     <td className="p-4 font-medium text-slate-900">
                       <div>
                         <p className="font-bold text-slate-900 text-sm">{s.studentName}</p>
-                        <p className="text-xs text-slate-400 font-mono">NIS: {s.studentNis}</p>
+                        <p className="text-xs text-slate-400 tabular-nums">NIS: {s.studentNis}</p>
                       </div>
                     </td>
                     <td className="p-4 text-slate-600 text-xs font-medium">{s.submittedAt || '-'}</td>

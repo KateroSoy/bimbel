@@ -3,6 +3,7 @@ import { Briefcase, MapPin, Clock, ChevronDown, Mail, MessageCircle, Heart, Grad
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { cn } from '../lib/utils';
+import { CONTACT } from '../lib/contact';
 
 // Daftar lowongan — ubah/tambah posisi di sini
 const LOWONGAN = [
@@ -10,7 +11,7 @@ const LOWONGAN = [
     title: 'Tutor Matematika (SD–SMA)',
     divisi: 'Akademik',
     tipe: 'Part Time',
-    lokasi: 'Bandung',
+    lokasi: 'Medan',
     deskripsi: 'Mengajar kelas reguler dan privat Matematika untuk jenjang SD hingga SMA, termasuk persiapan ujian sekolah.',
     kualifikasi: [
       'Minimal mahasiswa tingkat akhir / S1 Pendidikan Matematika, Matematika, atau bidang terkait',
@@ -22,7 +23,7 @@ const LOWONGAN = [
     title: 'Tutor Bahasa Inggris',
     divisi: 'Akademik',
     tipe: 'Part Time',
-    lokasi: 'Bandung',
+    lokasi: 'Medan',
     deskripsi: 'Mengajar English Class (grammar, reading, writing, speaking) untuk siswa SD, SMP, dan SMA.',
     kualifikasi: [
       'S1 Pendidikan Bahasa Inggris / Sastra Inggris atau setara',
@@ -34,7 +35,7 @@ const LOWONGAN = [
     title: 'Staff Admin & Customer Service',
     divisi: 'Operasional',
     tipe: 'Full Time',
-    lokasi: 'Bandung',
+    lokasi: 'Medan',
     deskripsi: 'Melayani pendaftaran siswa, menjawab pertanyaan orang tua via WhatsApp, dan mengelola jadwal kelas.',
     kualifikasi: [
       'Minimal D3/S1 semua jurusan',
@@ -46,7 +47,7 @@ const LOWONGAN = [
     title: 'Staff Marketing & Social Media',
     divisi: 'Marketing',
     tipe: 'Full Time',
-    lokasi: 'Bandung / Hybrid',
+    lokasi: 'Medan / Hybrid',
     deskripsi: 'Merencanakan konten Instagram, TikTok, dan YouTube, serta menjalankan program promosi StudyHack.',
     kualifikasi: [
       'Minimal D3/S1 Komunikasi, Marketing, DKV, atau bidang terkait',
@@ -62,8 +63,8 @@ const BENEFITS = [
   { icon: TrendingUp, title: 'Jenjang Karir', desc: 'Kesempatan berkembang bersama StudyHack' },
 ];
 
-const HR_EMAIL = 'info@studyhack.co.id';
-const HR_WA = '6282324567906';
+const HR_EMAIL = CONTACT.email;
+const HR_WA = CONTACT.whatsapp;
 
 export default function KarirPage() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);

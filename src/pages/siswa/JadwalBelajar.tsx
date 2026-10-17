@@ -1,13 +1,24 @@
 import { useMemo, useState } from 'react';
 import {
   CalendarDays, ChevronLeft, ChevronRight, LayoutGrid, List, Filter, CheckCircle2, PlayCircle, Clock,
-  BookOpen, User, MapPin, Video, Lock, Info,
+  BookOpen, User, MapPin, Video, Lock, Info, School,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, PageTitle, Pill, statusTone } from '../../components/siswa/PortalUI';
 import { cn } from '../../lib/utils';
-import { LIVE_CLASSES, WEEK_DAYS, SUBJECTS, TODAY_NAME, subjectById, canJoinLive, type LiveClass, type LiveStatus, type SubjectId } from '../../data/siswaPortal';
+import { LIVE_CLASSES, WEEK_DAYS, SUBJECTS, TODAY_NAME, subjectById, canJoinLive, classMode, type LiveClass, type LiveStatus, type SubjectId } from '../../data/siswaPortal';
+
+/** Tatap Muka / Online label shown on every schedule entry */
+function ModeBadge({ c, className }: { c: LiveClass; className?: string }) {
+  const online = classMode(c) === 'Online';
+  return (
+    <span className={cn('inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-extrabold border whitespace-nowrap',
+      online ? 'bg-sky-50 text-sky-700 border-sky-200' : 'bg-amber-50 text-amber-700 border-amber-200', className)}>
+      {online ? <Video className="w-3 h-3" /> : <School className="w-3 h-3" />} {online ? 'Online' : 'Tatap Muka'}
+    </span>
+  );
+}
 
 const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const BASE_MONDAY = new Date(2025, 7, 11); // Senin, 11 Agustus 2025 (minggu demo)
@@ -49,6 +60,10 @@ export default function JadwalBelajar() {
   const visibleDays = dayFilter === 'Semua Hari' ? days : days.filter((d) => d.name === dayFilter);
 
   const join = (c: LiveClass) => {
+    if (classMode(c) === 'Tatap Muka') {
+      toast.info('Kelas tatap muka', { description: `Hadir langsung di ${c.room}, ${c.dayName} ${c.start}.` });
+      return;
+    }
     if (!canJoinLive(c)) {
       toast.info('Kelas belum dibuka tutor', { description: 'Tombol Masuk Kelas aktif otomatis saat tutor membuka Google Meet.' });
       return;
@@ -66,10 +81,10 @@ export default function JadwalBelajar() {
   return (
     <DashboardLayout>
       <div className="max-w-[1400px] space-y-3">
-        <PageTitle title="Jadwal Live Tutor" subtitle="Lihat jadwal kelas dan tutor yang mengajar minggu ini. Jadwal diatur oleh admin sesuai mata pelajaran program kamu." />
+        <PageTitle title="Jadwal Kelas" subtitle="Jadwal kelas minggu ini. Setiap kelas berlabel Tatap Muka (di ruang bimbel) atau Online (Google Meet)." />
 
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 [&_button]:h-9 [&>div:first-child]:h-9">
           <div className="flex items-center gap-2 h-10 px-4 rounded-xl bg-white border border-slate-200 text-sm font-bold text-[#0F1E4A]">
             <CalendarDays className="w-4 h-4" /> {weekLabel}
           </div>
@@ -110,14 +125,11 @@ export default function JadwalBelajar() {
         </div>
 
         {/* Stats */}
-        <Card className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100 py-3">
+        <Card className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100 py-1.5">
           {stats.map(({ label, value, icon: Icon, fg, bg }) => (
-            <div key={label} className="flex items-center justify-center gap-3 px-4 py-1">
-              <span className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: bg, color: fg }}><Icon className="w-6 h-6" /></span>
-              <div>
-                <p className="text-xs font-bold" style={{ color: fg }}>{label}</p>
-                <p className="text-xl font-extrabold" style={{ color: fg }}>{value}</p>
-              </div>
+            <div key={label} className="flex items-center justify-center gap-2.5 px-3 py-1">
+              <span className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: bg, color: fg }}><Icon className="w-4.5 h-4.5" /></span>
+              <p className="text-xs font-bold" style={{ color: fg }}>{label} <span className="ml-1 text-lg font-extrabold align-middle">{value}</span></p>
             </div>
           ))}
         </Card>
@@ -127,33 +139,43 @@ export default function JadwalBelajar() {
           const s = subjectById(nearest.subjectId);
           const joinable = canJoinLive(nearest);
           return (
-            <Card className="p-4 bg-[#F5F8FF] border-blue-100">
-              <div className="flex items-center gap-2 mb-2">
+            <Card className="px-4 py-2.5 bg-[#F5F8FF] border-blue-100">
+              <div className="flex items-center gap-2 mb-1.5">
                 <h2 className="text-base font-extrabold text-[#1D4ED8]">Kelas Terdekat</h2>
                 <Pill tone={statusTone(nearest.status)}>{nearest.status === 'Berlangsung' ? 'Sedang Berlangsung' : nearest.status}</Pill>
+                <ModeBadge c={nearest} />
               </div>
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex items-center gap-4 flex-1">
-                  <span className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ backgroundColor: s.soft, color: s.color }}><BookOpen className="w-7 h-7" /></span>
+                  <span className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: s.soft, color: s.color }}><BookOpen className="w-6 h-6" /></span>
                   <div>
                     <p className="font-extrabold text-[#0F1E4A]">{s.className} · {nearest.topic}</p>
-                    <p className="text-sm text-slate-600 font-medium">{s.tutor}</p>
                     <p className="text-sm text-slate-600 font-medium flex flex-wrap gap-x-4">
+                      <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" /> {s.tutor}</span>
                       <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {nearest.dayName}, {nearest.start} – {nearest.end}</span>
                       <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {nearest.room}</span>
                     </p>
                   </div>
                 </div>
-                <div className="md:border-l md:border-blue-100 md:pl-6 md:pr-4">
-                  <p className="text-xs text-slate-600 font-semibold">{joinable ? 'Kelas sudah dibuka tutor' : 'Status kelas'}</p>
-                  <p className="text-lg font-extrabold text-[#1D4ED8]">{joinable ? 'Silakan bergabung' : 'Menunggu tutor membuka kelas'}</p>
-                </div>
-                <button
-                  onClick={() => join(nearest)}
-                  className={cn('flex items-center justify-center gap-2 h-12 px-8 rounded-xl text-sm font-bold transition-colors', joinable ? 'bg-[#1D4ED8] hover:bg-blue-800 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed')}
-                >
-                  {joinable ? <Video className="w-5 h-5" /> : <Lock className="w-4 h-4" />} Masuk Kelas
-                </button>
+                {classMode(nearest) === 'Online' ? (
+                  <>
+                    <div className="md:border-l md:border-blue-100 md:pl-6 md:pr-4">
+                      <p className="text-xs text-slate-600 font-semibold">{joinable ? 'Kelas sudah dibuka tutor' : 'Status kelas'}</p>
+                      <p className="text-base font-extrabold text-[#1D4ED8]">{joinable ? 'Silakan bergabung' : 'Menunggu tutor membuka kelas'}</p>
+                    </div>
+                    <button
+                      onClick={() => join(nearest)}
+                      className={cn('flex items-center justify-center gap-2 h-11 px-7 rounded-xl text-sm font-bold transition-colors', joinable ? 'bg-[#1D4ED8] hover:bg-blue-800 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed')}
+                    >
+                      {joinable ? <Video className="w-5 h-5" /> : <Lock className="w-4 h-4" />} Masuk Kelas
+                    </button>
+                  </>
+                ) : (
+                  <div className="md:border-l md:border-blue-100 md:pl-6 md:pr-4">
+                    <p className="text-xs text-slate-600 font-semibold">Kelas tatap muka</p>
+                    <p className="text-base font-extrabold text-amber-700 flex items-center gap-1.5"><School className="w-4 h-4" /> Hadir di {nearest.room}</p>
+                  </div>
+                )}
               </div>
             </Card>
           );
@@ -163,7 +185,7 @@ export default function JadwalBelajar() {
         <div className="flex flex-wrap gap-2">
           {['Semua Hari', ...WEEK_DAYS.map((d) => d.name).filter((d) => d !== 'Minggu')].map((d) => (
             <button key={d} onClick={() => setDayFilter(d)}
-              className={cn('flex items-center gap-2 h-9 px-4 rounded-lg border text-sm font-bold', dayFilter === d ? 'bg-[#1D4ED8] border-[#1D4ED8] text-white' : 'bg-white border-slate-200 text-[#0F1E4A] hover:bg-slate-50')}>
+              className={cn('flex items-center gap-2 h-8 px-3.5 rounded-lg border text-[13px] font-bold', dayFilter === d ? 'bg-[#1D4ED8] border-[#1D4ED8] text-white' : 'bg-white border-slate-200 text-[#0F1E4A] hover:bg-slate-50')}>
               <CalendarDays className="w-4 h-4" /> {d}
             </button>
           ))}
@@ -175,8 +197,8 @@ export default function JadwalBelajar() {
               const list = classes.filter((c) => c.dayName === d.name);
               const isToday = weekOffset === 0 && d.name === TODAY_NAME;
               return (
-                <Card key={d.name} className={cn('p-3 flex flex-col min-h-[220px]', isToday && 'border-[#1D4ED8] ring-1 ring-[#1D4ED8]/30 bg-[#F8FAFF]')}>
-                  <div className="flex items-start justify-between pb-2 mb-2 border-b border-slate-100">
+                <Card key={d.name} className={cn('p-2.5 flex flex-col min-h-[150px]', isToday && 'border-[#1D4ED8] ring-1 ring-[#1D4ED8]/30 bg-[#F8FAFF]')}>
+                  <div className="flex items-start justify-between pb-1.5 mb-1.5 border-b border-slate-100">
                     <div>
                       <p className={cn('font-extrabold', isToday ? 'text-[#1D4ED8]' : 'text-[#0F1E4A]')}>{d.name}</p>
                       <p className="text-xs text-slate-500 font-medium">{d.date}</p>
@@ -189,18 +211,18 @@ export default function JadwalBelajar() {
                       <p className="text-xs font-medium">Tidak ada jadwal belajar di hari ini.</p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {list.map((c) => {
                         const s = subjectById(c.subjectId);
                         return (
-                          <div key={c.id} className="space-y-1 text-[12px] text-slate-600 font-medium">
-                            <p className="flex items-center gap-1.5 font-bold text-[#0F1E4A]"><BookOpen className="w-3.5 h-3.5" style={{ color: s.color }} /> {s.className}</p>
-                            <p className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> {s.tutor}</p>
-                            <p className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {c.start} – {c.end}</p>
-                            <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {c.room}</p>
-                            <div className="flex items-center justify-between gap-2 pt-0.5">
+                          <div key={c.id} className="space-y-0.5 text-[11.5px] text-slate-600 font-medium">
+                            <p className="flex items-center gap-1.5 font-bold text-[#0F1E4A]"><BookOpen className="w-3.5 h-3.5 shrink-0" style={{ color: s.color }} /> {s.className}</p>
+                            <p className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 shrink-0" /> {c.start} – {c.end} · {s.tutor}</p>
+                            <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">{c.room}</span></p>
+                            <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                              <ModeBadge c={c} />
                               <Pill tone={statusTone(c.status)}>{c.status}</Pill>
-                              {c.status === 'Berlangsung' && (
+                              {c.status === 'Berlangsung' && classMode(c) === 'Online' && (
                                 <button onClick={() => join(c)} className={cn('text-[11px] font-bold px-2 py-1 rounded-md', canJoinLive(c) ? 'bg-[#1D4ED8] text-white' : 'bg-slate-100 text-slate-400')}>Masuk</button>
                               )}
                             </div>
@@ -226,8 +248,9 @@ export default function JadwalBelajar() {
                   <div className="w-28 text-sm font-bold text-slate-700">{c.start} – {c.end}</div>
                   <div className="flex-1 min-w-[180px]"><p className="font-bold text-[#0F1E4A] text-sm">{s.className}</p><p className="text-xs text-slate-500">{c.topic} · {s.tutor}</p></div>
                   <div className="text-xs text-slate-500 w-40">{c.room}</div>
+                  <ModeBadge c={c} />
                   <Pill tone={statusTone(c.status)}>{c.status}</Pill>
-                  <button onClick={() => join(c)} disabled={c.status !== 'Berlangsung'}
+                  <button onClick={() => join(c)} disabled={c.status !== 'Berlangsung' || classMode(c) !== 'Online'}
                     className={cn('h-8 px-3 rounded-lg text-xs font-bold', canJoinLive(c) ? 'bg-[#1D4ED8] text-white' : 'bg-slate-100 text-slate-400')}>
                     Masuk Kelas
                   </button>
@@ -238,10 +261,10 @@ export default function JadwalBelajar() {
         )}
 
         {/* Tips + legend */}
-        <Card className="px-4 py-3 bg-[#F5F8FF] border-blue-100 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <p className="flex items-center gap-2 text-sm text-slate-700 font-medium flex-1 min-w-[260px]">
-            <Info className="w-5 h-5 text-[#1D4ED8]" />
-            <span><b className="text-[#1D4ED8]">Tips:</b> Kelas online memakai Google Meet. Tombol <b>Masuk Kelas</b> aktif saat tutor sudah membuka kelas.</span>
+        <Card className="px-4 py-2 bg-[#F5F8FF] border-blue-100 flex flex-wrap items-center gap-x-5 gap-y-1.5">
+          <p className="flex items-center gap-2 text-[13px] text-slate-700 font-medium flex-1 min-w-[260px]">
+            <Info className="w-4 h-4 text-[#1D4ED8] shrink-0" />
+            <span><b className="text-[#1D4ED8]">Keterangan:</b> <b>Tatap Muka</b> = hadir di ruang bimbel · <b>Online</b> = Google Meet, tombol <b>Masuk</b> aktif saat tutor membuka kelas.</span>
           </p>
           {(Object.keys(STATUS_DOT) as LiveStatus[]).map((s) => (
             <span key={s} className="flex items-center gap-1.5 text-xs font-semibold text-slate-600"><span className={cn('w-2.5 h-2.5 rounded-full', STATUS_DOT[s])} /> {s === 'Berlangsung' ? 'Akan/Sedang Berlangsung' : s}</span>

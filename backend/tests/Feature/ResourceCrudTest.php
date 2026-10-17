@@ -30,6 +30,7 @@ class ResourceCrudTest extends TestCase
             }
             $payload[Str::camel($col)] = match (true) {
                 $col === 'email' => 'someone@example.test',
+                $resource === 'conversations' && $col === 'role' => 'Siswa',
                 $spec['type'] === 'i' && in_array($col, ['day', 'slot'], true) => 2,
                 default => match ($spec['type']) {
                     's' => 'Contoh '.$col, 't' => 'Teks panjang '.$col, 'i' => 3, 'm' => 150000, 'd' => 7.5, 'b' => true, 'j' => ['satu', 'dua'],

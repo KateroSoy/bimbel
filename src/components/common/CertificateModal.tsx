@@ -100,7 +100,7 @@ export function CertificateModal({ isOpen, onClose, certificate }: CertificateMo
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nomor Kredensial</p>
-                <p className="text-xs font-mono font-bold text-blue-700">{certificate.credentialId}</p>
+                <p className="text-xs tabular-nums font-bold text-blue-700">{certificate.credentialId}</p>
                 <p className="text-[10px] text-emerald-600 font-bold flex items-center justify-end gap-1 mt-0.5">
                   <CheckCircle2 className="w-3 h-3" /> Valid & Verified
                 </p>

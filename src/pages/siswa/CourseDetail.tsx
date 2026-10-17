@@ -10,10 +10,11 @@ import { Card, ProgressBar } from '../../components/siswa/PortalUI';
 import { cn } from '../../lib/utils';
 import { COURSES, subjectById, hydrateStudentPortal, type CourseLesson, type LessonKind, type PortalCourse } from '../../data/siswaPortal';
 import { api, ApiError } from '../../lib/api';
+import { attachments, exampleItems, notePoints, practiceItems, videoEmbed } from '../../lib/lessonContent';
 
 // Ditampilkan bila akun belum terdaftar di course mana pun
 const NO_COURSE: PortalCourse = {
-  id: '', subjectId: '', title: 'Belum ada course', category: '', level: 'Mudah', description: '',
+  id: '', subjectId: '', title: 'Belum ada kursus', category: '', level: 'Mudah', description: '',
   chapters: [{ id: '-', title: 'Belum ada materi', lessons: [{ id: '-', title: 'Belum ada materi', kind: 'catatan', duration: '', done: false, about: 'Course untuk akun ini belum tersedia. Hubungi admin bimbel untuk pendaftaran course.' }] }],
 };
 
@@ -54,8 +55,10 @@ export default function CourseDetail() {
   const [openChapters, setOpenChapters] = useState<Set<string>>(new Set([chapter.id]));
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
+  const [picked, setPicked] = useState<Record<number, number>>({});
+  const [checked, setChecked] = useState(false);
 
-  useEffect(() => { setPlaying(false); setTime(0); setOpenChapters((s) => new Set(s).add(chapter.id)); }, [lesson.id, chapter.id]);
+  useEffect(() => { setPlaying(false); setTime(0); setPicked({}); setChecked(false); setOpenChapters((s) => new Set(s).add(chapter.id)); }, [lesson.id, chapter.id]);
 
   useEffect(() => {
     if (!playing) return;
@@ -89,6 +92,11 @@ export default function CourseDetail() {
   const chapterDone = chapterLessons.filter((l) => done.has(l.id)).length;
   const chapterPct = Math.round((chapterDone / chapterLessons.length) * 100);
   const hasPoster = course.subjectId === 'math' && lesson.kind === 'video';
+  const embed = videoEmbed(lesson.videoUrl);
+  const examples = exampleItems(lesson.notes);
+  const practice = practiceItems(lesson.notes);
+  const score = practice.length ? Math.round((practice.filter((q, i) => picked[i] === q.answer).length / practice.length) * 100) : 0;
+  const files = [...attachments(lesson.files), ...(lesson.id === chapterLessons[0].id ? [] : attachments(chapterLessons[0].files))];
 
   const tabLesson = (kind: LessonKind): CourseLesson | undefined => chapterLessons.find((l) => l.kind === kind);
 
@@ -98,7 +106,7 @@ export default function CourseDetail() {
         <div className="min-w-0 space-y-3">
           {/* Breadcrumb */}
           <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600">
-            <Link to="/siswa/course" className="hover:text-[#1D4ED8]">Course Saya</Link>
+            <Link to="/siswa/course" className="hover:text-[#1D4ED8]">Kursus Saya</Link>
             <ChevronRight className="w-4 h-4" />
             <span className="text-[#1D4ED8]">{course.title}</span>
             <ChevronRight className="w-4 h-4" />
@@ -125,7 +133,13 @@ export default function CourseDetail() {
 
           {/* Player / content area */}
           <Card className="overflow-hidden">
-            {lesson.kind === 'video' ? (
+            {lesson.kind === 'video' && embed ? (
+              <div className="relative bg-black aspect-video">
+                {embed.kind === 'iframe'
+                  ? <iframe src={embed.src} title={lesson.title} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowFullScreen />
+                  : <video src={embed.src} controls className="absolute inset-0 w-full h-full" onEnded={() => markDone(lesson.id)} />}
+              </div>
+            ) : lesson.kind === 'video' ? (
               <div className="relative bg-slate-900 aspect-[16/7.2]">
                 {hasPoster ? (
                   <img src="/assets/portal/video-poster.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -159,7 +173,7 @@ export default function CourseDetail() {
               <div className="p-6 min-h-[260px]">
                 <h3 className="font-extrabold text-[#0F1E4A] mb-3">Catatan Penting</h3>
                 <ul className="space-y-2">
-                  {(lesson.notes ?? []).map((n) => (
+                  {notePoints(lesson.notes).map((n) => (
                     <li key={n} className="flex gap-2 text-sm text-slate-700 font-medium"><CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> {n}</li>
                   ))}
                 </ul>
@@ -167,12 +181,43 @@ export default function CourseDetail() {
             ) : lesson.kind === 'contoh' ? (
               <div className="p-6 min-h-[260px] space-y-3">
                 <h3 className="font-extrabold text-[#0F1E4A]">Contoh Soal dan Pembahasan</h3>
-                {[1, 2, 3].map((n) => (
+                {examples.length === 0 && <p className="text-sm text-slate-500 font-medium">Tutor belum menambahkan contoh soal untuk materi ini.</p>}
+                {examples.map((ex, n) => (
                   <div key={n} className="rounded-xl bg-slate-50 border border-slate-100 p-4">
-                    <p className="text-sm font-bold text-[#0F1E4A]">Contoh {n}</p>
-                    <p className="text-sm text-slate-600 font-medium mt-1">Soal dan langkah pembahasan dari tutor untuk materi “{chapter.title}”.</p>
+                    <p className="text-sm font-bold text-[#0F1E4A]">Contoh {n + 1}</p>
+                    <p className="text-sm text-slate-800 font-medium mt-1 whitespace-pre-line">{ex.question}</p>
+                    {ex.answer && <div className="mt-2 rounded-lg bg-white border border-emerald-100 px-3 py-2"><p className="text-xs font-extrabold text-emerald-700 mb-0.5">Pembahasan</p><p className="text-sm text-slate-700 whitespace-pre-line">{ex.answer}</p></div>}
                   </div>
                 ))}
+              </div>
+            ) : practice.length > 0 ? (
+              <div className="p-6 min-h-[260px] space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="font-extrabold text-[#0F1E4A]">Latihan Soal · {practice.length} soal</h3>
+                  {checked && <span className={cn('text-sm font-extrabold px-3 py-1 rounded-lg', score >= 70 ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700')}>Skor {score}</span>}
+                </div>
+                {practice.map((q, qi) => (
+                  <div key={qi} className="rounded-xl border border-slate-200 p-4">
+                    <p className="text-sm font-bold text-[#0F1E4A] mb-2 whitespace-pre-line">{qi + 1}. {q.question}</p>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {q.options.map((opt, oi) => {
+                        const chosen = picked[qi] === oi;
+                        const tone = !checked ? (chosen ? 'border-violet-500 bg-violet-50 text-violet-800' : 'border-slate-200 hover:border-slate-300')
+                          : oi === q.answer ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : chosen ? 'border-red-400 bg-red-50 text-red-700' : 'border-slate-200 opacity-70';
+                        return (
+                          <button key={oi} disabled={checked} onClick={() => setPicked({ ...picked, [qi]: oi })} className={cn('text-left rounded-lg border-2 px-3 py-2 text-sm font-semibold', tone)}>
+                            {String.fromCharCode(65 + oi)}. {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+                {!checked ? (
+                  <button onClick={() => { setChecked(true); markDone(lesson.id); }} disabled={Object.keys(picked).length < practice.length} className="h-11 px-6 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-sm font-bold">Periksa Jawaban</button>
+                ) : (
+                  <button onClick={() => { setPicked({}); setChecked(false); }} className="h-11 px-6 rounded-xl border border-violet-300 text-violet-700 text-sm font-bold">Ulangi Latihan</button>
+                )}
               </div>
             ) : (
               <div className="p-6 min-h-[260px] flex flex-col items-center justify-center text-center">
@@ -213,14 +258,17 @@ export default function CourseDetail() {
             <Card className="p-4 bg-slate-50/60">
               <h3 className="font-extrabold text-[#0F1E4A] text-sm mb-2">Materi Pendukung</h3>
               <div className="space-y-2">
-                {(chapterLessons[0].files ?? []).map((f) => (
-                  <div key={f.name} className="flex items-center gap-3">
+                {files.length === 0 && <p className="text-sm text-slate-500 font-medium">Belum ada lampiran.</p>}
+                {files.map((f) => (
+                  <div key={f.name + (f.url ?? '')} className="flex items-center gap-3">
                     <span className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><FileText className="w-5 h-5" /></span>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-[#0F1E4A]">{f.name}</p>
-                      <p className="text-xs text-slate-500">{f.size}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-[#0F1E4A] truncate">{f.name}</p>
+                      {f.size && <p className="text-xs text-slate-500">{f.size}</p>}
                     </div>
-                    <button onClick={() => toast.success(`Mengunduh ${f.name}`)} aria-label={`Unduh ${f.name}`} className="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-[#1D4ED8] hover:bg-blue-50"><Download className="w-4 h-4" /></button>
+                    {f.url
+                      ? <a href={f.url} target="_blank" rel="noreferrer" aria-label={`Buka ${f.name}`} className="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-[#1D4ED8] hover:bg-blue-50"><Download className="w-4 h-4" /></a>
+                      : <button onClick={() => toast.info('Lampiran belum memiliki tautan', { description: 'Hubungi tutor untuk mendapatkan berkas.' })} aria-label={`Unduh ${f.name}`} className="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-[#1D4ED8] hover:bg-blue-50"><Download className="w-4 h-4" /></button>}
                   </div>
                 ))}
               </div>

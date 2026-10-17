@@ -273,7 +273,7 @@ export default function LessonDetail() {
                             <p className="font-bold text-sm text-slate-900 truncate group-hover:text-blue-600 transition-colors">
                               {doc.name}
                             </p>
-                            <p className="text-xs text-slate-400 font-mono mt-0.5">
+                            <p className="text-xs text-slate-400 tabular-nums mt-0.5">
                               Format: {doc.type.toUpperCase()} • Ukuran: {doc.size}
                             </p>
                           </div>

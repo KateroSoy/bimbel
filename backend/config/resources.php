@@ -31,7 +31,7 @@ return [
         'ref' => ['24', 5], 'seed' => ['admin', 'STUDENTS'],
     ],
     'registrations' => [
-        'cols' => 'date:s time:s name:s gender:s age:i program:s source:s status:s stage:s stage_note:s',
+        'cols' => 'date:s time:s name:s gender:s age:i program:s source:s status:s stage:s stage_note:s parent_name:s phone:s email:s school:s level:s method:s note:t',
         'req' => ['name'], 'search' => ['name', 'ref'], 'read' => $admin, 'write' => $admin,
         'ref' => ['REG-', 4], 'seed' => ['admin', 'REGISTRATIONS'],
     ],
@@ -114,6 +114,16 @@ return [
         'req' => ['title'], 'search' => ['title'], 'read' => $admin, 'write' => $admin,
         'ref' => ['N', 0], 'seed' => ['admin', 'NOTIFICATIONS'],
     ],
+    'placement-tests' => [
+        'cols' => 'name:s age:i grade:s school:s parent:s phone:s subject:s correct:i total:i score:i level:s answers:j date:s status:s note:t',
+        'req' => ['name', 'subject'], 'search' => ['name', 'parent', 'school'], 'read' => $admin, 'write' => $admin,
+        'ref' => ['TKD-', 4],
+    ],
+    'alumni' => [
+        'cols' => 'name:s program:s year:s school:s continued_to:s achievement:s phone:s status:s note:t',
+        'req' => ['name'], 'search' => ['name', 'program', 'school'], 'read' => $admin, 'write' => $admin,
+        'ref' => ['ALM-', 4], 'seed' => ['admin', 'ALUMNI'],
+    ],
     'inventory-items' => [
         'cols' => 'item_code:s name:s category:s quantity:i unit:s location:s condition:s purchase_date:s price_per_unit:m total_value:m status:s notes:t',
         'req' => ['name'], 'search' => ['name', 'item_code'], 'read' => $admin, 'write' => $admin,
@@ -167,7 +177,7 @@ return [
         'ref' => ['P', 0], 'seed' => ['guru', 'ANNOUNCEMENTS'],
     ],
     'live-classes' => [
-        'cols' => 'subject_id:s topic:s day_name:s date:s date_short:s start:s end:s room:s status:s meet_url:s opened_by_tutor:b',
+        'cols' => 'subject_id:s topic:s day_name:s date:s date_short:s start:s end:s room:s status:s meet_url:s opened_by_tutor:b mode:s',
         'req' => ['topic'], 'search' => ['topic'], 'read' => $all, 'write' => $staff,
         'ref' => ['LC', 0], 'seed' => ['siswa', 'LIVE_CLASSES'],
     ],
@@ -184,7 +194,7 @@ return [
 
     // ---------------------------------------------------------------- Tutor (owner scoped)
     'tutor-classes' => [
-        'cols' => 'name:s code:s subject:s days:s time:s students:i status:s tone:s',
+        'cols' => 'name:s code:s subject:s days:s time:s students:i status:s tone:s mode:s meet_url:s room:s',
         'req' => ['name'], 'search' => ['name', 'code'], 'read' => $staff, 'write' => $staff,
         'owner' => 'tutor', 'ref' => ['', 0], 'seed' => ['guru', 'CLASSES'],
     ],
@@ -219,7 +229,7 @@ return [
         'owner' => 'tutor', 'ref' => ['2024', 3], 'seed' => ['guru', 'ATTENTION'],
     ],
     'questions' => [
-        'cols' => 'text:t type:s subject:s topic:s grade:s level:s mine:b fav:b',
+        'cols' => 'text:t type:s subject:s topic:s grade:s level:s mine:b fav:b folder:s',
         'req' => ['text'], 'search' => ['text', 'topic'], 'read' => $staff, 'write' => $staff,
         'owner' => 'tutor', 'ref' => ['Q', 0], 'seed' => ['guru', 'QUESTIONS'],
     ],
