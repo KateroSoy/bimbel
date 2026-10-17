@@ -38,7 +38,8 @@ tar -C backend --exclude=./vendor --exclude=./.env --exclude=./node_modules --ex
   | "${SSH[@]}" "mkdir -p ~/$REMOTE_APP && tar -xzf - -C ~/$REMOTE_APP"
 
 echo "==> Installing dependencies and migrating"
-"${SSH[@]}" "cd ~/$REMOTE_APP && composer install --no-dev --optimize-autoloader --no-interaction --quiet \
+# Shared hosting caps processes: Composer's parallel unzips fail with "Unable to launch a new process"
+"${SSH[@]}" "cd ~/$REMOTE_APP && COMPOSER_MAX_PARALLEL_PROCESSES=1 composer install --no-dev --optimize-autoloader --no-interaction --quiet \
   && php artisan migrate --force --no-ansi | tail -3 \
   && { [ '${SEED:-0}' != '1' ] || php artisan db:seed --force --no-ansi | tail -2; } \
   && php artisan config:cache --no-ansi | tail -1 && php artisan route:cache --no-ansi | tail -1 \
