@@ -180,6 +180,7 @@ const getSidebarItems = (role: string): SidebarSection[] => {
           heading: 'PROGRAM & KELAS',
           items: [
             { title: 'Program Bimbel', path: '/admin/course', icon: <BookOpen className="w-5 h-5" /> },
+            { title: 'Course Digital', path: '/admin/course-digital', icon: <BookOpen className="w-5 h-5" /> },
             { title: 'Kelas & Rombel', path: '/admin/kelas', icon: <UsersRound className="w-5 h-5" /> },
             { title: 'Jadwal Kelas', path: '/admin/jadwal-kelas', icon: <CalendarDays className="w-5 h-5" /> },
             { title: 'Ruang & Kapasitas', path: '/admin/ruang', icon: <DoorOpen className="w-5 h-5" /> },

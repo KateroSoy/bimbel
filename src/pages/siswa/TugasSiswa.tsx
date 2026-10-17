@@ -10,8 +10,6 @@ import { cn } from '../../lib/utils';
 import { useDataStore, type Assignment } from '../../store/useDataStore';
 import { ADMIN_WA, TASK_MODE_LABEL, taskContentFor, type TaskMode } from '../../data/siswaPortal';
 
-const NOW = new Date('2024-11-26T09:00'); // tanggal demo agar sisa waktu konsisten
-
 const MODE_ICON: Record<TaskMode, typeof ListChecks> = { 'pilihan-ganda': ListChecks, isian: PencilLine, file: Upload };
 
 const subjectVisual = (subject: string) => {
@@ -27,7 +25,7 @@ const fmtDeadline = (iso: string) => {
   return {
     date: d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
     time: d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':'),
-    daysLeft: Math.ceil((d.getTime() - NOW.getTime()) / 86400000),
+    daysLeft: Math.ceil((d.getTime() - Date.now()) / 86400000),
   };
 };
 

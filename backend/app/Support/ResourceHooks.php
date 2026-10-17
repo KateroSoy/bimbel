@@ -118,6 +118,9 @@ class ResourceHooks
         if (! $student || ! $assignment) {
             throw ValidationException::withMessages(['assignmentId' => 'Tugas tidak ditemukan.']);
         }
+        if (($assignment->mode ?? ($assignment->type === 'quiz' ? 'pilihan-ganda' : 'file')) === 'file' && empty($data['file_path'])) {
+            throw ValidationException::withMessages(['file' => 'Berkas tugas wajib diunggah.']);
+        }
 
         $data += ['answers' => null, 'file_name' => null];
         $data['student_id'] = $student->ref;

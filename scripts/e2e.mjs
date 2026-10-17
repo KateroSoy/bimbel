@@ -8,23 +8,28 @@ import path from 'node:path';
 const BASE = process.argv[2] || 'http://127.0.0.1:3107';
 const SHOTS = process.argv[3];
 const PASSWORD = process.env.SEED_PASSWORD || 'LearnSpace#2026';
+const VIEWPORT = process.env.E2E_VIEWPORT === 'mobile' ? { width: 390, height: 844 } : { width: 1536, height: 1024 };
 if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
 
 const ROUTES = {
-  admin: ['dashboard', 'notifikasi', 'siswa', 'pendaftaran', 'ortu', 'guru', 'jadwal-tutor', 'kehadiran-tutor', 'beban', 'course', 'kelas', 'jadwal-kelas', 'ruang',
-    'keuangan', 'pembayaran', 'piutang', 'pengeluaran', 'honor', 'laporan-keuangan', 'whatsapp', 'inventaris', 'laporan', 'pengumuman', 'pengaturan', 'alumni'],
+  admin: ['dashboard', 'notifikasi', 'siswa', 'pendaftaran', 'ortu', 'guru', 'jadwal-tutor', 'kehadiran-tutor', 'beban', 'course', 'course-digital', 'kelas', 'jadwal-kelas', 'ruang',
+    'keuangan', 'pembayaran', 'piutang', 'pengeluaran', 'honor', 'laporan-keuangan', 'whatsapp', 'inventaris', 'laporan', 'laporan-siswa', 'laporan-kelas', 'laporan-tutor', 'laporan-operasional', 'pengumuman', 'pengaturan', 'alumni'],
   guru: ['dashboard', 'kelas', 'kelas/1', 'jadwal', 'course', 'course/kelola', 'tugas', 'tugas/1', 'absensi', 'siswa', 'nilai', 'nilai/input', 'progress-siswa', 'bank-soal',
     'ai-bahan-ajar', 'pengumuman', 'pesan', 'profil', 'pengaturan'],
-  siswa: ['dashboard', 'jadwal', 'course', 'course/math-p3', 'tugas', 'tugas/1', 'nilai', 'absensi', 'spp', 'profil', 'pengaturan', 'pengumuman', 'sertifikat'],
+  siswa: ['dashboard', 'jadwal', 'course', 'course/math-p3', 'tugas', 'tugas/1', 'katalog-tes', 'toefl', 'nilai', 'absensi', 'spp', 'profil', 'pengaturan', 'pengumuman', 'sertifikat'],
 };
 const ACCOUNTS = { admin: 'admin@studyhack.id', guru: 'budi.santoso@studyhack.id', siswa: 'andi.pratama@email.com' };
 
 const failures = [];
 const fail = (msg) => { failures.push(msg); console.log(`  FAIL ${msg}`); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const browser = await puppeteer.launch({ headless: true });
+const browser = await puppeteer.launch({
+  headless: true,
+  ...(process.env.PUPPETEER_EXECUTABLE_PATH ? { executablePath: process.env.PUPPETEER_EXECUTABLE_PATH } : {}),
+  args: ['--no-sandbox'],
+});
 
-async function newPage(viewport = { width: 1536, height: 1024 }) {
+async function newPage(viewport = VIEWPORT) {
   const context = await browser.createBrowserContext();
   const page = await context.newPage();
   await page.setViewport(viewport);
@@ -39,8 +44,9 @@ async function login(page, email, password = PASSWORD) {
   await page.goto(`${BASE}/login`, { waitUntil: 'networkidle2' });
   await page.type('input[type=email]', email);
   await page.type('input[type=password]', password);
-  await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle2' }).catch(() => undefined), page.click('button[type=submit]')]);
-  await sleep(800);
+  await page.click('button[type=submit]');
+  await page.waitForFunction(() => location.pathname !== '/login' || document.body.innerText.includes('Email atau password salah'), { timeout: 10000 });
+  await sleep(400);
 }
 
 const heading = (page) => page.evaluate(() => (document.querySelector('main h1, main h2')?.textContent || '').trim().slice(0, 40));
@@ -106,6 +112,16 @@ for (const [role, routes] of Object.entries(ROUTES)) {
   await page.type('main input[placeholder^="Cari nama orang tua"]', name);
   await sleep(400);
   if (!(await page.evaluate((n) => document.querySelector('main table')?.innerText.includes(n), name))) fail('guardian added through the UI is missing after reload');
+  const cleaned = await page.evaluate(async (n) => {
+    const token = JSON.parse(localStorage.getItem('LearnSpace+-storage') || '{}')?.state?.token;
+    const headers = { Accept: 'application/json', Authorization: `Bearer ${token}` };
+    const list = await fetch(`/api/r/guardians?q=${encodeURIComponent(n)}`, { headers });
+    if (!list.ok) return false;
+    const row = (await list.json()).data.find((item) => item.name === n);
+    if (!row) return false;
+    return (await fetch(`/api/r/guardians/${encodeURIComponent(row.id)}`, { method: 'DELETE', headers })).ok;
+  }, name);
+  if (!cleaned) fail('could not clean up guardian created by browser test');
   for (const problem of new Set(page.problems)) fail(`ui write: ${problem}`);
   await page.close();
 }

@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Record;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -166,14 +168,28 @@ class LearningTest extends TestCase
 
     public function test_tutor_grades_file_submissions_and_students_cannot(): void
     {
+        Storage::fake('local');
         $this->actingAsRole('guru');
         $task = $this->postJson('/api/r/assignments', ['title' => 'Esai', 'type' => 'tugas', 'mode' => 'file', 'status' => 'Aktif'])->json('data.id');
         $this->postJson('/api/r/submissions', ['assignmentId' => $task])->assertForbidden();
 
         [$user] = $this->makeStudent();
         Sanctum::actingAs($user);
-        $submission = $this->postJson('/api/r/submissions', ['assignmentId' => $task, 'fileName' => 'esai.pdf'])->assertCreated()
+        $this->postJson('/api/r/submissions', ['assignmentId' => $task, 'fileName' => 'esai.pdf'])->assertUnprocessable();
+        $submission = $this->post('/api/student/submissions/file', ['assignmentId' => $task, 'file' => UploadedFile::fake()->create('esai.pdf', 10, 'application/pdf')], ['Accept' => 'application/json'])->assertCreated()
             ->assertJsonPath('data.status', 'Perlu Dinilai')->assertJsonPath('data.score', null)->json('data.id');
+        $path = DB::table('submissions')->where('ref', $submission)->value('file_path');
+        Storage::disk('local')->assertExists($path);
+        $this->get("/api/submissions/$submission/file", ['Accept' => 'application/json'])->assertOk();
+        $this->post('/api/student/submissions/file', ['assignmentId' => $task, 'file' => UploadedFile::fake()->create('wrong.txt', 1, 'text/plain')], ['Accept' => 'application/json'])->assertUnprocessable();
+        $this->post('/api/student/submissions/file', ['assignmentId' => $task, 'file' => UploadedFile::fake()->create('revision.pdf', 10, 'application/pdf')], ['Accept' => 'application/json'])->assertOk()->assertJsonPath('data.id', $submission);
+        Storage::disk('local')->assertMissing($path);
+        $path = DB::table('submissions')->where('ref', $submission)->value('file_path');
+        Storage::disk('local')->assertExists($path);
+        $this->getJson('/api/r/submissions')->assertJsonPath('data.0.hasFile', true)->assertJsonMissingPath('data.0.filePath');
+        Sanctum::actingAs($this->makeStudent('Other')[0]);
+        $this->get("/api/submissions/$submission/file", ['Accept' => 'application/json'])->assertForbidden();
+        Sanctum::actingAs($user);
         $this->putJson("/api/r/submissions/$submission", ['score' => 100])->assertForbidden();
         $this->deleteJson("/api/r/submissions/$submission")->assertForbidden();
 
@@ -186,6 +202,11 @@ class LearningTest extends TestCase
 
         Sanctum::actingAs($user);
         $this->getJson('/api/r/submissions')->assertOk()->assertJsonPath('data.0.score', 88)->assertJsonPath('data.0.feedback', 'Bagus');
+
+        $this->actingAsRole('guru');
+        $this->deleteJson("/api/r/assignments/$task")->assertOk();
+        $this->assertDatabaseMissing('submissions', ['ref' => $submission]);
+        Storage::disk('local')->assertMissing($path);
     }
 
     public function test_portal_returns_only_the_students_own_data(): void

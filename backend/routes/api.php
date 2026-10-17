@@ -5,6 +5,7 @@ use App\Http\Controllers\CourseContentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SubmissionFileController;
 use App\Http\Controllers\StudentPortalController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('settings', [SettingsController::class, 'update'])->middleware('role:admin');
 
     Route::get('admin/dashboard', [DashboardController::class, 'admin'])->middleware('role:admin');
+    Route::get('admin/reports/{section}', [DashboardController::class, 'report'])->middleware('role:admin');
+    Route::post('student/submissions/file', [SubmissionFileController::class, 'store'])->middleware('role:siswa');
+    Route::get('submissions/{submission}/file', [SubmissionFileController::class, 'download']);
 
     Route::prefix('student')->middleware('role:siswa')->group(function () {
         Route::get('portal', [StudentPortalController::class, 'portal']);

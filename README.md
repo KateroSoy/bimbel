@@ -17,6 +17,16 @@ The SPA talks to the API under `/api`. Almost every list is a "resource" declare
 
 PHP 8.2+, Composer 2, Node 20+, MySQL / MariaDB (or SQLite for local work).
 
+### Fast local start on this Windows workspace
+
+The workspace has a private local MariaDB on `127.0.0.1:3317`. The ignored `backend/.env` is configured for it. From the repository root run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-local.ps1
+```
+
+The script starts MariaDB when needed, applies pending migrations, and starts the API and UI at `http://127.0.0.1:8000` and `http://127.0.0.1:3001`. It never deploys. The bundled database directory is ignored by Git; on another machine, install MariaDB/MySQL and configure `backend/.env` from `backend/.env.example` first.
+
 ## Install and run locally
 
 ```bash
@@ -43,15 +53,23 @@ Starter accounts (password = `SEED_PASSWORD`, default `LearnSpace#2026` — chan
 
 Students can also self-register on the login page; tutor and admin accounts are created by the operator.
 
+Admins manage published digital courses, modules, lessons, and enrollment at `/admin/course-digital`. Tutors can manage course content at `/guru/course/kelola`; enrollment remains an admin action. Enrolled students see published content under `/siswa/course`.
+
 ## Tests
 
 ```bash
-cd backend && php artisan test                      # 128 feature tests, in-memory SQLite
+cd backend && php artisan test                      # 130 feature tests, in-memory SQLite
 node scripts/e2e.mjs http://127.0.0.1:3001          # browser pass: real login per role, every page
+node scripts/e2e-upload.mjs http://127.0.0.1:3001   # file upload + authenticated download; cleans up its rows
+node scripts/e2e-course.mjs http://127.0.0.1:3001   # course UI + MySQL + student view; cleans up its rows
 npm run lint                                        # TypeScript check
+npm run build                                       # production bundle
 ```
 
 To run the PHP suite against MySQL, export `DB_CONNECTION=mysql DB_HOST=… DB_DATABASE=<scratch db> DB_USERNAME=… DB_PASSWORD=…` before `php artisan test`.
+Use a scratch database for MySQL tests: the suite migrates and clears its tables. On Windows, set `PUPPETEER_EXECUTABLE_PATH` to an installed Chrome executable if Puppeteer's cached browser is inaccessible.
+
+Uploaded student assignments are stored on Laravel's private local disk and downloaded only through the authenticated API. Back up `backend/storage/app/private` with the database. Set PHP `upload_max_filesize` above 20 MB and `post_max_size` above that value when hosting.
 
 ## Deployment
 

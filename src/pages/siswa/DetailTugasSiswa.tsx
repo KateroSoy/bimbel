@@ -6,6 +6,7 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, Pill } from '../../components/siswa/PortalUI';
 import { cn } from '../../lib/utils';
 import { useDataStore } from '../../store/useDataStore';
+import { saveDownload } from '../../lib/api';
 import { STUDENT, TASK_MODE_LABEL, taskContentFor } from '../../data/siswaPortal';
 
 const MAX_MB = 20;
@@ -19,7 +20,7 @@ export default function DetailTugasSiswa() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const assignment = assignments.find((a) => a.id === id) ?? assignments[0];
+  const assignment = assignments.find((a) => a.id === id);
   if (!assignment) {
     return <DashboardLayout><Card className="p-8 text-center">Tugas tidak ditemukan. <Link to="/siswa/tugas" className="text-[#1D4ED8] font-bold">Kembali</Link></Card></DashboardLayout>;
   }
@@ -57,7 +58,8 @@ export default function DetailTugasSiswa() {
     const saved = await addSubmission({
       assignmentId: assignment.id,
       answers: content.mode === 'pilihan-ganda' ? choices : content.mode === 'isian' ? answers : undefined,
-      fileName: summary.slice(0, 190),
+      fileName: content.mode === 'file' ? undefined : summary.slice(0, 190),
+      file: content.mode === 'file' ? file! : undefined,
     });
     setIsSubmitting(false);
     if (saved) toast.success(saved.score !== null ? `Jawaban terkirim! Nilai kamu: ${saved.score}` : 'Tugas terkirim dan menunggu penilaian tutor.');
@@ -123,6 +125,7 @@ export default function DetailTugasSiswa() {
                 <p className="text-sm font-bold text-[#0F1E4A] break-words">{submission!.fileName}</p>
                 <p className="text-xs text-slate-500">Dikirim: {submission!.submittedAt}</p>
               </div>
+              {submission!.hasFile && <button type="button" onClick={() => void saveDownload(`/submissions/${encodeURIComponent(submission!.id)}/file`, submission!.fileName || 'tugas').catch(() => toast.error('Berkas tidak dapat diunduh.'))} className="ml-auto rounded-lg bg-white px-3 py-2 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100">Unduh</button>}
             </div>
           </Card>
         ) : (

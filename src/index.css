@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "@fontsource-variable/geist";
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
 
   --color-sekolah-bg: #F8FBFF;
   --color-sekolah-primary: #2563EB;
@@ -59,13 +59,13 @@
 /* Landing page typography follows the StudyHack reference (rounded sans) */
 .landing-font,
 .landing-font :is(h1, h2, h3, h4, h5, h6, button, input, select) {
-  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* LearnSpace+ student portal typography */
 .portal-font,
 .portal-font :is(h1, h2, h3, h4, h5, h6, button, input, select, textarea) {
-  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Rapor: only the print sheet is visible when printing */

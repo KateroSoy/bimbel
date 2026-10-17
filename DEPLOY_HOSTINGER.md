@@ -42,7 +42,8 @@ The script runs the backend tests, builds the SPA, backs up `public_html`, uploa
 
 - PHP version: hPanel → Advanced → PHP Configuration → 8.2 or newer; extensions `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `tokenizer`, `xml`, `ctype`.
 - Permissions: `storage/` and `bootstrap/cache/` must be writable (the script runs `chmod -R ug+rwX`).
-- No cron, queue worker or `storage:link` is needed: the API is stateless and stores no uploaded files.
+- No cron, queue worker or `storage:link` is needed. Student assignment files are stored under Laravel's private `storage/app/private`; keep that directory writable and back it up with the database.
+- Set PHP `upload_max_filesize` above 20 MB and `post_max_size` above that value for assignment uploads.
 - Seeder policy: `db:seed` only runs when `SEED=1` and does nothing once any user exists.
 - Rollback: `tar -xzf ~/deploy-backups/bimbel-<stamp>.tgz -C ~/domains/<site>/public_html` restores the previous SPA; database changes are forward-only migrations.
 - `.env` and `vendor/` are never uploaded from your machine and are not web accessible.

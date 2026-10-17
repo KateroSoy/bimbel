@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /** Generic CRUD for every table in config/resources.php. */
@@ -92,7 +94,22 @@ class ResourceController extends Controller
             abort(403);
         }
         $row = $this->scoped($resource, $user)->where('ref', $id)->firstOrFail();
-        $row->delete();
+        $paths = DB::transaction(function () use ($resource, $row) {
+            $paths = [];
+            if ($resource === 'assignments') {
+                $submissions = Resources::model('submissions')->newQuery()->where('assignment_id', $row->ref);
+                $paths = $submissions->pluck('file_path')->filter()->all();
+                $submissions->delete();
+            } elseif ($resource === 'submissions' && $row->file_path) {
+                $paths[] = $row->file_path;
+            }
+            $row->delete();
+
+            return $paths;
+        });
+        foreach ($paths as $path) {
+            Storage::disk('local')->delete($path);
+        }
         ResourceHooks::saved($resource, $row);
 
         return response()->json(['ok' => true]);
@@ -138,6 +155,11 @@ class ResourceController extends Controller
 
     private function present(string $resource, Record $row, User $user): array
     {
-        return ResourceHooks::present($resource, Resources::present($resource, $row), $user);
+        $data = ResourceHooks::present($resource, Resources::present($resource, $row), $user);
+        if ($resource === 'submissions') {
+            $data['hasFile'] = (bool) $row->file_path;
+        }
+
+        return $data;
     }
 }

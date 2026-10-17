@@ -1,81 +1,86 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { Toaster } from 'sonner';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import KarirPage from './pages/KarirPage';
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const KarirPage = lazy(() => import('./pages/KarirPage'));
 
 // Siswa
-import StudentDashboard from './pages/siswa/StudentDashboard';
-import CourseList from './pages/siswa/CourseList';
-import CourseDetail from './pages/siswa/CourseDetail';
-import LessonDetail from './pages/siswa/LessonDetail';
-import Quiz from './pages/siswa/Quiz';
-import SiswaProfil from './pages/siswa/SiswaProfil';
-import SiswaPengaturan from './pages/siswa/SiswaPengaturan';
-import JadwalBelajar from './pages/siswa/JadwalBelajar';
-import AbsensiSiswa from './pages/siswa/AbsensiSiswa';
-import PembayaranSppSiswa from './pages/siswa/PembayaranSppSiswa';
-import TugasSiswa from './pages/siswa/TugasSiswa';
-import DetailTugasSiswa from './pages/siswa/DetailTugasSiswa';
-import NilaiSiswa from './pages/siswa/NilaiSiswa';
-import SertifikatSiswa from './pages/siswa/SertifikatSiswa';
+const StudentDashboard = lazy(() => import('./pages/siswa/StudentDashboard'));
+const CourseList = lazy(() => import('./pages/siswa/CourseList'));
+const CourseDetail = lazy(() => import('./pages/siswa/CourseDetail'));
+const LessonDetail = lazy(() => import('./pages/siswa/LessonDetail'));
+const SiswaProfil = lazy(() => import('./pages/siswa/SiswaProfil'));
+const SiswaPengaturan = lazy(() => import('./pages/siswa/SiswaPengaturan'));
+const JadwalBelajar = lazy(() => import('./pages/siswa/JadwalBelajar'));
+const AbsensiSiswa = lazy(() => import('./pages/siswa/AbsensiSiswa'));
+const PembayaranSppSiswa = lazy(() => import('./pages/siswa/PembayaranSppSiswa'));
+const TugasSiswa = lazy(() => import('./pages/siswa/TugasSiswa'));
+const DetailTugasSiswa = lazy(() => import('./pages/siswa/DetailTugasSiswa'));
+const NilaiSiswa = lazy(() => import('./pages/siswa/NilaiSiswa'));
+const SertifikatSiswa = lazy(() => import('./pages/siswa/SertifikatSiswa'));
 
-import KatalogTes from './pages/siswa/KatalogTes';
-import Toefl from './pages/siswa/Toefl';
+const KatalogTes = lazy(() => import('./pages/siswa/KatalogTes'));
+const Toefl = lazy(() => import('./pages/siswa/Toefl'));
 
 
 // Guru / Tutor
-import TeacherDashboard from './pages/guru/TeacherDashboard';
-import KelasSaya from './pages/guru/KelasSaya';
-import JadwalMengajar from './pages/guru/JadwalMengajar';
-import MateriModul from './pages/guru/MateriModul';
-import TugasAssessment from './pages/guru/TugasAssessment';
-import PresensiKelas from './pages/guru/PresensiKelas';
-import SiswaSaya from './pages/guru/SiswaSaya';
-import NilaiProgress from './pages/guru/NilaiProgress';
-import SiswaPerluPerhatian from './pages/guru/SiswaPerluPerhatian';
-import BankSoalGuru from './pages/guru/BankSoalGuru';
-import AiBahanAjar from './pages/guru/AiBahanAjar';
-import PengumumanGuru from './pages/guru/PengumumanGuru';
-import PesanGuru from './pages/guru/PesanGuru';
-import ProfilGuru from './pages/guru/ProfilGuru';
-import PengaturanGuru from './pages/guru/PengaturanGuru';
-import ManajemenCourseGuru from './pages/guru/ManajemenCourseGuru';
-import NilaiSiswaGuru from './pages/guru/NilaiSiswaGuru';
-import DetailKelasGuru from './pages/guru/DetailKelasGuru';
-import DetailTugasGuru from './pages/guru/DetailTugasGuru';
+const TeacherDashboard = lazy(() => import('./pages/guru/TeacherDashboard'));
+const KelasSaya = lazy(() => import('./pages/guru/KelasSaya'));
+const JadwalMengajar = lazy(() => import('./pages/guru/JadwalMengajar'));
+const MateriModul = lazy(() => import('./pages/guru/MateriModul'));
+const TugasAssessment = lazy(() => import('./pages/guru/TugasAssessment'));
+const PresensiKelas = lazy(() => import('./pages/guru/PresensiKelas'));
+const SiswaSaya = lazy(() => import('./pages/guru/SiswaSaya'));
+const NilaiProgress = lazy(() => import('./pages/guru/NilaiProgress'));
+const SiswaPerluPerhatian = lazy(() => import('./pages/guru/SiswaPerluPerhatian'));
+const BankSoalGuru = lazy(() => import('./pages/guru/BankSoalGuru'));
+const AiBahanAjar = lazy(() => import('./pages/guru/AiBahanAjar'));
+const PengumumanGuru = lazy(() => import('./pages/guru/PengumumanGuru'));
+const PesanGuru = lazy(() => import('./pages/guru/PesanGuru'));
+const ProfilGuru = lazy(() => import('./pages/guru/ProfilGuru'));
+const PengaturanGuru = lazy(() => import('./pages/guru/PengaturanGuru'));
+const CourseManager = lazy(() => import('./pages/shared/CourseManager'));
+const NilaiSiswaGuru = lazy(() => import('./pages/guru/NilaiSiswaGuru'));
+const DetailKelasGuru = lazy(() => import('./pages/guru/DetailKelasGuru'));
+const DetailTugasGuru = lazy(() => import('./pages/guru/DetailTugasGuru'));
 
 // Admin
-import AdminDashboard from './pages/admin/AdminDashboard';
-import NotifikasiAdmin from './pages/admin/NotifikasiAdmin';
-import DataSiswa from './pages/admin/DataSiswa';
-import PendaftaranSiswa from './pages/admin/PendaftaranSiswa';
-import OrangTuaWali from './pages/admin/OrangTuaWali';
-import DataTutorStaff from './pages/admin/DataTutorStaff';
-import JadwalTutor from './pages/admin/JadwalTutor';
-import KehadiranTutor from './pages/admin/KehadiranTutor';
-import BebanMengajar from './pages/admin/BebanMengajar';
-import ProgramBimbel from './pages/admin/ProgramBimbel';
-import KelasRombel from './pages/admin/KelasRombel';
-import JadwalKelas from './pages/admin/JadwalKelas';
-import RuangKapasitas from './pages/admin/RuangKapasitas';
-import SppTagihan from './pages/admin/SppTagihan';
-import PembayaranAdmin from './pages/admin/PembayaranAdmin';
-import Piutang from './pages/admin/Piutang';
-import Pengeluaran from './pages/admin/Pengeluaran';
-import HonorTutor from './pages/admin/HonorTutor';
-import LaporanKeuangan from './pages/admin/LaporanKeuangan';
-import KirimWaOrtu from './pages/admin/KirimWaOrtu';
-import InventarisBimbel from './pages/admin/InventarisBimbel';
-import ManajemenSiswa from './pages/admin/ManajemenSiswa';
-import Laporan from './pages/admin/Laporan';
-import PengaturanSekolah from './pages/admin/PengaturanSekolah';
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const NotifikasiAdmin = lazy(() => import('./pages/admin/NotifikasiAdmin'));
+const DataSiswa = lazy(() => import('./pages/admin/DataSiswa'));
+const PendaftaranSiswa = lazy(() => import('./pages/admin/PendaftaranSiswa'));
+const OrangTuaWali = lazy(() => import('./pages/admin/OrangTuaWali'));
+const DataTutorStaff = lazy(() => import('./pages/admin/DataTutorStaff'));
+const JadwalTutor = lazy(() => import('./pages/admin/JadwalTutor'));
+const KehadiranTutor = lazy(() => import('./pages/admin/KehadiranTutor'));
+const BebanMengajar = lazy(() => import('./pages/admin/BebanMengajar'));
+const ProgramBimbel = lazy(() => import('./pages/admin/ProgramBimbel'));
+const KelasRombel = lazy(() => import('./pages/admin/KelasRombel'));
+const JadwalKelas = lazy(() => import('./pages/admin/JadwalKelas'));
+const RuangKapasitas = lazy(() => import('./pages/admin/RuangKapasitas'));
+const SppTagihan = lazy(() => import('./pages/admin/SppTagihan'));
+const PembayaranAdmin = lazy(() => import('./pages/admin/PembayaranAdmin'));
+const Piutang = lazy(() => import('./pages/admin/Piutang'));
+const Pengeluaran = lazy(() => import('./pages/admin/Pengeluaran'));
+const HonorTutor = lazy(() => import('./pages/admin/HonorTutor'));
+const LaporanKeuangan = lazy(() => import('./pages/admin/LaporanKeuangan'));
+const KirimWaOrtu = lazy(() => import('./pages/admin/KirimWaOrtu'));
+const InventarisBimbel = lazy(() => import('./pages/admin/InventarisBimbel'));
+const ManajemenSiswa = lazy(() => import('./pages/admin/ManajemenSiswa'));
+const Laporan = lazy(() => import('./pages/admin/Laporan'));
+const PengaturanSekolah = lazy(() => import('./pages/admin/PengaturanSekolah'));
 
 // Shared
-import PlaygroundPage from './pages/PlaygroundPage';
+const PlaygroundPage = lazy(() => import('./pages/PlaygroundPage'));
 import { PageTransition } from './components/layout/PageTransition';
 import { Guard } from './components/auth/Guard';
+
+function QuizRedirect() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={id ? `/siswa/tugas/${encodeURIComponent(id)}` : '/siswa/katalog-tes'} replace />;
+}
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -98,8 +103,8 @@ function AnimatedRoutes() {
         <Route path="/siswa/spp" element={<Guard role="siswa"><PageTransition><PembayaranSppSiswa /></PageTransition></Guard>} />
         <Route path="/siswa/tugas" element={<Guard role="siswa"><PageTransition><TugasSiswa /></PageTransition></Guard>} />
         <Route path="/siswa/tugas/:id" element={<Guard role="siswa"><PageTransition><DetailTugasSiswa /></PageTransition></Guard>} />
-        <Route path="/siswa/quiz" element={<Guard role="siswa"><PageTransition><Quiz /></PageTransition></Guard>} />
-        <Route path="/siswa/quiz/:id" element={<Guard role="siswa"><PageTransition><Quiz /></PageTransition></Guard>} />
+        <Route path="/siswa/quiz" element={<Guard role="siswa"><Navigate to="/siswa/katalog-tes" replace /></Guard>} />
+        <Route path="/siswa/quiz/:id" element={<Guard role="siswa"><QuizRedirect /></Guard>} />
         <Route path="/siswa/nilai" element={<Guard role="siswa"><PageTransition><NilaiSiswa /></PageTransition></Guard>} />
         <Route path="/siswa/sertifikat" element={<Guard role="siswa"><PageTransition><SertifikatSiswa /></PageTransition></Guard>} />
         <Route path="/siswa/katalog-tes" element={<Guard role="siswa"><PageTransition><KatalogTes /></PageTransition></Guard>} />
@@ -114,7 +119,7 @@ function AnimatedRoutes() {
         <Route path="/guru/kelas/:id" element={<Guard role="guru"><PageTransition><DetailKelasGuru /></PageTransition></Guard>} />
         <Route path="/guru/jadwal" element={<Guard role="guru"><PageTransition><JadwalMengajar /></PageTransition></Guard>} />
         <Route path="/guru/course" element={<Guard role="guru"><PageTransition><MateriModul /></PageTransition></Guard>} />
-        <Route path="/guru/course/kelola" element={<Guard role="guru"><PageTransition><ManajemenCourseGuru /></PageTransition></Guard>} />
+        <Route path="/guru/course/kelola" element={<Guard role="guru"><PageTransition><CourseManager /></PageTransition></Guard>} />
         <Route path="/guru/tugas" element={<Guard role="guru"><PageTransition><TugasAssessment /></PageTransition></Guard>} />
         <Route path="/guru/tugas/:id" element={<Guard role="guru"><PageTransition><DetailTugasGuru /></PageTransition></Guard>} />
         <Route path="/guru/quiz" element={<Guard role="guru"><PageTransition><TugasAssessment /></PageTransition></Guard>} />
@@ -143,6 +148,7 @@ function AnimatedRoutes() {
         <Route path="/admin/kehadiran-tutor" element={<Guard role="admin"><PageTransition><KehadiranTutor /></PageTransition></Guard>} />
         <Route path="/admin/beban" element={<Guard role="admin"><PageTransition><BebanMengajar /></PageTransition></Guard>} />
         <Route path="/admin/course" element={<Guard role="admin"><PageTransition><ProgramBimbel /></PageTransition></Guard>} />
+        <Route path="/admin/course-digital" element={<Guard role="admin"><PageTransition><CourseManager /></PageTransition></Guard>} />
         <Route path="/admin/kelas" element={<Guard role="admin"><PageTransition><KelasRombel /></PageTransition></Guard>} />
         <Route path="/admin/jadwal-kelas" element={<Guard role="admin"><PageTransition><JadwalKelas /></PageTransition></Guard>} />
         <Route path="/admin/ruang" element={<Guard role="admin"><PageTransition><RuangKapasitas /></PageTransition></Guard>} />
@@ -184,7 +190,7 @@ export default function App() {
   const basename = (rawBase === '/' || rawBase === './') ? undefined : rawBase.replace(/\/$/, '');
   return (
     <Router basename={basename}>
-      <AnimatedRoutes />
+      <Suspense fallback={<div role="status" className="min-h-screen flex items-center justify-center text-slate-600">Memuat halaman…</div>}><AnimatedRoutes /></Suspense>
       <Toaster position="top-right" richColors />
     </Router>
   );

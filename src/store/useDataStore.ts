@@ -117,6 +117,7 @@ export interface Submission {
   score: number | null;
   feedback?: string;
   fileName?: string;
+  hasFile?: boolean;
   answers?: Record<string, number | string> | null;
 }
 
@@ -304,7 +305,7 @@ interface DataState {
   deleteAssignment: (id: string) => void;
 
   // Submission / Grading
-  addSubmission: (submission: { assignmentId: string; answers?: Record<string, number | string>; fileName?: string }) => Promise<Submission | null>;
+  addSubmission: (submission: { assignmentId: string; answers?: Record<string, number | string>; fileName?: string; file?: File }) => Promise<Submission | null>;
   gradeSubmission: (id: string, score: number, feedback?: string) => void;
 
   // Question Pack CRUD
@@ -410,8 +411,8 @@ export const useDataStore = create<DataState>()((set, get) => {
     hydrate: async (role) => {
       set({ ...EMPTY, loadedFor: null });
       const [settings, ...lists] = await Promise.all([
-        api.get<{ data: SchoolSettings }>('/settings').then((r) => r.data).catch(() => emptySettings),
-        ...LOADS[role].map(([, resource]) => list(resource).catch(() => [] as Row[])),
+        api.get<{ data: SchoolSettings }>('/settings').then((r) => r.data),
+        ...LOADS[role].map(([, resource]) => list(resource)),
       ]);
       const next: Row = { schoolSettings: settings, loadedFor: role };
       LOADS[role].forEach(([key, , map], i) => { next[key as string] = lists[i].map(map); });
@@ -431,7 +432,16 @@ export const useDataStore = create<DataState>()((set, get) => {
     // Pengumpulan tugas: identitas siswa dan nilai pilihan ganda ditentukan server.
     addSubmission: async (submission) => {
       try {
-        const { data } = await api.post<{ data: Submission }>('/r/submissions', submission);
+        let response: { data: Submission };
+        if (submission.file) {
+          const form = new FormData();
+          form.append('assignmentId', submission.assignmentId);
+          form.append('file', submission.file);
+          response = await api.postForm<{ data: Submission }>('/student/submissions/file', form);
+        } else {
+          response = await api.post<{ data: Submission }>('/r/submissions', submission);
+        }
+        const { data } = response;
         set((s) => ({
           submissions: [data, ...s.submissions.filter((x) => x.id !== data.id)],
           assignments: s.assignments.map((a) => (a.id === data.assignmentId && !s.submissions.some((x) => x.id === data.id) ? { ...a, submitted: Math.min(a.total || Infinity, a.submitted + 1) } : a)),

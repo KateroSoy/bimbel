@@ -38,25 +38,25 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` completed · `[!]` block
 - [x] T041 Settings API + Pengaturan Lembaga
 - [x] T042 Inventaris, WA log, alumni, announcements on the API
 - [x] T043 Demo data removed from the front-end bundle (`src/data/*` now hold types only)
-- [ ] T044 `/admin/laporan*` (5 legacy report menus) still render the old static charts — needs real report queries
-- [ ] T045 Enrollment / module / lesson management has API + tests but no admin screen (no approved UI for it)
+- [x] T044 `/admin/laporan*` (5 report menus) now use live aggregate queries and CSV export
+- [x] T045 Admin/tutor course editor for courses, modules, and lessons; admin enrollment; browser creation-to-student check
 
 ## P2 — Verification
-- [x] T050 Full test suite green on SQLite (128 tests)
+- [x] T050 Full test suite green on SQLite (130 tests)
 - [x] T051 Full test suite + `migrate:fresh --seed` on MariaDB 11.4
-- [x] T052 Browser pass (`scripts/e2e.mjs`): guards, real login per role, all 57 role pages, a UI write surviving reload
-- [-] T053 UI regression: spot-checked login, admin dashboard, student dashboard; not compared page by page
+- [x] T052 Browser pass (`scripts/e2e.mjs`): guards, real login per role, all routed core pages on desktop and phone widths, a UI write surviving reload
+- [-] T053 UI regression: mobile overflow checks passed and report screen visually inspected; not compared page by page against reference art
 
 ## P2 — Production
 - [x] T060 `.env.example`, `DEPLOY_HOSTINGER.md`, `docs/10-DEPLOYMENT.md`, README
 - [x] T061 Deploy script: API + SPA + `/api` rewrite (front controller verified locally)
-- [!] T062 Deploy to Hostinger — needs a MySQL database + user created in hPanel and a server `.env`
+- [ ] T062 Deploy to Hostinger — intentionally deferred by request; later requires a MySQL database + user in hPanel and a server `.env`
 - [x] T063 `docs/04-DATABASE-SCHEMA.md` generated from the registry (`php artisan docs:schema`)
 
 ## P3 — Optional / external
 - [ ] T070 Real AI provider for "AI Pembuat Bahan Ajar" (drafts are template-based and stored)
 - [ ] T071 WhatsApp gateway for parent notifications (messages are logged, not sent)
-- [ ] T072 File uploads for assignment submissions (only the file name is stored)
+- [x] T072 Assignment files stored privately, validated, and downloaded through the authenticated API
 - [!] T073 Mail provider credentials for reset links in production
 - [ ] T074 Dates are stored as display strings; move to DATE columns when reporting needs ranges
 - [ ] T075 Remove unrouted legacy pages (`ManajemenGuru`, `ManajemenKeuangan`, `AbsensiKelasGuru`, …)

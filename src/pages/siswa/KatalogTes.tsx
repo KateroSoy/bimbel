@@ -1,80 +1,37 @@
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { motion } from 'motion/react';
-import { Play, CheckCircle2, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CheckCircle2, Clock, ListChecks } from 'lucide-react';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { useDataStore } from '../../store/useDataStore';
 
 export default function KatalogTes() {
-  const tests = [
-    {
-      id: 1,
-      title: 'Tes Minat Bakat (100 Detik)',
-      duration: '2 Menit',
-      status: 'Selesai',
-      score: '98%',
-      color: 'bg-blue-50 text-blue-700',
-    },
-    {
-      id: 2,
-      title: 'Tes Logika & Penalaran',
-      duration: '45 Menit',
-      status: 'Belum Mulai',
-      score: '-',
-      color: 'bg-purple-50 text-purple-700',
-    },
-    {
-      id: 3,
-      title: 'Kuesioner Gaya Belajar',
-      duration: '15 Menit',
-      status: 'Belum Mulai',
-      score: '-',
-      color: 'bg-emerald-50 text-emerald-700',
-    }
-  ];
+  const { assignments, submissions } = useDataStore();
+  const tests = assignments.filter((item) => item.type === 'quiz' && item.status === 'Aktif');
 
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Katalog Tes</h2>
-          <p className="text-slate-500">Pilih dan kerjakan tes yang tersedia untuk mengetahui potensimu.</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900 mb-2">Katalog Tes</h1>
+          <p className="text-slate-600">Kuis yang diterbitkan tutor. Nilai dihitung dan disimpan oleh sistem setelah dikumpulkan.</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tests.map((test, index) => (
-            <motion.div
-              key={test.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="glass p-6 rounded-2xl border border-white/40 hover:shadow-lg transition-all"
-            >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${test.color}`}>
-                <Play className="w-6 h-6" />
+        {tests.length === 0 && <p className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">Belum ada tes yang tersedia.</p>}
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {tests.map((test) => {
+            const submission = submissions.find((item) => item.assignmentId === test.id);
+            return <article key={test.id} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><ListChecks className="h-6 w-6" /></span>
+              <h2 className="text-lg font-bold text-slate-900">{test.title}</h2>
+              <p className="mt-1 text-sm text-slate-600">{test.subject || 'Tes umum'}</p>
+              <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-600">
+                <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" /> {test.duration ? `${test.duration} menit` : 'Tanpa batas waktu'}</span>
+                <span className="inline-flex items-center gap-1"><ListChecks className="h-4 w-4" /> {test.questions?.length ?? 0} soal</span>
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">{test.title}</h3>
-              
-              <div className="flex items-center gap-4 mb-6 text-sm text-slate-500">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  {test.duration}
-                </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" />
-                  {test.status}
-                </div>
-              </div>
-
-              {test.status === 'Selesai' ? (
-                <Link to="/siswa/profil" className="block w-full py-2.5 rounded-xl font-medium text-center transition-colors bg-emerald-50 text-emerald-600 hover:bg-emerald-100">
-                  Lihat Hasil
-                </Link>
-              ) : (
-                <Link to="/siswa/quiz/1" className="block w-full py-2.5 rounded-xl font-medium text-center transition-colors bg-blue-600 text-white hover:bg-blue-700">
-                  Mulai Tes
-                </Link>
-              )}
-            </motion.div>
-          ))}
+              {submission && <p className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-emerald-700"><CheckCircle2 className="h-4 w-4" /> {submission.score === null ? 'Menunggu penilaian' : `Nilai ${submission.score}/100`}</p>}
+              <Link to={`/siswa/tugas/${test.id}`} className="mt-5 block rounded-xl bg-blue-700 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-blue-800">
+                {submission ? 'Lihat hasil' : 'Kerjakan tes'}
+              </Link>
+            </article>;
+          })}
         </div>
       </div>
     </DashboardLayout>

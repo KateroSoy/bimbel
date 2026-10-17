@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Folder, FileText, RefreshCw, Plus, Sigma, FlaskConical, Languages, SquareRadical, type LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { PageHead, StatStrip, Tabs, SearchInput, Select, DataTable, Badge, Btn, RowMenu, Meter, FormDialog, soon, type Col } from '../../components/portal/Kit';
+import { PageHead, StatStrip, Tabs, SearchInput, Select, DataTable, Badge, Btn, RowMenu, Meter, FormDialog, type Col } from '../../components/portal/Kit';
 import { useDataStore } from '../../store/useDataStore';
 import { type MaterialRow, type ModuleRow, type TutorClass } from '../../data/guruPortal';
 import { useResource } from '../../store/useRemote';
@@ -48,7 +48,7 @@ export default function MateriModul() {
       header: 'AKSI', align: 'center',
       cell: (m) => (
         <div className="inline-flex items-center gap-2">
-          <Btn to="/guru/course/kelola">Buka Materi</Btn>
+          <Btn to="/guru/course/kelola">Course Digital</Btn>
           <RowMenu items={[
             m.status === 'Draft' ? { label: 'Publikasikan', onClick: () => setStatus(m.id, 'Published') } : { label: 'Jadikan Draft', onClick: () => setStatus(m.id, 'Draft') },
             { label: 'Ajukan Perubahan Topik', onClick: () => setRequesting(true) },
@@ -68,7 +68,7 @@ export default function MateriModul() {
             { icon: FileText, value: rows.filter((m) => m.status === 'Draft').length + modules.filter((m) => m.status === 'Draft').length, label: 'draft', color: '#7C3AED' },
             { icon: RefreshCw, value: rows.filter((m) => m.progress < 70).length, label: 'perlu diperbarui', color: '#EF4444' },
           ]}
-          action={<Btn variant="primary" icon={Plus} onClick={() => setAdding(true)}>Tambah Materi</Btn>}
+          action={<Btn variant="primary" icon={Plus} onClick={() => setAdding(true)}>Tambah Materi Kelas</Btn>}
         />
         <Tabs tabs={['Materi Kelas', 'Modul', 'Bank Materi']} value={tab} onChange={setTab} />
 
@@ -92,7 +92,7 @@ export default function MateriModul() {
               { header: 'TOPIK', align: 'center', cell: (m) => `${m.topics} topik` },
               { header: 'DIPERBARUI', cell: (m) => m.updated },
               { header: 'STATUS', cell: (m) => <Badge>{m.status}</Badge> },
-              { header: 'AKSI', align: 'center', cell: (m) => <div className="inline-flex gap-2"><Btn size="sm" to="/guru/course/kelola">Buka</Btn><RowMenu items={[{ label: 'Hapus', danger: true, onClick: async () => { if (await moduleRes.remove(m.id)) toast.success('Modul dihapus'); } }]} /></div> },
+              { header: 'AKSI', align: 'center', cell: (m) => <div className="inline-flex gap-2"><Btn size="sm" to="/guru/course/kelola">Course Digital</Btn><RowMenu items={[{ label: 'Hapus', danger: true, onClick: async () => { if (await moduleRes.remove(m.id)) toast.success('Modul dihapus'); } }]} /></div> },
             ]}
           />
         )}
@@ -108,16 +108,16 @@ export default function MateriModul() {
               { header: 'MATERI', align: 'center', cell: (c) => `${c.lessons ?? 0} materi` },
               { header: 'SISWA', align: 'center', cell: (c) => c.students },
               { header: 'STATUS', cell: (c) => <Badge>{c.status}</Badge> },
-              { header: 'AKSI', align: 'center', cell: () => <Btn size="sm" onClick={() => soon('Gunakan materi dari Bank Materi')}>Gunakan</Btn> },
+              { header: 'AKSI', align: 'center', cell: () => <Btn size="sm" to="/guru/course/kelola">Kelola</Btn> },
             ]}
           />
         )}
 
-        <RequestChangeBanner text="Struktur Course Master (unit & topik) dikelola oleh Admin. Jika ada topik yang perlu ditambahkan atau perubahan, ajukan permintaan melalui Ajukan Perubahan." onClick={() => setRequesting(true)} />
+        <RequestChangeBanner text="Ajukan perubahan topik kelas melalui formulir ini. Untuk modul yang tampil di portal siswa, buka Course Digital; admin mendaftarkan pesertanya." onClick={() => setRequesting(true)} />
 
         <FormDialog
           open={adding}
-          title="Tambah Materi"
+          title="Tambah Materi Kelas"
           fields={[
             { key: 'title', label: 'Judul Materi / Modul', required: true },
             { key: 'kelas', label: 'Kelas', type: 'select', options: CLASS_NAMES },

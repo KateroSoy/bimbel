@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { create } from 'zustand';
 import { LoaderCircle } from 'lucide-react';
@@ -39,6 +39,7 @@ useAppStore.subscribe((state, previous) => {
  * role's data before rendering. The server enforces the same rules; this only decides what to show.
  */
 export function Guard({ role, children }: { role: Role; children: ReactNode }) {
+  const [error, setError] = useState('');
   const { user, token } = useAppStore();
   const loadedFor = useDataStore((s) => s.loadedFor);
   const portalReady = usePortal((s) => s.ready);
@@ -47,12 +48,22 @@ export function Guard({ role, children }: { role: Role; children: ReactNode }) {
 
   useEffect(() => {
     if (!allowed) return;
-    if (useDataStore.getState().loadedFor !== role) void useDataStore.getState().hydrate(role);
-    if (role === 'siswa' && !usePortal.getState().ready) void usePortal.getState().load().catch(() => undefined);
+    if (useDataStore.getState().loadedFor !== role) void useDataStore.getState().hydrate(role).catch(() => setError('Data portal tidak dapat dimuat. Periksa koneksi lalu coba lagi.'));
+    if (role === 'siswa' && !usePortal.getState().ready) void usePortal.getState().load().catch(() => setError('Data siswa tidak dapat dimuat. Periksa koneksi lalu coba lagi.'));
   }, [allowed, role]);
 
   if (!token || !user) return <Navigate to="/login" replace />;
   if (user.role !== role) return <Navigate to={`/${user.role}/dashboard`} replace />;
+  if (error && !ready) {
+    return <div className="min-h-screen bg-[#F7F9FD] flex flex-col items-center justify-center gap-3 p-6 text-center text-slate-700" role="alert">
+      <p className="font-semibold">{error}</p>
+      <button type="button" className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white" onClick={() => {
+        setError('');
+        if (useDataStore.getState().loadedFor !== role) void useDataStore.getState().hydrate(role).catch(() => setError('Data portal tidak dapat dimuat. Periksa koneksi lalu coba lagi.'));
+        if (role === 'siswa' && !usePortal.getState().ready) void usePortal.getState().load().catch(() => setError('Data siswa tidak dapat dimuat. Periksa koneksi lalu coba lagi.'));
+      }}>Coba lagi</button>
+    </div>;
+  }
   if (!ready) {
     return (
       <div className="min-h-screen bg-[#F7F9FD] flex items-center justify-center text-slate-500" role="status">

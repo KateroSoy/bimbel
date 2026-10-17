@@ -33,7 +33,7 @@ echo "==> Backing up current site on server"
 "${SSH[@]}" "mkdir -p ~/deploy-backups && tar -czf ~/deploy-backups/bimbel-$STAMP.tgz -C ~/$REMOTE_DIR . && ls -t ~/deploy-backups/bimbel-*.tgz | tail -n +6 | xargs -r rm -f"
 
 echo "==> Uploading API"
-tar -C backend --exclude=./vendor --exclude=./.env --exclude=./node_modules --exclude=./tests --exclude='./database/*.sqlite' \
+tar -C backend --exclude=./vendor --exclude=./.env --exclude=./node_modules --exclude=./tests --exclude='./database/*.sqlite' --exclude='./storage/app/private/*' \
     --exclude='./storage/logs/*.log' --exclude='./storage/framework/cache/data/*' --exclude='./storage/framework/views/*.php' --exclude=./.phpunit.cache -czf - . \
   | "${SSH[@]}" "mkdir -p ~/$REMOTE_APP && tar -xzf - -C ~/$REMOTE_APP"
 

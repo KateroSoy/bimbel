@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useDataStore, Submission } from '../../store/useDataStore';
 import { GradingDialog } from '../../components/common/GradingDialog';
 import { toast } from 'sonner';
+import { saveDownload } from '../../lib/api';
 
 export default function DetailTugasGuru() {
   const { id } = useParams<{ id: string }>();
@@ -13,21 +14,9 @@ export default function DetailTugasGuru() {
   const [gradingOpen, setGradingOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Find assignment or take the first one as fallback
-  const assignment = assignments.find((a) => a.id === id) || assignments[0] || {
-    id: '1',
-    title: 'Makalah Sejarah Kemerdekaan',
-    kelas: 'X IPA 1',
-    subject: 'Sejarah',
-    deadline: '2024-11-25T23:59',
-    description: 'Buat makalah sejarah...',
-    submitted: 28,
-    total: 32,
-    status: 'Aktif' as const,
-    type: 'tugas' as const
-  };
+  const assignment = assignments.find((a) => a.id === id);
 
-  const taskSubmissions = submissions.filter((s) => s.assignmentId === assignment.id || !s.assignmentId);
+  const taskSubmissions = submissions.filter((s) => s.assignmentId === assignment?.id);
 
   const filteredSubmissions = taskSubmissions.filter((s) => 
     s.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -47,8 +36,21 @@ export default function DetailTugasGuru() {
   };
 
   const handleExport = () => {
-    toast.success(`Daftar nilai untuk ${assignment.title} berhasil diekspor ke Excel`);
+    if (!assignment) return;
+    const rows = [['Siswa', 'NIS', 'Dikumpulkan', 'Status', 'Nilai'], ...taskSubmissions.map((s) => [s.studentName, s.studentNis, s.submittedAt ?? '', s.status, s.score ?? ''])];
+    const csv = rows.map((row) => row.map((value) => {
+      const text = String(value);
+      return `"${(typeof value === 'string' && /^[\s]*[=+@\-]/.test(text) ? `'${text}` : text).replaceAll('"', '""')}"`;
+    }).join(',')).join('\r\n');
+    const url = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `nilai-${assignment.id}.csv`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
+
+  if (!assignment) return <DashboardLayout><div className="p-8 text-center text-slate-600">Tugas tidak ditemukan. <Link to="/guru/tugas" className="font-bold text-blue-700">Kembali ke daftar tugas</Link></div></DashboardLayout>;
 
   return (
     <DashboardLayout>
@@ -163,9 +165,8 @@ export default function DetailTugasGuru() {
                     <td className="p-4 text-slate-600 text-xs font-medium">{s.submittedAt || '-'}</td>
                     <td className="p-4 text-slate-600 text-xs">
                       {s.fileName ? (
-                        <span className="flex items-center gap-1 text-blue-600 font-medium">
-                          <FileText className="w-3.5 h-3.5" /> {s.fileName}
-                        </span>
+                        s.hasFile ? <button type="button" onClick={() => void saveDownload(`/submissions/${encodeURIComponent(s.id)}/file`, s.fileName || 'tugas').catch(() => toast.error('Berkas tidak dapat diunduh.'))} className="flex items-center gap-1 text-blue-600 font-medium hover:underline"><FileText className="w-3.5 h-3.5" /> {s.fileName}</button>
+                          : <span className="flex items-center gap-1 text-slate-600 font-medium"><FileText className="w-3.5 h-3.5" /> {s.fileName}</span>
                       ) : (
                         <span className="text-slate-400">-</span>
                       )}
